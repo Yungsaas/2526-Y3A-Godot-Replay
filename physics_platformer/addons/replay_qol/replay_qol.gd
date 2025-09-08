@@ -1,12 +1,16 @@
 @tool
 extends EditorPlugin
 
+var button : Button
 
 func _enter_tree() -> void:
-	# Initialization of the plugin goes here.
-	pass
+	button = Button.new()
+	button.text = "My tool button"
+	
+	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, button)
 
 
 func _exit_tree() -> void:
-	# Clean-up of the plugin goes here.
-	pass
+	remove_control_from_docks(button)
+	
+	button.queue_free()
