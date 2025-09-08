@@ -3,6 +3,10 @@
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/string.hpp"
+#include "godot_cpp/variant/transform3d.hpp"
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 
 class Temp_save_replay:public godot::Node{
 
@@ -14,11 +18,18 @@ class Temp_save_replay:public godot::Node{
     static void _bind_methods();
 
     private:
-    godot::Array tracked_nodes;
-    
+    std::vector<godot::Node*> tracked_nodes;
+    std::unordered_multimap<int, std::tuple<godot::Node*,godot::Transform3D>> temporary_data_map;
+    bool is_recording = false;
+    int recording_frame = 0;
+
     public:
     bool add_node(godot::Node* node);
 
     void debug_print_array();
+
+    void start_recording();
+    void stop_recording();
     
+    void update();
 };
