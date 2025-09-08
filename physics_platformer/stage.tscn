@@ -277,7 +277,7 @@ position = Vector2(1554, 369)
 
 [node name="MovePlatforms" type="AnimationPlayer" parent="Props"]
 libraries = {
-"": SubResource("AnimationLibrary_el48w")
+&"": SubResource("AnimationLibrary_el48w")
 }
 autoplay = "move"
 
