@@ -1,8 +1,11 @@
-[gd_scene format=3 uid="uid://bf5parkbhxuvo"]
+[gd_scene load_steps=2 format=3 uid="uid://bf5parkbhxuvo"]
+
+[ext_resource type="Script" uid="uid://c82njoqos71di" path="res://addons/replay_qol/record_panel.gd" id="1_i1mk1"]
 
 [node name="RecordPanel" type="VBoxContainer"]
 offset_right = 68.0
 offset_bottom = 66.0
+script = ExtResource("1_i1mk1")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
@@ -18,3 +21,5 @@ layout_mode = 2
 modulate = Color(1, 0, 0, 1)
 layout_mode = 2
 text = "Record"
+
+[connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_button_pressed"]
