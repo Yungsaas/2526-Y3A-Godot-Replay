@@ -32,7 +32,8 @@ class Temp_save_replay:public godot::Node{
     public:
     bool add_node(godot::Node* node);
 
-    void debug_print_array();
+    void debug_print_node_array();
+    void debug_print_position_data();
 
     void start_recording();
     void stop_recording();
