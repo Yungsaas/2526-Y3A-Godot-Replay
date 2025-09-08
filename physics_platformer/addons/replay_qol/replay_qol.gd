@@ -1,16 +1,18 @@
 @tool
 extends EditorPlugin
 
-var button : Button
+var panel
+
+const TOOL_PANEL = preload("res://addons/replay_qol/Record_Panel.tscn")
 
 func _enter_tree() -> void:
-	button = Button.new()
-	button.text = "My tool button"
+	panel = TOOL_PANEL.instantiate()
+	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, panel)
 	
-	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, button)
 
 
 func _exit_tree() -> void:
-	remove_control_from_docks(button)
+	remove_control_from_docks(panel)
 	
-	button.queue_free()
+	panel.queue_free()
+	
