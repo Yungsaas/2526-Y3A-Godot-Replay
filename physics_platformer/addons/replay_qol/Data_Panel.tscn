@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://c21uki2g2fq6o"]
+
+[node name="DataPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0

@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://ckesjq3f67jtn"]
+
+[ext_resource type="Script" uid="uid://bvcgr3mtmje3c" path="res://addons/replay_qol/selection_panel.gd" id="1_cxyd2"]
+
+[node name="SelectionPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_cxyd2")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 201.0
+offset_top = 173.0
+offset_right = 522.0
+offset_bottom = 253.0
