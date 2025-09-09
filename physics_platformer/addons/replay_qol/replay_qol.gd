@@ -10,6 +10,8 @@ const SELECTION_PANEL = preload("res://addons/replay_qol/Selection_Panel.tscn")
 var data_panel
 const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
 
+var recorder:Temp_save_replay = Temp_save_replay.new()
+
 func _enter_tree() -> void:
 	record_panel = RECORD_PANEL.instantiate()
 	add_control_to_bottom_panel(record_panel, "Record_Panel")
@@ -19,7 +21,7 @@ func _enter_tree() -> void:
 	
 	data_panel = DATA_PANEL.instantiate()
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
-	
+	record_panel.set_recorder(recorder)
 
 
 func _exit_tree() -> void:

@@ -214,17 +214,17 @@ self_modulate = Color(1, 1, 1, 0.26702)
 position = Vector2(10, 1.5)
 rotation = -1.45648
 emitting = false
+texture = ExtResource("3")
 lifetime = 0.3
 one_shot = true
 explosiveness = 1.0
-texture = ExtResource("3")
 spread = 65.84
 gravity = Vector2(0, -15)
 color_ramp = SubResource("2")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_30623")
+&"": SubResource("AnimationLibrary_30623")
 }
 
 [node name="Camera2D" type="Camera2D" parent="."]

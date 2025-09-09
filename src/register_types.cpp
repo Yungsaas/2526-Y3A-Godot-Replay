@@ -1,5 +1,6 @@
 // Include your classes, that you want to expose to Godot
 
+#include "temp_save_replay.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
@@ -14,7 +15,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	}
 
 	// Register your classes here, so they are available in the Godot editor and engine
-	
+	GDREGISTER_CLASS(Temp_save_replay)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

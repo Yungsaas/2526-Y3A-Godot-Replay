@@ -1,15 +1,33 @@
 import subprocess
 import sys
 import os
+import shutil  # Import shutil for file operations
 
 # Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(SCRIPT_DIR)
 
+# This is only used for copying the gdextension to another godot project
+SOURCE_FOLDER = os.path.join(PARENT_DIR, 'test_project/replay_qol')  # Replace with your source folder path
+DESTINATION_FOLDER = os.path.join(PARENT_DIR, 'physics_platformer/replay_qol')  # Replace with your destination folder path
+
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def copy_folder():
+    """Remove old content in the destination folder and copy new content from the source folder."""
+    try:
+        # Remove the destination folder if it exists
+        if os.path.exists(DESTINATION_FOLDER):
+            shutil.rmtree(DESTINATION_FOLDER)  # Remove the existing folder
+
+        # Copy the source folder to the destination
+        shutil.copytree(SOURCE_FOLDER, DESTINATION_FOLDER)
+        print(f"Successfully copied '{SOURCE_FOLDER}' to '{DESTINATION_FOLDER}'.")
+    except Exception as e:
+        print(f"Error while copying folder: {e}")
+        
 def run_scons_build():
     """Run 'scons compiledb=yes' from the project root and show output in real-time."""
     try:
@@ -43,6 +61,8 @@ def run_scons_build():
             print("\nCompilation finished successfully.")
             print("A debug build for your current OS and architecture was added to the bin folder.")
             print("The compile_commands.json file was also updated to improve IntelliSense support.")
+
+            copy_folder()
         else:
             print("\nCompilation FAILED:")
             print(''.join(stderr_lines).strip() or "Unknown error occurred.")
