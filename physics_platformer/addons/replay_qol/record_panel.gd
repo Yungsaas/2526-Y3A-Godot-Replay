@@ -11,12 +11,14 @@ func _on_button_pressed() -> void:
 	if recorder:
 		if is_recording:
 			recorder.stop_recording()
-			print("Stop recording.")
+			print("Stopped recording.")
 			recorder.debug_print_positions()
 			is_recording = false
+			$Button.text = "Record"
 		else:
 			recorder.start_recording()
-			print("Start recording")
+			print("Started recording")
 			recorder.debug_print_array()
 			is_recording = true
+			$Button.text = "Stop recording"
 	pass # Replace with function body.
