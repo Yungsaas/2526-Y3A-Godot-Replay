@@ -1,25 +1,33 @@
 @tool
-extends EditorPlugin
+extends Control
 
-@onready var add_button: Button = $Button
-@onready var tree: Tree = $Tree
+var editor_interface  # Remove the type hint
 
-var nodes: Array[NodePath] = []  # store node paths
+
+@onready var add_button: Button = $VBoxContainer/Button
+@onready var tree: Tree = $VBoxContainer/Tree
+var nodes: Array[NodePath] = []
 
 func _ready():
-	tree.create_item() # root item
+	tree.create_item()
 
 func _on_button_pressed() -> void:
-	var editor = get_editor_interface()
-	var selected = editor.get_selection().get_selected_nodes()
-	if selected.size() > 0:
-		var node = selected[0]
+	if editor_interface == null:
+		push_error("EditorInterface is null! Make sure plugin passes it correctly.")
+		return
+
+	var selection = editor_interface.get_selection().get_selected_nodes()
+	if selection.size() > 0:
+		var node = selection[0]
 		var path = node.get_path()
 		if not nodes.has(path):
+			nodes.append(path)
+			_add_to_tree(node)
 			print("Node added in list")
 		else:
 			print("Node already in list")
-			
+
+
 func _add_to_tree(node: Node):
 	var root_item = tree.get_root()
 	var item = tree.create_item(root_item)

@@ -17,6 +17,7 @@ func _enter_tree() -> void:
 	add_control_to_bottom_panel(record_panel, "Record_Panel")
 	
 	selection_panel = SELECTION_PANEL.instantiate()
+	selection_panel.editor_interface = get_editor_interface() # Pass editor interface to panel
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, selection_panel)
 	
 	data_panel = DATA_PANEL.instantiate()
