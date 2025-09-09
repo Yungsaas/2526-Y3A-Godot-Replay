@@ -86,8 +86,6 @@ void Temp_save_replay::start_recording()
 void Temp_save_replay::stop_recording()
 {
     is_recording = false;
-    recording_frame = 0;
-
     // TODO: write to json here
 }
 
