@@ -2,6 +2,7 @@
 
 #include "temp_save_replay.hpp"
 #include "godot_cpp/classes/node.hpp"
+#include "godot_cpp/classes/node2d.hpp"
 #include "godot_cpp/classes/node3d.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
@@ -24,11 +25,44 @@ void Temp_save_replay::debug_print_array()
     }
 }
 
+void Temp_save_replay::debug_print_positions()
+{
+    godot::print_line("Printing recorded positions: ");
+    for(int currentFrame = 0; currentFrame < recording_frame; currentFrame++)
+    {
+        // Print all data for each frame
+        auto range2d = temporary_data_map_2d_pos.equal_range(currentFrame);
+        auto range3d = temporary_data_map_3d_pos.equal_range(currentFrame);
+
+                godot::print_line("\nFrame: " + godot::String::num(currentFrame) + "\n2D positions:");
+        for(auto it = range2d.first; it !=range2d.second; it++)
+        {
+            auto node = std::get<0>(it->second);
+            auto position = std::get<1>(it->second);
+            godot::print_line("Node: " + node->get_name() + 
+            " Position: \nX: " + godot::String::num(position.get_origin().x) 
+            + "\nY: " + godot::String::num(position.get_origin().y));
+        }
+
+        godot::print_line("\n3D positions:");
+        for(auto it = range3d.first; it !=range3d.second; it++)
+        {
+            auto node = std::get<0>(it->second);
+            auto position = std::get<1>(it->second);
+            godot::print_line("Node: " + node->get_name() + 
+            " Position: \nX: " + godot::String::num(position.get_origin().x) 
+            + "\nY: " + godot::String::num(position.get_origin().y)
+            + "\nZ: " + godot::String::num(position.get_origin().z));
+        }
+    }
+}
+
 void Temp_save_replay::start_recording()
 {
     is_recording = true;
     recording_frame = 0;
-    temporary_data_map.clear();
+    temporary_data_map_3d_pos.clear();
+    temporary_data_map_2d_pos.clear();
 }
 
 void Temp_save_replay::stop_recording()
@@ -36,8 +70,10 @@ void Temp_save_replay::stop_recording()
     is_recording = false;
     recording_frame = 0;
 
-    // Maybe serialize into json here if permanent recording is wanted
+    // TODO: write to json here
 }
+
+
 
 void Temp_save_replay::update()
 {
@@ -46,9 +82,14 @@ void Temp_save_replay::update()
     for(auto node : tracked_nodes)
     {
         auto node3d = godot::Object::cast_to<godot::Node3D>(node);
+        auto node2d = godot::Object::cast_to<godot::Node2D>(node);
         if(node3d)
         {
-            temporary_data_map.emplace(recording_frame, std::make_tuple(node, node3d->get_transform()));
+            temporary_data_map_3d_pos.emplace(recording_frame, std::make_tuple(node, node3d->get_transform()));
+        }
+        if(node2d)
+        {
+            temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, node2d->get_transform()));
         }
     }
 
