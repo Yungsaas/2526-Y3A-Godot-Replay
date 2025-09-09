@@ -3,6 +3,7 @@ extends Control
 
 var editor_interface
 
+var recorder:Temp_save_replay = Temp_save_replay.new()
 
 @onready var add_button: Button = $VBoxContainer/AddButton
 @onready var removeButton: Button = $VBoxContainer/Button2
@@ -20,12 +21,12 @@ func _on_add_button_pressed() -> void:
 	var selection = editor_interface.get_selection().get_selected_nodes()
 	if selection.size() > 0:
 		var node = selection[0]
+		recorder.add_node(node)
 		var path = node.get_path()
 		if not nodes.has(path):
 			nodes.append(path)
 			_add_to_tree(node)
 			print("Node added in list")
-			
 			
 		else:
 			print("Node already in list")

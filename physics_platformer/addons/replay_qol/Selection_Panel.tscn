@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://co71dvmmvqk38"]
 
-[ext_resource type="Script" path="res://addons/replay_qol/v_box_container.gd" id="1_cxyd2"]
+[ext_resource type="Script" uid="uid://ddymt3hj2sswe" path="res://addons/replay_qol/v_box_container.gd" id="1_cxyd2"]
 
 [node name="SelectionPanel" type="Control"]
 layout_mode = 3
