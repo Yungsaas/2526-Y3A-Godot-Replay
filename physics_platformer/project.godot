@@ -36,6 +36,10 @@ window/stretch/scale_mode="integer"
 
 project/assembly_name="Physics-Based Platformer 2D"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/replay_qol/plugin.cfg")
+
 [importer_defaults]
 
 texture={
