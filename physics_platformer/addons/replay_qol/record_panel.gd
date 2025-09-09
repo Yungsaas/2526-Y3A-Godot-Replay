@@ -22,3 +22,7 @@ func _on_button_pressed() -> void:
 			is_recording = true
 			$Button.text = "Stop recording"
 	pass # Replace with function body.
+
+func _exit_tree() -> void:
+	$Button.text = "Record"
+	is_recording = false

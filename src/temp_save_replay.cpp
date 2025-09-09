@@ -12,16 +12,34 @@
 
 bool Temp_save_replay::add_node(godot::Node* node)
 {
-    if(std::find(tracked_nodes.begin(), tracked_nodes.end(), node) != tracked_nodes.end()) return false;
-
+    if(std::find(tracked_nodes.begin(), tracked_nodes.end(), node) != tracked_nodes.end())
+    {
+        godot::print_line("Node " + node->get_name() + " is already in the list");
+        return false;
+    } 
+    godot::print_line("Node " + node->get_name() + " has been added to the recording list");
     tracked_nodes.push_back(node);
     return true;
 }
 
+bool Temp_save_replay::remove_node(godot::Node* node)
+{
+    auto node_to_remove = std::find(tracked_nodes.begin(), tracked_nodes.end(), node);
+    if(node_to_remove != tracked_nodes.end())
+    {
+        tracked_nodes.erase(node_to_remove);
+    godot::print_line("Node " + node->get_name() + " has been removed from recording list");
+        return true;
+    }
+    godot::print_line("Node " + node->get_name() + " was not found in the recording list");
+    return false;
+}
+
 void Temp_save_replay::debug_print_array()
 {
-    for (auto nodeIn : tracked_nodes) {
-    godot::print_line(nodeIn);
+    for (auto nodeIn : tracked_nodes) 
+    {
+        godot::print_line("Node: " + nodeIn->get_name());
     }
 }
 
@@ -101,6 +119,7 @@ void Temp_save_replay::_bind_methods()
     godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Temp_save_replay::debug_print_array);
     godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Temp_save_replay::debug_print_positions);
     godot::ClassDB::bind_method(godot::D_METHOD("add_node", "node"), &Temp_save_replay::add_node);
+    godot::ClassDB::bind_method(godot::D_METHOD("remove_node", "node"), &Temp_save_replay::remove_node);
     godot::ClassDB::bind_method(godot::D_METHOD("start_recording"), &Temp_save_replay::start_recording);
     godot::ClassDB::bind_method(godot::D_METHOD("stop_recording"), &Temp_save_replay::stop_recording);
     godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
