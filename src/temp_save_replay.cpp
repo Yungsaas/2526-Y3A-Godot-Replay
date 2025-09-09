@@ -12,10 +12,27 @@
 
 bool Temp_save_replay::add_node(godot::Node* node)
 {
-    if(std::find(tracked_nodes.begin(), tracked_nodes.end(), node) != tracked_nodes.end()) return false;
+    if(std::find(tracked_nodes.begin(), tracked_nodes.end(), node) != tracked_nodes.end())
+    {
+        godot::print_line("Node " + node->get_name() + " has been added to the recording li");
+        return false;
+    } 
 
     tracked_nodes.push_back(node);
     return true;
+}
+
+bool Temp_save_replay::remove_node(godot::Node* node)
+{
+    auto node_to_remove = std::find(tracked_nodes.begin(), tracked_nodes.end(), node);
+    if(node_to_remove != tracked_nodes.end())
+    {
+        tracked_nodes.erase(node_to_remove);
+    godot::print_line("Node " + node->get_name() + " has been removed from recording list");
+        return true;
+    }
+    godot::print_line("Node " + node->get_name() + " was not found in the recording list");
+    return false;
 }
 
 void Temp_save_replay::debug_print_array()
