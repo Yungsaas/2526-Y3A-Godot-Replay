@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bik52oyxjlqin"]
 
-[ext_resource type="Script" uid="uid://bvcgr3mtmje3c" path="res://addons/replay_qol/selection_panel.gd" id="1_cxyd2"]
+[ext_resource type="Script" uid="uid://ddymt3hj2sswe" path="res://addons/replay_qol/v_box_container.gd" id="1_cxyd2"]
 
 [node name="SelectionPanel" type="Control"]
 layout_mode = 3
@@ -21,3 +21,5 @@ layout_mode = 2
 select_mode = 2
 
 [node name="Node2D" type="Node2D" parent="."]
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]
