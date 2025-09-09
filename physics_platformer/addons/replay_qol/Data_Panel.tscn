@@ -34,6 +34,7 @@ icon_alignment = 1
 
 [node name="Positions" type="Button" parent="."]
 custom_minimum_size = Vector2(64, 32)
+layout_mode = 0
 offset_left = 69.0
 offset_top = 38.0
 offset_right = 133.0
@@ -43,6 +44,7 @@ icon_alignment = 1
 
 [node name="Events" type="Button" parent="."]
 custom_minimum_size = Vector2(64, 32)
+layout_mode = 0
 offset_left = 148.0
 offset_top = 38.0
 offset_right = 212.0
@@ -52,6 +54,7 @@ icon_alignment = 1
 
 [node name="Blank" type="Button" parent="."]
 custom_minimum_size = Vector2(64, 32)
+layout_mode = 0
 offset_left = 211.0
 offset_top = 38.0
 offset_right = 275.0
