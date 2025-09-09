@@ -14,10 +14,10 @@ bool Temp_save_replay::add_node(godot::Node* node)
 {
     if(std::find(tracked_nodes.begin(), tracked_nodes.end(), node) != tracked_nodes.end())
     {
-        godot::print_line("Node " + node->get_name() + " has been added to the recording li");
+        godot::print_line("Node " + node->get_name() + " is already in the list");
         return false;
     } 
-
+    godot::print_line("Node " + node->get_name() + " has been added to the recording list");
     tracked_nodes.push_back(node);
     return true;
 }
@@ -37,8 +37,9 @@ bool Temp_save_replay::remove_node(godot::Node* node)
 
 void Temp_save_replay::debug_print_array()
 {
-    for (auto nodeIn : tracked_nodes) {
-    godot::print_line(nodeIn);
+    for (auto nodeIn : tracked_nodes) 
+    {
+        godot::print_line("Node: " + nodeIn->get_name());
     }
 }
 

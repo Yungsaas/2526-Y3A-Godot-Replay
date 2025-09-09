@@ -24,6 +24,7 @@ func _enter_tree() -> void:
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
 	
 	record_panel.set_recorder(recorder)
+	selection_panel.set_recorder(recorder)
 
 
 func _exit_tree() -> void:

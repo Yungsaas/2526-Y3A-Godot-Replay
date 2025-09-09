@@ -3,8 +3,11 @@ extends Control
 
 var editor_interface
 
-var recorder:Temp_save_replay = Temp_save_replay.new()
+var recorder: Temp_save_replay
 
+func set_recorder(new_recorder: Temp_save_replay) -> void:
+	recorder = new_recorder
+	
 @onready var add_button: Button = $VBoxContainer/AddButton
 @onready var removeButton: Button = $VBoxContainer/Button2
 @onready var tree: Tree = $VBoxContainer/Tree
@@ -40,11 +43,18 @@ func _add_to_tree(node: Node):
 	
 
 func _on_button_2_pressed() -> void:
+	
+	var selection = editor_interface.get_selection().get_selected_nodes()
+	if selection.size() > 0:
+		var node = selection[0]
+		recorder.remove_node(node)
+	
 	var selected_item = tree.get_selected()
 	if selected_item:
 		var path = selected_item.get_metadata(0)
 		if path in nodes:
 			nodes.erase(path)  # Remove from your array
+			
 			print("Node removed from list")
 		else:
 			print("Node not in list")
