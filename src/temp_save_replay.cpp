@@ -99,6 +99,7 @@ void Temp_save_replay::update()
 void Temp_save_replay::_bind_methods()
 {
     godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Temp_save_replay::debug_print_array);
+    godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Temp_save_replay::debug_print_positions);
     godot::ClassDB::bind_method(godot::D_METHOD("add_node", "node"), &Temp_save_replay::add_node);
     godot::ClassDB::bind_method(godot::D_METHOD("start_recording"), &Temp_save_replay::start_recording);
     godot::ClassDB::bind_method(godot::D_METHOD("stop_recording"), &Temp_save_replay::stop_recording);
