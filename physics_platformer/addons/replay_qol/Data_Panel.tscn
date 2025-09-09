@@ -8,7 +8,7 @@ anchors_preset = 0
 layout_mode = 0
 offset_left = 4.0
 offset_top = 69.0
-offset_right = 257.0
+offset_right = 275.0
 offset_bottom = 334.0
 editable = false
 context_menu_enabled = false
@@ -21,3 +21,40 @@ virtual_keyboard_enabled = false
 middle_mouse_paste_enabled = false
 empty_selection_clipboard_enabled = false
 wrap_mode = 1
+
+[node name="Input" type="Button" parent="."]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 0
+offset_left = 5.0
+offset_top = 38.0
+offset_right = 69.0
+offset_bottom = 70.0
+text = "Input"
+icon_alignment = 1
+
+[node name="Positions" type="Button" parent="."]
+custom_minimum_size = Vector2(64, 32)
+offset_left = 69.0
+offset_top = 38.0
+offset_right = 133.0
+offset_bottom = 70.0
+text = "Positions"
+icon_alignment = 1
+
+[node name="Events" type="Button" parent="."]
+custom_minimum_size = Vector2(64, 32)
+offset_left = 148.0
+offset_top = 38.0
+offset_right = 212.0
+offset_bottom = 70.0
+text = "Events"
+icon_alignment = 1
+
+[node name="Blank" type="Button" parent="."]
+custom_minimum_size = Vector2(64, 32)
+offset_left = 211.0
+offset_top = 38.0
+offset_right = 275.0
+offset_bottom = 70.0
+text = "Blank"
+icon_alignment = 1
