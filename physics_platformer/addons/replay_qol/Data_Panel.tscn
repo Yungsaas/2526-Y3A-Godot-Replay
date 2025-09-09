@@ -8,7 +8,7 @@ anchors_preset = 0
 layout_mode = 0
 offset_left = 4.0
 offset_top = 69.0
-offset_right = 275.0
+offset_right = 281.0
 offset_bottom = 334.0
 editable = false
 context_menu_enabled = false
@@ -52,12 +52,12 @@ offset_bottom = 70.0
 text = "Events"
 icon_alignment = 1
 
-[node name="Blank" type="Button" parent="."]
+[node name="Console" type="Button" parent="."]
 custom_minimum_size = Vector2(64, 32)
 layout_mode = 0
 offset_left = 211.0
 offset_top = 38.0
 offset_right = 275.0
 offset_bottom = 70.0
-text = "Blank"
+text = "Console"
 icon_alignment = 1
