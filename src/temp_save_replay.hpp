@@ -36,6 +36,8 @@ class Temp_save_replay:public godot::Node{
 
     void start_recording();
     void stop_recording();
+
+    std::unordered_multimap<int, std::tuple<godot::Node*,godot::Transform2D>> get_tempdata_2d();
     
     void update();
 };

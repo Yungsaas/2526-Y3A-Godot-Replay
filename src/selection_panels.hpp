@@ -19,10 +19,18 @@ class Selection_Panels:public godot::Node
     static void _bind_methods();
 
     private:
+    godot::Node* input_screen;
     godot::Node* position_screen;
+    godot::Node* event_screen;
+
     public:
+    bool add_input_screen(godot::Node* node);
     bool add_position_screen(godot::Node* node);
+    bool add_event_screen(godot::Node* node);
+    
+    void print_input();
     void print_positions();
+    void print_event();
     
     void update();
 };
