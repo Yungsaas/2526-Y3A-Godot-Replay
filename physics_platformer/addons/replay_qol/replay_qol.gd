@@ -13,6 +13,7 @@ const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
 var recorder:Temp_save_replay = Temp_save_replay.new()
 var selection_panels:Selection_Panels = Selection_Panels.new()
 
+
 func _enter_tree() -> void:
 	record_panel = RECORD_PANEL.instantiate()
 	add_control_to_bottom_panel(record_panel, "Record_Panel")
@@ -26,6 +27,12 @@ func _enter_tree() -> void:
 	
 	record_panel.set_recorder(recorder)
 	selection_panel.set_recorder(recorder)
+	
+	selection_panels.set_replay_ptr(recorder)
+	
+	data_panel.selection_panels = selection_panels
+	data_panel.selection_panels.add_position_screen(data_panel.position_text)
+	data_panel.selection_panels.add_input_screen(data_panel.input_text)
 	
 
 func _physics_process(delta: float) -> void:
@@ -44,5 +51,3 @@ func _exit_tree() -> void:
 	
 	remove_control_from_docks(data_panel)
 	data_panel.queue_free()
-	
-	

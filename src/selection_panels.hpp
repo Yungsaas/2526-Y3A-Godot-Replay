@@ -7,6 +7,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include "temp_save_replay.hpp"
 
 class Selection_Panels:public godot::Node
 {
@@ -19,11 +20,17 @@ class Selection_Panels:public godot::Node
     static void _bind_methods();
 
     private:
+    Temp_save_replay* replay_ptr;
+
     godot::Node* input_screen;
-    godot::Node* position_screen;
+    godot::Node* position_screen = nullptr;
     godot::Node* event_screen;
 
     public:
+    //Selection_Panels(Temp_save_replay* existing_replay) : replay_ptr(existing_replay) {}
+
+    void set_replay_ptr(Temp_save_replay* recorder);
+
     bool add_input_screen(godot::Node* node);
     bool add_position_screen(godot::Node* node);
     bool add_event_screen(godot::Node* node);
