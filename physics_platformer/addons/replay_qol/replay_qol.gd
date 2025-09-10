@@ -10,7 +10,7 @@ const SELECTION_PANEL = preload("res://addons/replay_qol/Selection_Panel.tscn")
 var data_panel
 const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
 
-@onready var recorder:Temp_save_replay = $ReplayRecorder as Temp_save_replay
+var recorder:Temp_save_replay = Temp_save_replay.new()
 
 func _enter_tree() -> void:
 	record_panel = RECORD_PANEL.instantiate()
@@ -29,7 +29,6 @@ func _enter_tree() -> void:
 func _get_recorder()-> Temp_save_replay:
 	
 	return recorder
-
 
 func _physics_process(delta: float) -> void:
 	recorder.update()
