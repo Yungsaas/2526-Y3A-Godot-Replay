@@ -58,8 +58,8 @@ void Temp_save_replay::debug_print_positions()
             auto node = std::get<0>(it->second);
             auto position = std::get<1>(it->second);
             godot::print_line("Node: " + node->get_name() + 
-            " Position: \nX: " + godot::String::num(position.get_origin().x) 
-            + "\nY: " + godot::String::num(position.get_origin().y));
+            " Position: \nX: " + godot::String::num(position.x) 
+            + "\nY: " + godot::String::num(position.y));
         }
 
         godot::print_line("\n3D positions:");
@@ -68,9 +68,9 @@ void Temp_save_replay::debug_print_positions()
             auto node = std::get<0>(it->second);
             auto position = std::get<1>(it->second);
             godot::print_line("Node: " + node->get_name() + 
-            " Position: \nX: " + godot::String::num(position.get_origin().x) 
-            + "\nY: " + godot::String::num(position.get_origin().y)
-            + "\nZ: " + godot::String::num(position.get_origin().z));
+            " Position: \nX: " + godot::String::num(position.x) 
+            + "\nY: " + godot::String::num(position.y)
+            + "\nZ: " + godot::String::num(position.z));
         }
     }
 }
@@ -81,12 +81,13 @@ void Temp_save_replay::start_recording()
     recording_frame = 0;
     temporary_data_map_3d_pos.clear();
     temporary_data_map_2d_pos.clear();
+    last_recorded_3d_pos.clear();
+    last_recorded_2d_pos.clear();
 }
 
 void Temp_save_replay::stop_recording()
 {
     is_recording = false;
-    recording_frame = 0;
 
     // TODO: write to json here
 }
@@ -103,11 +104,25 @@ void Temp_save_replay::update()
         auto node2d = godot::Object::cast_to<godot::Node2D>(node);
         if(node3d)
         {
-            temporary_data_map_3d_pos.emplace(recording_frame, std::make_tuple(node, node3d->get_transform()));
+            auto current_position = node3d->get_global_position();
+            
+            if (last_recorded_3d_pos[node] != current_position || recording_frame == 0)
+            {
+                temporary_data_map_3d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
+                last_recorded_3d_pos[node] = current_position;
+            }
         }
         if(node2d)
-        {
-            temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, node2d->get_transform()));
+        {   
+            auto current_position = node2d->get_global_position();
+
+            if (last_recorded_2d_pos[node] != current_position || recording_frame == 0)
+            {
+                godot::print_line("Recorded position");
+                temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
+                last_recorded_2d_pos[node] = current_position;
+            }
+        
         }
     }
 
