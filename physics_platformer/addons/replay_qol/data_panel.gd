@@ -1,6 +1,7 @@
 @tool
 extends Control
 
+var recorder: Selection_Panel
 
 func _on_input_pressed() -> void:
 	$"Input Text".visible = true

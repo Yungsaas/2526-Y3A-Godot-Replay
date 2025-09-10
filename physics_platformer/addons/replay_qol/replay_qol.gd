@@ -12,6 +12,8 @@ const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
 
 var recorder:Temp_save_replay = Temp_save_replay.new()
 
+var selection_panels:Selection_Panel = Selection_Panel.new()
+
 func _enter_tree() -> void:
 	record_panel = RECORD_PANEL.instantiate()
 	add_control_to_bottom_panel(record_panel, "Record_Panel")
