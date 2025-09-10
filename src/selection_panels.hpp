@@ -8,10 +8,11 @@
 #include <unordered_map>
 #include <vector>
 
-class Selection_Panel:public godot::Node{
+class Selection_Panels:public godot::Node
+{
 
     // Make class usable in godot with gdscript
-    GDCLASS(Selection_Panel, Node)
+    GDCLASS(Selection_Panels, Node)
     
     protected:
     // Bind c plus plus methods to gdscript class
@@ -20,7 +21,7 @@ class Selection_Panel:public godot::Node{
     private:
     godot::Node* position_screen;
     public:
-
+    bool add_position_screen(godot::Node* node);
     void print_positions();
     
     void update();

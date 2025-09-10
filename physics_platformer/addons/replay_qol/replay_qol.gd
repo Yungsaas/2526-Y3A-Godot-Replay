@@ -11,8 +11,7 @@ var data_panel
 const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
 
 var recorder:Temp_save_replay = Temp_save_replay.new()
-
-var selection_panels:Selection_Panel = Selection_Panel.new()
+var test:Selecton_Panels = Selection_Panels.new()
 
 func _enter_tree() -> void:
 	record_panel = RECORD_PANEL.instantiate()
