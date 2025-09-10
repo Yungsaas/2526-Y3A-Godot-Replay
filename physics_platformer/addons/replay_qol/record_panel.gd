@@ -12,7 +12,6 @@ func _on_button_pressed() -> void:
 		if is_recording:
 			recorder.stop_recording()
 			print("Stopped recording.")
-			recorder.debug_print_positions()
 			is_recording = false
 			$Button.text = "Record"
 		else:
