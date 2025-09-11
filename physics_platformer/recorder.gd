@@ -9,13 +9,15 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	
 	#get input
-	var recorder_pressed := Input.is_action_pressed(&"recorder_button")
-	if recorder_pressed:
-		if is_recording:
-			stop_recording()
-			is_recording = false
-		if not is_recording:
-			start_recording()
-			is_recording = true
+	var start_recording_input := Input.is_action_pressed(&"start_recording")
+	var stop_recording_input := Input.is_action_pressed(&"stop_recording")
+	
+	if start_recording_input and not is_recording:
+		start_recording()
+		is_recording = true
+		
+	if stop_recording_input and is_recording:
+		stop_recording()
+		is_recording = false
 	
 	update()
