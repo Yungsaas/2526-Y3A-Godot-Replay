@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://b53muvlsw1tx3"]
+[gd_scene load_steps=25 format=3 uid="uid://b53muvlsw1tx3"]
 
 [ext_resource type="TileSet" uid="uid://rowrak7ls50v" path="res://tileset.tres" id="1"]
 [ext_resource type="PackedScene" uid="uid://6uilf6rad880" path="res://coin/coin.tscn" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
 [ext_resource type="AudioStream" uid="uid://gunv00cij80t" path="res://audio/music.ogg" id="9"]
+[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://recorder.gd" id="10_g8oy1"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -356,3 +357,6 @@ instructions."
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("9")
 autoplay = true
+
+[node name="Recorder" type="Temp_save_replay" parent="."]
+script = ExtResource("10_g8oy1")
