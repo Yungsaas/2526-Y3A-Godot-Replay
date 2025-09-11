@@ -5,9 +5,6 @@ var editor_interface
 
 var recorder: Temp_save_replay
 
-func set_recorder(new_recorder: Temp_save_replay) -> void:
-	recorder = new_recorder
-	
 @onready var add_button: Button = $VBoxContainer/AddButton
 @onready var removeButton: Button = $VBoxContainer/Button2
 @onready var tree: Tree = $VBoxContainer/Tree
