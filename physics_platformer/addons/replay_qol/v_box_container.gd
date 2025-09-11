@@ -24,8 +24,6 @@ func _on_add_button_pressed() -> void:
 	var selection = editor_interface.get_selection().get_selected_nodes()
 	if selection.size() > 0:
 		var node = selection[0]
-		print(node.get_path_to(get_tree().root)) # relative path to the scene root
-		print(node.get_path()) # full unique editor path
 		recorder.add_node(node)
 		var path = node.get_path()
 		if not nodes.has(path):
