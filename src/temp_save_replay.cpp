@@ -117,7 +117,7 @@ void Temp_save_replay::update()
 
             if (last_recorded_2d_pos[node] != current_position || recording_frame == 0)
             {
-                godot::print_line("Recorded position");
+                godot::print_line("Recorded position: " + current_position);
                 temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
                 last_recorded_2d_pos[node] = current_position;
             }
