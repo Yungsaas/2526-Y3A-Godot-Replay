@@ -34,9 +34,6 @@ func _get_recorder()-> Temp_save_replay:
 	
 	return recorder
 
-func _physics_process(delta: float) -> void:
-
-
 func _exit_tree() -> void:
 	remove_control_from_bottom_panel(record_panel)
 	record_panel.queue_free()
