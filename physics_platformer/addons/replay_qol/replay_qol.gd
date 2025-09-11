@@ -31,7 +31,7 @@ func _enter_tree() -> void:
 	selection_panels.set_replay_ptr(recorder)
 	
 	data_panel.selection_panels = selection_panels
-	data_panel.selection_panels.add_position_screen(data_panel.position_text)
+	data_panel.selection_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
 	data_panel.selection_panels.add_input_screen(data_panel.input_text)
 	
 
