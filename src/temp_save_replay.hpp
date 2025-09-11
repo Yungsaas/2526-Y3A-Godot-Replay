@@ -30,12 +30,15 @@ class Temp_save_replay:public godot::Node{
     public:
     bool add_node(godot::Node* node);
     bool remove_node(godot::Node* node);
-
+    
     void debug_print_array();
     void debug_print_positions();
 
     void start_recording();
     void stop_recording();
+
+    int get_recording_frame();
+    std::unordered_multimap<int, std::tuple<godot::Node*,godot::Transform2D>> get_temp_data_2d();
     
     void update();
 };
