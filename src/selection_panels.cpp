@@ -7,17 +7,18 @@
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/string.hpp"
+#include <godot_cpp/core/object.hpp>
 #include <algorithm>
 #include <tuple>
 
 
-bool Selection_Panels::add_input_screen(godot::Node* node)
+bool Selection_Panels::add_input_screen(godot::TextEdit* node)
 {
     input_screen = node;
     return true;
 }
 
-bool Selection_Panels::add_position_screen(godot::Node* node)
+bool Selection_Panels::add_position_screen(godot::TextEdit* node)
 {
     position_screen = node;
     return true;
@@ -25,12 +26,13 @@ bool Selection_Panels::add_position_screen(godot::Node* node)
 
 void Selection_Panels::print_input() {
 
-    godot::print_line("Node: " + input_screen->get_name());
+    input_screen->set_text("Input text!");
 
 }
 
 void Selection_Panels::print_positions() {
-    
+    position_screen->set_text("Position text!");
+
 }
 
 void Selection_Panels::set_replay_ptr(Temp_save_replay* recorder)
