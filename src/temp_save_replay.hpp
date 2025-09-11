@@ -35,7 +35,7 @@ class Temp_save_replay:public godot::Node{
     public:
     bool add_node(godot::Node* node);
     bool remove_node(godot::Node* node);
-
+    
     void debug_print_array();
     void debug_print_positions();
 
@@ -44,6 +44,7 @@ class Temp_save_replay:public godot::Node{
 
     void start_replay();
     void stop_replay();
+
     
     void update();
 };
