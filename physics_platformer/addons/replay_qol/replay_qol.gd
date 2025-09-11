@@ -30,8 +30,12 @@ func _enter_tree() -> void:
 func _physics_process(delta: float) -> void:
 	recorder.update()
 
-func get_recorder() -> Temp_save_replay:
+func _get_recorder()-> Temp_save_replay:
+	
 	return recorder
+
+func _physics_process(delta: float) -> void:
+
 
 func _exit_tree() -> void:
 	remove_control_from_bottom_panel(record_panel)
