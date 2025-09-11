@@ -91,12 +91,19 @@ void Temp_save_replay::stop_recording()
     // TODO: write to json here
 }
 
-
-
-void Temp_save_replay::update()
+void Temp_save_replay::start_replay()
 {
-    if(!is_recording) return; // return if not recording
+    is_replaying = true;
+    replay_frame = 0;
+}
 
+void Temp_save_replay::stop_replay()
+{
+    is_replaying = false;
+}
+
+void Temp_save_replay::handle_recording()
+{
     for(auto node : tracked_nodes)
     {
         auto node3d = godot::Object::cast_to<godot::Node3D>(node);
@@ -128,6 +135,62 @@ void Temp_save_replay::update()
     recording_frame++;
 }
 
+void Temp_save_replay::handle_replaying()
+{
+    if(recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty())
+    {
+        godot::print_line("No recording in memory.");
+        return;
+    }
+
+    auto range2d= temporary_data_map_2d_pos.equal_range(replay_frame);
+    auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
+    
+    //Set positions
+    for (auto data = range2d.first; data != range2d.second; data++) 
+    {
+        godot::Node *node = std::get<0>(data->second);
+        godot::Vector2 pos = std::get<1>(data->second);
+
+        if (auto node2d = godot::Object::cast_to<godot::Node2D>(node))
+        {
+            node2d->set_global_position(pos);
+        }
+    }
+
+    for (auto data = range3d.first; data != range3d.second; data++) 
+    {
+        godot::Node *node = std::get<0>(data->second);
+        godot::Vector3 pos = std::get<1>(data->second);
+        
+        if (auto node3d = godot::Object::cast_to<godot::Node3D>(node))
+        {
+            node3d->set_global_position(pos);
+        }
+    }
+
+    replay_frame++;
+
+    if(replay_frame > recording_frame)
+    {
+        is_replaying = false;
+    }
+}
+
+void Temp_save_replay::update()
+{
+    if(is_recording)
+    {
+        handle_recording();
+    }
+
+    if(is_replaying)
+    {
+        handle_replaying();
+    }
+
+}
+
 void Temp_save_replay::_bind_methods()
 {
     godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Temp_save_replay::debug_print_array);
@@ -136,5 +199,7 @@ void Temp_save_replay::_bind_methods()
     godot::ClassDB::bind_method(godot::D_METHOD("remove_node", "node"), &Temp_save_replay::remove_node);
     godot::ClassDB::bind_method(godot::D_METHOD("start_recording"), &Temp_save_replay::start_recording);
     godot::ClassDB::bind_method(godot::D_METHOD("stop_recording"), &Temp_save_replay::stop_recording);
+    godot::ClassDB::bind_method(godot::D_METHOD("start_replay"), &Temp_save_replay::start_replay);
+    godot::ClassDB::bind_method(godot::D_METHOD("stop_replay"), &Temp_save_replay::stop_replay);
     godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
 }

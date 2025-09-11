@@ -35,8 +35,8 @@ select_mode = 2
 
 [node name="Node2D" type="Node2D" parent="."]
 
-[connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_add_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_button_pressed"]
 [connection signal="toggled" from="VBoxContainer/AddButton" to="." method="_on_button_toggled"]
 [connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_2_pressed"]

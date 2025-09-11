@@ -25,7 +25,12 @@ class Temp_save_replay:public godot::Node{
     std::unordered_map<godot::Node*, godot::Vector2> last_recorded_2d_pos;
 
     bool is_recording = false;
+    bool is_replaying = false;
     int recording_frame = 0;
+    int replay_frame = 0;
+
+    void handle_recording();
+    void handle_replaying();
 
     public:
     bool add_node(godot::Node* node);
@@ -36,6 +41,9 @@ class Temp_save_replay:public godot::Node{
 
     void start_recording();
     void stop_recording();
+
+    void start_replay();
+    void stop_replay();
     
     void update();
 };

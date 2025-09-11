@@ -1,5 +1,8 @@
 extends Temp_save_replay
 
+# CTRL+K for start recording SHIFT+K for start replay
+# CTRL+L for stop recording SHIFT+K for stop replay
+
 var is_recording: bool = false
 var is_replaying: bool = false
 
@@ -27,11 +30,12 @@ func _physics_process(_delta: float) -> void:
 		stop_recording()
 		is_recording = false
 		
-	if start_replay_input:
-		is_replaying = true
+	if start_replay_input and not is_recording:
+		print("Start replaying")
+		start_replay()
 		
-	if stop_replay_input:
-		is_replaying = false
-		
+	if stop_replay_input and not is_recording:
+		print("Stop replaying manually")
+		stop_replay()
 	
 	update()
