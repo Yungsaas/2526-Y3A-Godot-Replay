@@ -25,13 +25,17 @@ func _enter_tree() -> void:
 	
 	record_panel.set_recorder(recorder)
 	selection_panel.set_recorder(recorder)
+	
+
+func _physics_process(delta: float) -> void:
+	recorder.update()
 
 func _get_recorder()-> Temp_save_replay:
 	
 	return recorder
 
 func _physics_process(delta: float) -> void:
-	recorder.update()
+
 
 func _exit_tree() -> void:
 	remove_control_from_bottom_panel(record_panel)
@@ -42,4 +46,5 @@ func _exit_tree() -> void:
 	
 	remove_control_from_docks(data_panel)
 	data_panel.queue_free()
+	
 	
