@@ -6,28 +6,29 @@
 #include "godot_cpp/classes/node3d.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
+#include "godot_cpp/variant/array.hpp"
 #include "godot_cpp/variant/string.hpp"
-#include <algorithm>
+#include "godot_cpp/variant/variant.hpp"
 #include <tuple>
 
 bool Temp_save_replay::add_node(godot::Node* node)
 {
-    if(std::find(tracked_nodes.begin(), tracked_nodes.end(), node) != tracked_nodes.end())
+    if(tracked_nodes.has(node))
     {
         godot::print_line("Node " + node->get_name() + " is already in the list");
         return false;
     } 
     godot::print_line("Node " + node->get_name() + " has been added to the recording list");
-    tracked_nodes.push_back(node);
+    tracked_nodes.append(node);
     return true;
 }
 
 bool Temp_save_replay::remove_node(godot::Node* node)
 {
-    auto node_to_remove = std::find(tracked_nodes.begin(), tracked_nodes.end(), node);
-    if(node_to_remove != tracked_nodes.end())
+    ;
+    if(tracked_nodes.has(node))
     {
-        tracked_nodes.erase(node_to_remove);
+        tracked_nodes.erase(node);
     godot::print_line("Node " + node->get_name() + " has been removed from recording list");
         return true;
     }
@@ -37,9 +38,10 @@ bool Temp_save_replay::remove_node(godot::Node* node)
 
 void Temp_save_replay::debug_print_array()
 {
-    for (auto nodeIn : tracked_nodes) 
+    for (auto nodeVariant : tracked_nodes) 
     {
-        godot::print_line("Node: " + nodeIn->get_name());
+        auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
+        godot::print_line("Node: " + node->get_name());
     }
 }
 
@@ -104,8 +106,9 @@ void Temp_save_replay::stop_replay()
 
 void Temp_save_replay::handle_recording()
 {
-    for(auto node : tracked_nodes)
+    for(auto nodeVariant : tracked_nodes)
     {
+        auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
         auto node3d = godot::Object::cast_to<godot::Node3D>(node);
         auto node2d = godot::Object::cast_to<godot::Node2D>(node);
         if(node3d)
@@ -191,6 +194,16 @@ void Temp_save_replay::update()
 
 }
 
+void Temp_save_replay::set_tracked_nodes(godot::Array tracked_nodes_new)
+{
+    tracked_nodes = tracked_nodes_new;
+}
+
+godot::Array Temp_save_replay::get_tracked_nodes()
+{
+    return tracked_nodes;
+}
+
 void Temp_save_replay::_bind_methods()
 {
     godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Temp_save_replay::debug_print_array);
@@ -202,4 +215,8 @@ void Temp_save_replay::_bind_methods()
     godot::ClassDB::bind_method(godot::D_METHOD("start_replay"), &Temp_save_replay::start_replay);
     godot::ClassDB::bind_method(godot::D_METHOD("stop_replay"), &Temp_save_replay::stop_replay);
     godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
+
+    godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Temp_save_replay::set_tracked_nodes);
+    godot::ClassDB::bind_method(godot::D_METHOD("get_tracked_nodes"), &Temp_save_replay::get_tracked_nodes);
+    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY , "tracked_nodes"), "set_tracked_nodes", "get_tracked_nodes");
 }

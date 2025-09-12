@@ -6,7 +6,6 @@
 #include "godot_cpp/variant/vector3.hpp"
 #include <tuple>
 #include <unordered_map>
-#include <vector>
 
 class Temp_save_replay:public godot::Node{
 
@@ -18,7 +17,7 @@ class Temp_save_replay:public godot::Node{
     static void _bind_methods();
 
     private:
-    std::vector<godot::Node*> tracked_nodes;
+    godot::Array tracked_nodes;
     std::unordered_multimap<int, std::tuple<godot::Node*,godot::Vector3>> temporary_data_map_3d_pos;
     std::unordered_multimap<int, std::tuple<godot::Node*,godot::Vector2>> temporary_data_map_2d_pos;
     std::unordered_map<godot::Node*, godot::Vector3> last_recorded_3d_pos;
@@ -33,6 +32,9 @@ class Temp_save_replay:public godot::Node{
     void handle_replaying();
 
     public:
+    void set_tracked_nodes(godot::Array new_tracked_nodes);
+    godot::Array get_tracked_nodes();
+
     bool add_node(godot::Node* node);
     bool remove_node(godot::Node* node);
     
