@@ -217,6 +217,4 @@ void Temp_save_replay::_bind_methods()
     godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
 
     godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Temp_save_replay::set_tracked_nodes);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_tracked_nodes"), &Temp_save_replay::get_tracked_nodes);
-    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY , "tracked_nodes"), "set_tracked_nodes", "get_tracked_nodes");
 }
