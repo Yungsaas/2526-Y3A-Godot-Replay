@@ -75,9 +75,8 @@ func _on_button_2_pressed() -> void:
 func _on_add_recorder_button_pressed() -> void:
 	var selection = editor_interface.get_selection().get_selected_nodes()
 	if selection.size() > 0:
-		var node = selection[0]
+		var node := selection[0] as Temp_save_replay
 		if node != null:
-			recorder = node
-			print("Recorder assigned")
+			node.add_node(recorder.get_tracked_node(0))
 		else: 
 			print("Node is null")

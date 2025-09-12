@@ -26,6 +26,13 @@ offset_right = 240.0
 offset_bottom = 32.0
 text = "Remove Node"
 
+[node name="Add_recorder_button" type="Button" parent="VBoxContainer"]
+layout_mode = 0
+offset_left = 246.0
+offset_right = 356.0
+offset_bottom = 31.0
+text = "Add recorder"
+
 [node name="Tree" type="Tree" parent="VBoxContainer"]
 layout_mode = 2
 offset_top = 35.0
@@ -33,19 +40,10 @@ offset_right = 243.0
 offset_bottom = 286.0
 select_mode = 2
 
-[node name="Node2D" type="Node2D" parent="."]
-
-[node name="Add_recorder_button" type="Button" parent="."]
-layout_mode = 0
-offset_left = 246.0
-offset_right = 356.0
-offset_bottom = 31.0
-text = "Add recorder"
-
 [connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_add_button_pressed"]
 [connection signal="toggled" from="VBoxContainer/AddButton" to="." method="_on_button_toggled"]
 [connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_2_pressed"]
 [connection signal="toggled" from="VBoxContainer/Button2" to="." method="_on_button_toggled"]
-[connection signal="pressed" from="Add_recorder_button" to="." method="_on_add_recorder_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Add_recorder_button" to="." method="_on_add_recorder_button_pressed"]

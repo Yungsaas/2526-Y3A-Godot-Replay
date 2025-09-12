@@ -8,6 +8,7 @@ var is_replaying: bool = false
 
 func _ready() -> void:
 	print(get_tracked_node(0))
+	pass
 	
 
 func _physics_process(_delta: float) -> void:
