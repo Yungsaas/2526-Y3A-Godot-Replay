@@ -4,6 +4,7 @@
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/vector3.hpp"
+#include <godot_cpp/classes/h_slider.hpp>
 #include <tuple>
 #include <unordered_map>
 
@@ -23,6 +24,8 @@ class Temp_save_replay:public godot::Node{
     std::unordered_map<godot::Node*, godot::Vector3> last_recorded_3d_pos;
     std::unordered_map<godot::Node*, godot::Vector2> last_recorded_2d_pos;
 
+    godot::HSlider* timeline_slider;
+
     bool is_recording = false;
     bool is_replaying = false;
     int recording_frame = 0;
@@ -37,6 +40,8 @@ class Temp_save_replay:public godot::Node{
 
     bool add_node(godot::Node* node);
     bool remove_node(godot::Node* node);
+
+    bool add_slider(godot::HSlider* node);
     
     void debug_print_array();
     void debug_print_positions();
@@ -47,6 +52,7 @@ class Temp_save_replay:public godot::Node{
     void start_replay();
     void stop_replay();
 
+    godot::Node* get_tracked_nodes(int i) const;
     
     void update();
 };

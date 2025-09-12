@@ -5,6 +5,9 @@ var editor_interface
 
 var recorder: Temp_save_replay
 
+func set_recorder(new_recorder: Temp_save_replay) -> void:
+	recorder = new_recorder
+
 @onready var add_button: Button = $VBoxContainer/AddButton
 @onready var removeButton: Button = $VBoxContainer/Button2
 @onready var tree: Tree = $VBoxContainer/Tree
@@ -17,7 +20,9 @@ func _on_add_button_pressed() -> void:
 	if editor_interface == null:
 		push_error("EditorInterface is null! Make sure plugin passes it correctly.")
 		return
-
+	if recorder == null:
+		push_error("No recorder set")
+		return
 	var selection = editor_interface.get_selection().get_selected_nodes()
 	if selection.size() > 0:
 		var node = selection[0]
@@ -27,7 +32,7 @@ func _on_add_button_pressed() -> void:
 			nodes.append(path)
 			_add_to_tree(node)
 			print("Node added in list")
-			
+			print(recorder.get_tracked_node(0))
 		else:
 			print("Node already in list")
 
@@ -64,3 +69,15 @@ func _on_button_2_pressed() -> void:
 			tree.set_root(null)  # In case it’s the root
 	else:
 		print("No item selected")
+
+
+
+func _on_add_recorder_button_pressed() -> void:
+	var selection = editor_interface.get_selection().get_selected_nodes()
+	if selection.size() > 0:
+		var node = selection[0]
+		if node != null:
+			recorder = node
+			print("Recorder assigned")
+		else: 
+			print("Node is null")

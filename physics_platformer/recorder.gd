@@ -7,15 +7,14 @@ var is_recording: bool = false
 var is_replaying: bool = false
 
 func _ready() -> void:
-	add_node($"../Player")
-	pass
+	print(get_tracked_node(0))
+	
 
 func _physics_process(_delta: float) -> void:
 	
 	#get input
 	var start_recording_input := Input.is_action_pressed(&"start_recording")
 	var stop_recording_input := Input.is_action_pressed(&"stop_recording")
-	
 	
 	var start_replay_input := Input.is_action_pressed(&"start_replay")
 	var stop_replay_input := Input.is_action_pressed(&"stop_replay")
