@@ -25,14 +25,16 @@ func _enter_tree() -> void:
 	data_panel = DATA_PANEL.instantiate()
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
 	
-	record_panel.set_recorder(recorder)
-	
 	selection_panels.set_replay_ptr(recorder)
 	
 	data_panel.selection_panels = selection_panels
 	data_panel.selection_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
 	data_panel.selection_panels.add_input_screen(data_panel.input_text)
 	
+	var edited_scene = get_editor_interface().get_edited_scene_root()
+	if edited_scene:
+		var recorder := edited_scene.get_node("Recorder") as Temp_save_replay
+		print(recorder.nodes_array)
 
 func _physics_process(delta: float) -> void:
 	recorder.update()

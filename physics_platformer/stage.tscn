@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
 [ext_resource type="AudioStream" uid="uid://gunv00cij80t" path="res://audio/music.ogg" id="9"]
-[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://recorder.gd" id="10_g8oy1"]
+[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="10_g8oy1"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -360,4 +360,4 @@ autoplay = true
 
 [node name="Recorder" type="Temp_save_replay" parent="." node_paths=PackedStringArray("nodes_array")]
 script = ExtResource("10_g8oy1")
-nodes_array = [NodePath("../Player")]
+nodes_array = [NodePath("../Player"), NodePath("../Enemies/Enemy4")]

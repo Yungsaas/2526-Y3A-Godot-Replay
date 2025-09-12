@@ -12,6 +12,10 @@ func _ready() -> void:
 	set_tracked_nodes(nodes_array)
 	pass
 
+func _on_btn_pressed() -> void:
+	print(nodes_array[0])
+	pass
+
 func _physics_process(_delta: float) -> void:
 	
 	#get input
