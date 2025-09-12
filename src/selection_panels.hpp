@@ -2,12 +2,7 @@
 
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
-#include "godot_cpp/variant/string.hpp"
-#include "godot_cpp/variant/transform3d.hpp"
 #include <godot_cpp/classes/text_edit.hpp>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
 #include "temp_save_replay.hpp"
 
 class Selection_Panels:public godot::Node
