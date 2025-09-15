@@ -8,6 +8,8 @@ var is_replaying: bool = false
 
 @export var nodes_array: Array[Node] = []
 
+@export var json_path: JSON
+
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
 	pass

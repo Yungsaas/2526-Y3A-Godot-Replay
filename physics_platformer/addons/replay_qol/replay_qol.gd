@@ -31,10 +31,16 @@ func _enter_tree() -> void:
 	data_panel.selection_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
 	data_panel.selection_panels.add_input_screen(data_panel.input_text)
 	
-	var edited_scene = get_editor_interface().get_edited_scene_root()
+	var panel_Button = record_panel.get_node("Button") as Button
+	panel_Button.pressed.connect(self._on_panel_button_pressed)
+
+#create a button variable in recorder.gd and make it equal to the one in the recorder_panel
+
+func _on_panel_button_pressed() -> void:
+	var edited_scene = get_editor_interface().get_edited_scene_root() #try to use this to instantiate a recorder instead of making one manualy
 	if edited_scene:
 		var recorder := edited_scene.get_node("Recorder") as Temp_save_replay
-		print(recorder.nodes_array)
+		recorder.is_recording = true
 
 func _physics_process(delta: float) -> void:
 	recorder.update()
