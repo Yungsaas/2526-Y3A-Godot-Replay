@@ -6,8 +6,16 @@ extends Temp_save_replay
 var is_recording: bool = false
 var is_replaying: bool = false
 
+@export var nodes_array: Array[Node] = []
+
+@export var json_path: JSON
+
 func _ready() -> void:
-	add_node($"../Player")
+	set_tracked_nodes(nodes_array)
+	pass
+
+func _on_btn_pressed() -> void:
+	print(nodes_array[0])
 	pass
 
 func _physics_process(_delta: float) -> void:

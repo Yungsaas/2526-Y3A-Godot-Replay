@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0n4vu6ye20rp"]
+
+[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="1_6k7j1"]
+
+[node name="Recorder" type="Temp_save_replay" node_paths=PackedStringArray("nodes_array")]
+script = ExtResource("1_6k7j1")
+nodes_array = [null]

@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
 [ext_resource type="AudioStream" uid="uid://gunv00cij80t" path="res://audio/music.ogg" id="9"]
-[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://recorder.gd" id="10_g8oy1"]
+[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="10_g8oy1"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -288,7 +288,7 @@ position = Vector2(1201.4, 424.76)
 [node name="OneWayPlatform" parent="Props" instance=ExtResource("5")]
 position = Vector2(465, 560.405)
 
-[node name="Player" parent="." instance=ExtResource("6_fauva")]
+[node name="Player" parent="." groups=["recording"] instance=ExtResource("6_fauva")]
 position = Vector2(126, 501)
 
 [node name="Enemies" type="Node2D" parent="."]

@@ -25,14 +25,27 @@ func _enter_tree() -> void:
 	data_panel = DATA_PANEL.instantiate()
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
 	
-	record_panel.set_recorder(recorder)
-	
 	selection_panels.set_replay_ptr(recorder)
 	
 	data_panel.selection_panels = selection_panels
 	data_panel.selection_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
 	data_panel.selection_panels.add_input_screen(data_panel.input_text)
 	
+	var panel_Button = record_panel.get_node("Button") as Button
+	panel_Button.pressed.connect(self._on_panel_button_pressed)
+	
+	var groupKey := "global_group/recording"
+	if not ProjectSettings.has_setting(groupKey):
+		ProjectSettings.set_setting(groupKey, true)
+		ProjectSettings.add_property_info({"name": groupKey, "type":TYPE_BOOL, "usage": PROPERTY_USAGE_GROUP})
+
+#create a button variable in recorder.gd and make it equal to the one in the recorder_panel
+
+func _on_panel_button_pressed() -> void:
+	var edited_scene = get_editor_interface().get_edited_scene_root() #try to use this to instantiate a recorder instead of making one manualy
+	if edited_scene:
+		var recorder := edited_scene.get_node("Recorder") as Temp_save_replay
+		recorder.is_recording = true
 
 func _physics_process(delta: float) -> void:
 	recorder.update()
@@ -50,3 +63,5 @@ func _exit_tree() -> void:
 	
 	remove_control_from_docks(data_panel)
 	data_panel.queue_free()
+	
+	ProjectSettings.clear("global_group/recording")
