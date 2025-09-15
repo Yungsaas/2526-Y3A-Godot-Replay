@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
 [ext_resource type="AudioStream" uid="uid://gunv00cij80t" path="res://audio/music.ogg" id="9"]
 [ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="10_g8oy1"]
-[ext_resource type="JSON" path="res://addons/replay_qol/json/test_3.0.json" id="11_i76fu"]
+[ext_resource type="JSON" path="res://addons/replay_qol/json/test_0.0.json" id="11_i76fu"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
