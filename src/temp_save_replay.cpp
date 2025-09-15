@@ -1,6 +1,9 @@
 #pragma once
 
 #include "temp_save_replay.hpp"
+#include "godot_cpp/classes/object.hpp"
+#include "godot_cpp/classes/ref.hpp"
+#include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/json.hpp"
 #include "godot_cpp/classes/node.hpp"
@@ -89,6 +92,23 @@ void Temp_save_replay::start_recording()
     temporary_data_map_2d_pos.clear();
     last_recorded_3d_pos.clear();
     last_recorded_2d_pos.clear();
+    godot::Node* self_node_ptr = this;
+    godot::Node* owner = self_node_ptr->get_owner();
+    
+    if(!owner)
+    {
+        godot::print_error("Owner not found!");
+        return;
+    }
+
+    godot::Array group_nodes = owner->get_tree()->get_nodes_in_group("recording");
+    for(int i = 0; i < group_nodes.size(); i++)
+    {
+        if(godot::Node* current_node = godot::Object::cast_to<Node>(group_nodes[i]))
+        {
+            add_node(current_node);
+        }
+    }
 }
 
 void Temp_save_replay::stop_recording()

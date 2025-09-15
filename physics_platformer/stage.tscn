@@ -288,7 +288,7 @@ position = Vector2(1201.4, 424.76)
 [node name="OneWayPlatform" parent="Props" instance=ExtResource("5")]
 position = Vector2(465, 560.405)
 
-[node name="Player" parent="." instance=ExtResource("6_fauva")]
+[node name="Player" parent="." groups=["recording"] instance=ExtResource("6_fauva")]
 position = Vector2(126, 501)
 
 [node name="Enemies" type="Node2D" parent="."]
