@@ -1,9 +1,11 @@
 #pragma once
 
+#include "godot_cpp/classes/json.hpp"
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/vector3.hpp"
+#include <cstddef>
 #include <tuple>
 #include <unordered_map>
 
@@ -28,17 +30,21 @@ class Temp_save_replay:public godot::Node{
     int recording_frame = 0;
     int replay_frame = 0;
 
+    godot::Ref<godot::JSON> json_path;
+
     void handle_recording();
     void handle_replaying();
 
     void save_2dpos_to_json();
-    void load_json_file();
+    void load_json_file_to_game();
 
     void add_nodes_from_group();
     
     public:
     void set_tracked_nodes(godot::Array new_tracked_nodes);
     godot::Array get_tracked_nodes();
+
+    void set_json_path(const godot::Ref<godot::JSON> &p_path);
 
     bool add_node(godot::Node* node);
     bool remove_node(godot::Node* node);

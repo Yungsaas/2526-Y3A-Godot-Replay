@@ -15,6 +15,8 @@
 #include "godot_cpp/variant/dictionary.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/variant.hpp"
+#include "godot_cpp/variant/vector2.hpp"
+#include <cstddef>
 #include <tuple>
 #include <unordered_map>
 
@@ -120,7 +122,6 @@ void Temp_save_replay::add_nodes_from_group()
 void Temp_save_replay::stop_recording()
 {
     is_recording = false;
-    // TODO: write to json here
 
     save_2dpos_to_json();
 }
@@ -238,6 +239,7 @@ void Temp_save_replay::save_2dpos_to_json()
     }
 
     godot::Dictionary root;
+    root["recorder_nodes"] = tracked_nodes.size();
     root["frame_count"] = recording_frame;  // total number of frames
     root["entries"] = entries;
     
@@ -264,6 +266,53 @@ void Temp_save_replay::save_2dpos_to_json()
         file->close();
     }
 }
+
+void Temp_save_replay::load_json_file_to_game()
+{
+    auto json_data = json_path->get_data();
+
+    godot::Dictionary dict = json_data; 
+
+    if (dict.has("frame_count")) {
+        int frames = dict["frame_count"];
+        recording_frame = frames;
+    }
+
+    int64_t nodes_amount;
+    if (dict.has("recorder_nodes")) {
+        int64_t nodes = dict["recorder_nodes"];
+        nodes_amount = nodes;
+    }
+
+    godot::Array current_entries;
+    if (dict.has("entries")) {
+        godot::Array entires = dict["entries"];
+        current_entries = entires;
+    }
+
+
+    for(int currentFrame = 0; currentFrame < recording_frame; currentFrame++)
+    {
+        godot::Dictionary entry_dict = current_entries[currentFrame];
+
+        if (entry_dict.has("pos")) {
+        godot::Vector2 position = dict["pos"];
+        godot::print_line(position);
+    }
+
+    }
+   
+
+   
+    
+}
+
+
+void Temp_save_replay::set_json_path(const godot::Ref<godot::JSON> &p_path)
+{
+    json_path = p_path;
+}
+
 
 void Temp_save_replay::update()
 {
@@ -302,4 +351,8 @@ void Temp_save_replay::_bind_methods()
     godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
 
     godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Temp_save_replay::set_tracked_nodes);
+
+    godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Temp_save_replay::set_json_path);
+
+    godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Temp_save_replay::load_json_file_to_game);
 }
