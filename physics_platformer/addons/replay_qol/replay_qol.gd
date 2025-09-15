@@ -33,6 +33,11 @@ func _enter_tree() -> void:
 	
 	var panel_Button = record_panel.get_node("Button") as Button
 	panel_Button.pressed.connect(self._on_panel_button_pressed)
+	
+	var groupKey := "global_group/recording"
+	if not ProjectSettings.has_setting(groupKey):
+		ProjectSettings.set_setting(groupKey, true)
+		ProjectSettings.add_property_info({"name": groupKey, "type":TYPE_BOOL, "usage": PROPERTY_USAGE_GROUP})
 
 #create a button variable in recorder.gd and make it equal to the one in the recorder_panel
 
@@ -58,3 +63,5 @@ func _exit_tree() -> void:
 	
 	remove_control_from_docks(data_panel)
 	data_panel.queue_free()
+	
+	ProjectSettings.clear("global_group/recording")

@@ -358,6 +358,5 @@ instructions."
 stream = ExtResource("9")
 autoplay = true
 
-[node name="Recorder" type="Temp_save_replay" parent="." node_paths=PackedStringArray("nodes_array")]
+[node name="Recorder" type="Temp_save_replay" parent="."]
 script = ExtResource("10_g8oy1")
-nodes_array = [NodePath("../Player"), NodePath("../Enemies/Enemy2")]
