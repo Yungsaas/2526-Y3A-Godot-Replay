@@ -34,6 +34,8 @@ class Temp_save_replay:public godot::Node{
     void save_2dpos_to_json();
     void load_json_file();
 
+    void add_nodes_from_group();
+    
     public:
     void set_tracked_nodes(godot::Array new_tracked_nodes);
     godot::Array get_tracked_nodes();

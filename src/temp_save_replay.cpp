@@ -92,6 +92,12 @@ void Temp_save_replay::start_recording()
     temporary_data_map_2d_pos.clear();
     last_recorded_3d_pos.clear();
     last_recorded_2d_pos.clear();
+
+    add_nodes_from_group();
+}
+
+void Temp_save_replay::add_nodes_from_group()
+{
     godot::Node* self_node_ptr = this;
     godot::Node* owner = self_node_ptr->get_owner();
     

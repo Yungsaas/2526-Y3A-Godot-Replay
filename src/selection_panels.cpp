@@ -1,15 +1,9 @@
 #pragma once
 
 #include "selection_panels.hpp"
-#include "godot_cpp/classes/node.hpp"
-#include "godot_cpp/classes/node2d.hpp"
-#include "godot_cpp/classes/node3d.hpp"
 #include "godot_cpp/core/class_db.hpp"
-#include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include <godot_cpp/core/object.hpp>
-#include <algorithm>
-#include <tuple>
 
 
 bool Selection_Panels::add_input_screen(godot::TextEdit* node)

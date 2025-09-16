@@ -22,6 +22,8 @@ class Selection_Panels:public godot::Node
     godot::TextEdit* position_screen = nullptr;
     godot::Node* event_screen;
 
+    void add_nodes_from_group();
+
     public:
     //Selection_Panels(Temp_save_replay* existing_replay) : replay_ptr(existing_replay) {}
 
