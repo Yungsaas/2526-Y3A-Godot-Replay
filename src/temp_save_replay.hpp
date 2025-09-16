@@ -58,6 +58,5 @@ class Temp_save_replay:public godot::Node{
     void start_replay();
     void stop_replay();
 
-    
     void update();
 };

@@ -20,6 +20,10 @@ run/main_scene="res://stage.tscn"
 config/features=PackedStringArray("4.4")
 config/icon="res://icon.webp"
 
+[autoload]
+
+DataPanel="*res://addons/replay_qol/data_panel.gd"
+
 [debug]
 
 gdscript/warnings/untyped_declaration=1

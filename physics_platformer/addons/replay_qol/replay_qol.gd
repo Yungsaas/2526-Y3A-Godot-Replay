@@ -11,7 +11,7 @@ var data_panel
 const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
 
 var recorder:Temp_save_replay = Temp_save_replay.new()
-var selection_panels:Selection_Panels = Selection_Panels.new()
+var data_panels:Data_Panels = Data_Panels.new()
 
 
 func _enter_tree() -> void:
@@ -25,11 +25,10 @@ func _enter_tree() -> void:
 	data_panel = DATA_PANEL.instantiate()
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
 	
-	selection_panels.set_replay_ptr(recorder)
+	data_panels.set_replay_ptr(recorder)
 	
-	data_panel.selection_panels = selection_panels
-	data_panel.selection_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
-	data_panel.selection_panels.add_input_screen(data_panel.input_text)
+	data_panel.data_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
+	data_panel.data_panels.add_input_screen(data_panel.input_text)
 	
 	var panel_Button = record_panel.get_node("Button") as Button
 	panel_Button.pressed.connect(self._on_panel_button_pressed)
