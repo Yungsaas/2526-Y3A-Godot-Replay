@@ -26,7 +26,7 @@ func _enter_tree() -> void:
 	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
 	
 	data_panels.set_replay_ptr(recorder)
-	
+	data_panel.data_panels = data_panels
 	data_panel.data_panels.add_position_screen(data_panel.position_text) #naming is incorrect, need to change it to data_panel.data_panels or smthing like that
 	data_panel.data_panels.add_input_screen(data_panel.input_text)
 	
