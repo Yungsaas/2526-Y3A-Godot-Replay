@@ -6,6 +6,7 @@
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/vector3.hpp"
 #include <cstddef>
+#include <godot_cpp/classes/text_edit.hpp>
 #include <tuple>
 #include <unordered_map>
 
@@ -24,6 +25,9 @@ class Temp_save_replay:public godot::Node{
     std::unordered_multimap<int, std::tuple<godot::Node*,godot::Vector2>> temporary_data_map_2d_pos;
     std::unordered_map<godot::Node*, godot::Vector3> last_recorded_3d_pos;
     std::unordered_map<godot::Node*, godot::Vector2> last_recorded_2d_pos;
+    
+    godot::TextEdit* input_screen = nullptr;
+    godot::TextEdit* position_screen = nullptr;
 
     bool is_recording = false;
     bool is_replaying = false;
@@ -59,6 +63,9 @@ class Temp_save_replay:public godot::Node{
     void stop_replay();
 
     void check_input();
+
+    bool set_input_screen(godot::TextEdit* new_screen);
+    godot::TextEdit* get_input_screen();
 
     void update();
 };

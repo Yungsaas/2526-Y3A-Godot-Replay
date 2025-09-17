@@ -3,8 +3,8 @@ extends Control
 
 var data_panels: Data_Panels
 
-@onready var input_text: TextEdit
-@onready var position_text: TextEdit
+@onready var input_text: TextEdit = $"Input Text"
+@onready var position_text: TextEdit = $"Position Text"
 
 func _on_input_pressed() -> void:
 	$"Input Text".visible = true

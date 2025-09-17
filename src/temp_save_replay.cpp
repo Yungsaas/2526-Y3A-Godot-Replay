@@ -11,6 +11,7 @@
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/node2d.hpp"
 #include "godot_cpp/classes/node3d.hpp"
+#include "godot_cpp/classes/text_edit.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/array.hpp"
@@ -317,11 +318,24 @@ void Temp_save_replay::check_input() {
 		if (input->is_action_pressed(action_name)) 
 		{
 			godot::print_line("Action pressed: ", action_name);
+
+			input_screen->set_text(action_name);
 		}
 	
 	}
 
 	int skibidi$case = 0;
+}
+
+bool Temp_save_replay::set_input_screen(godot::TextEdit* new_screen)
+{
+	input_screen = new_screen;
+	return true;
+}
+
+godot::TextEdit* Temp_save_replay::get_input_screen()
+{
+	return input_screen;
 }
 
 void Temp_save_replay::_bind_methods() {
@@ -339,4 +353,7 @@ void Temp_save_replay::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Temp_save_replay::load_json_file_to_game);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Temp_save_replay::check_input);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_input_screen", "new_screen"), &Temp_save_replay::set_input_screen);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_input_screen"), &Temp_save_replay::get_input_screen);
+
 }
