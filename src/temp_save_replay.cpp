@@ -1,6 +1,8 @@
 #pragma once
 
 #include "temp_save_replay.hpp"
+#include "godot_cpp/classes/input.hpp"
+#include "godot_cpp/classes/input_map.hpp"
 #include "godot_cpp/classes/object.hpp"
 #include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
@@ -14,8 +16,11 @@
 #include "godot_cpp/variant/array.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
 #include "godot_cpp/variant/string.hpp"
+#include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector2.hpp"
+#include <godot_cpp/classes/input_event.hpp>
+#include <godot_cpp/classes/input_event_key.hpp>
 #include <cstddef>
 #include <tuple>
 #include <unordered_map>
@@ -301,6 +306,24 @@ godot::Array Temp_save_replay::get_tracked_nodes() {
 	return tracked_nodes;
 }
 
+void Temp_save_replay::check_input() {
+	godot::Input *input = godot::Input::get_singleton();
+
+	godot::Array actions = godot::InputMap::get_singleton()->get_actions();
+
+	for (int i = 0; i < actions.size(); i++) 
+	{
+		godot::StringName action_name = actions[i];
+		if (input->is_action_pressed(action_name)) 
+		{
+			godot::print_line("Action pressed: ", action_name);
+		}
+	
+	}
+
+	int skibidi$case = 0;
+}
+
 void Temp_save_replay::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Temp_save_replay::debug_print_array);
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Temp_save_replay::debug_print_positions);
@@ -311,10 +334,9 @@ void Temp_save_replay::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("start_replay"), &Temp_save_replay::start_replay);
 	godot::ClassDB::bind_method(godot::D_METHOD("stop_replay"), &Temp_save_replay::stop_replay);
 	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
-
 	godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Temp_save_replay::set_tracked_nodes);
-
 	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Temp_save_replay::set_json_path);
-
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Temp_save_replay::load_json_file_to_game);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Temp_save_replay::check_input);
 }

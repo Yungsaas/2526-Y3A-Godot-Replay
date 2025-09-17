@@ -47,5 +47,8 @@ func _physics_process(_delta: float) -> void:
 	if stop_replay_input and not is_recording:
 		print("Stop replaying manually")
 		stop_replay()
+		
+	
+	check_input()
 	
 	update()

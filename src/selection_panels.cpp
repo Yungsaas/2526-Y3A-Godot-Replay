@@ -28,20 +28,6 @@ void Data_Panels::set_replay_ptr(Temp_save_replay *recorder) {
 	replay_ptr = recorder;
 }
 
-void Data_Panels::check_input() {
-	godot::Input *input = godot::Input::get_singleton();
-
-	// Example: check if "ui_accept" action is pressed
-	if (input->is_action_pressed("ui_accept")) {
-		godot::print_line("Accept action pressed!");
-	}
-
-	// Check for keycode directly (e.g., Space)
-	if (input->is_key_pressed(godot::Key::KEY_SPACE)) {
-		godot::print_line("Space pressed!");
-	}
-}
-
 
 void Data_Panels::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("add_input_screen", "node"), &Data_Panels::add_input_screen);
@@ -50,6 +36,4 @@ void Data_Panels::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("print_positions"), &Data_Panels::print_positions);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("set_replay_ptr", "recorder"), &Data_Panels::set_replay_ptr);
-
-	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Data_Panels::check_input);
 }

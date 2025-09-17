@@ -5,7 +5,6 @@
 #include <godot_cpp/classes/text_edit.hpp>
 #include "godot_cpp/variant/string.hpp"
 #include "temp_save_replay.hpp"
-#include <godot_cpp/classes/input_event.hpp>
 
 class Data_Panels:public godot::Node
 {
@@ -38,8 +37,6 @@ class Data_Panels:public godot::Node
     void print_input();
     void print_positions();
     void print_event();
-
-    void check_input();
     
     void update();
 };
