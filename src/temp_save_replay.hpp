@@ -24,7 +24,7 @@ private:
 	godot::Array tracked_nodes;
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos;
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos;
-    std::unordered_multimap<int, godot::StringName> temporary_data_map_input;
+    std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input;
 	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos;
 	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos;
 

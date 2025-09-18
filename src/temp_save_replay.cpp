@@ -83,6 +83,7 @@ void Temp_save_replay::start_recording() {
 	recording_frame = 0;
 	temporary_data_map_3d_pos.clear();
 	temporary_data_map_2d_pos.clear();
+	temporary_data_map_input.clear();
 	last_recorded_3d_pos.clear();
 	last_recorded_2d_pos.clear();
 
@@ -334,20 +335,19 @@ void Temp_save_replay::record_input() {
 	godot::Array actions = input_map_singleton->get_actions();
 	for (int i = 0; i < actions.size(); i++) {
 		godot::StringName action_name = actions[i];
-		if (input_singleton->is_action_pressed(action_name) 
-		&& action_name != godot::StringName("start_recording")
-		&& action_name != godot::StringName("stop_recording")
-		&& action_name != godot::StringName("start_replay")
-		&& action_name != godot::StringName("stop_replay")) {
-			temporary_data_map_input.emplace(recording_frame, action_name);
-			
-			godot::print_line("Action pressed: ", action_name);
+		//dont record the recording related inputs
+		if (action_name != godot::StringName("start_recording") && action_name != godot::StringName("stop_recording") && action_name != godot::StringName("start_replay") && action_name != godot::StringName("stop_replay")) {
+			continue;
+		}
+		if (input_singleton->is_action_just_pressed(action_name)) {
+			temporary_data_map_input.emplace(recording_frame, std::make_tuple(action_name, true));
+		} else if (input_singleton->is_action_just_released(action_name)) {
+			temporary_data_map_input.emplace(recording_frame, std::make_tuple(action_name, false));
 		}
 	}
 }
 
-void Temp_save_replay::replay_input()
-{
+void Temp_save_replay::replay_input() {
 	if (!input_active)
 		return;
 
@@ -355,8 +355,13 @@ void Temp_save_replay::replay_input()
 	auto range_input = temporary_data_map_input.equal_range(replay_frame);
 
 	for (auto data = range_input.first; data != range_input.second; data++) {
-		godot::StringName action_name = data->second;
-		input_singleton->action_press(action_name);
+		godot::StringName action_name = std::get<0>(data->second);
+		bool press_bool = std::get<1>(data->second);
+		if (press_bool) {
+			input_singleton->action_press(action_name);
+		} else {
+			input_singleton->action_release(action_name);
+		}
 	}
 }
 
