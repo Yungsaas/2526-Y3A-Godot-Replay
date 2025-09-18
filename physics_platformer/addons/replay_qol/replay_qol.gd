@@ -33,7 +33,23 @@ func _enter_tree() -> void:
 #	if edited_scene:
 #		var recorder_new := edited_scene.get_node("Recorder") as Temp_save_replay
 #		recorder_new.set_input_screen(data_panel.input_text)
+	# Add recording key mappings
+	var startReplayKey := "input/start_replay"
+	if not ProjectSettings.has_setting(startReplayKey):
+		ProjectSettings.set_setting(startReplayKey, true)
 	
+	var stopReplayKey := "input/stop_replay"
+	if not ProjectSettings.has_setting(stopReplayKey):
+		ProjectSettings.set_setting(startReplayKey, true)
+		
+	var startRecordKey := "input/start_recording"
+	if not ProjectSettings.has_setting(startRecordKey):
+		ProjectSettings.set_setting(startReplayKey, true)
+		
+	var stopRecordKey := "input/stop_recording"
+	if not ProjectSettings.has_setting(stopRecordKey):
+		ProjectSettings.set_setting(startReplayKey, true)
+		
 	var groupKey := "global_group/recording"
 	if not ProjectSettings.has_setting(groupKey):
 		ProjectSettings.set_setting(groupKey, true)
