@@ -340,7 +340,7 @@ void Temp_save_replay::record_input() {
 	}
 }
 
-void Temp_save_replay::replay_input() //need help here
+void Temp_save_replay::replay_input()
 {
 	if (!input_active)
 		return;
