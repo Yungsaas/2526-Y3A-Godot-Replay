@@ -28,11 +28,6 @@ func _enter_tree() -> void:
 	data_panel.data_panels.add_position_screen(data_panel.position_text)
 	data_panel.data_panels.add_input_screen(data_panel.input_text)
 	
-	var replay_node = get_tree().get_root().find_child("Recorder", true, false) as Temp_save_replay
-	replay_node.set_input_screen(data_panel.input_text)
-	print(replay_node.get_input_screen())
-	ResourceSaver.save(replay_node.get_scene(), replay_node.get_scene().scene_file_path)
-	
 	
 #	var edited_scene = get_editor_interface().get_edited_scene_root() #try to use this to instantiate a recorder instead of making one manualy
 #	if edited_scene:
