@@ -336,9 +336,10 @@ void Temp_save_replay::record_input() {
 	for (int i = 0; i < actions.size(); i++) {
 		godot::StringName action_name = actions[i];
 		//dont record the recording related inputs
-		if (action_name != godot::StringName("start_recording") && action_name != godot::StringName("stop_recording") && action_name != godot::StringName("start_replay") && action_name != godot::StringName("stop_replay")) {
+		if (action_name == godot::StringName("start_recording") && action_name == godot::StringName("stop_recording") && action_name == godot::StringName("start_replay") && action_name == godot::StringName("stop_replay")) {
 			continue;
 		}
+
 		if (input_singleton->is_action_just_pressed(action_name)) {
 			temporary_data_map_input.emplace(recording_frame, std::make_tuple(action_name, true));
 		} else if (input_singleton->is_action_just_released(action_name)) {
