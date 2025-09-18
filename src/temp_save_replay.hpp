@@ -33,6 +33,7 @@ private:
 	bool is_recording = false;
 	bool is_replaying = false;
 	bool input_active = false;
+    bool position_active = true;
 	int recording_frame = 0;
 	int replay_frame = 0;
 
@@ -67,13 +68,22 @@ public:
 	void start_replay();
 	void stop_replay();
 
-    void set_input_recording(bool state)
+    void set_input_recording_state(bool state)
     {
         input_active = state;
     }
-    bool get_input_recording()
+    bool get_input_recording_state()
     {
         return input_active;
+    }
+
+    void set_position_recording_state(bool state)
+    {
+        position_active = state;
+    }
+    bool get_position_recording_state()
+    {
+        return position_active;
     }
 
 	void check_input();

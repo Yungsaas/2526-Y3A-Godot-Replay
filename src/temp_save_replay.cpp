@@ -152,14 +152,15 @@ void Temp_save_replay::handle_recording() {
 }
 
 void Temp_save_replay::handle_replaying() {
-	
-	replay_input();
+
 
 	if (recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty()) {
 		godot::print_line("No recording in memory.");
 		return;
 	}
 
+	replay_input();
+	
 	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
 	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
 
@@ -359,6 +360,8 @@ void Temp_save_replay::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Temp_save_replay::load_json_file_to_game);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Temp_save_replay::check_input);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording", "state"), &Temp_save_replay::set_input_recording);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording"), &Temp_save_replay::get_input_recording);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording_state", "state"), &Temp_save_replay::set_input_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Temp_save_replay::get_input_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Temp_save_replay::set_position_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Temp_save_replay::get_position_recording_state);
 }
