@@ -32,7 +32,7 @@ private:
     godot::InputMap *input_map_singleton = godot::InputMap::get_singleton();
 	bool is_recording = false;
 	bool is_replaying = false;
-	bool input_active = false;
+	bool input_active = true;
     bool position_active = true;
 	int recording_frame = 0;
 	int replay_frame = 0;
