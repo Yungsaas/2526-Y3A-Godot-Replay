@@ -3,13 +3,14 @@
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include <godot_cpp/classes/text_edit.hpp>
+#include "godot_cpp/variant/string.hpp"
 #include "temp_save_replay.hpp"
 
-class Selection_Panels:public godot::Node
+class Data_Panels:public godot::Node
 {
 
     // Make class usable in godot with gdscript
-    GDCLASS(Selection_Panels, Node)
+    GDCLASS(Data_Panels, Node)
     
     protected:
     // Bind c plus plus methods to gdscript class

@@ -12,6 +12,8 @@ var is_replaying: bool = false
 
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
+	set_json_path(json_path)
+	load_json_file()
 	pass
 
 func _on_btn_pressed() -> void:
@@ -45,5 +47,8 @@ func _physics_process(_delta: float) -> void:
 	if stop_replay_input and not is_recording:
 		print("Stop replaying manually")
 		stop_replay()
+		
+	
+	#check_input()
 	
 	update()
