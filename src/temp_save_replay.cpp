@@ -336,7 +336,7 @@ void Temp_save_replay::record_input() {
 	for (int i = 0; i < actions.size(); i++) {
 		godot::StringName action_name = actions[i];
 		//dont record the recording related inputs
-		if (action_name == godot::StringName("start_recording") && action_name == godot::StringName("stop_recording") && action_name == godot::StringName("start_replay") && action_name == godot::StringName("stop_replay")) {
+		if (action_name == godot::StringName("start_recording") || action_name == godot::StringName("stop_recording") || action_name == godot::StringName("start_replay") || action_name == godot::StringName("stop_replay")) {
 			continue;
 		}
 
