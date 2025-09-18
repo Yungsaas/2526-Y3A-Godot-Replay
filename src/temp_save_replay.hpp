@@ -1,71 +1,85 @@
 #pragma once
 
+#include "godot_cpp/classes/input.hpp"
+#include "godot_cpp/classes/input_map.hpp"
 #include "godot_cpp/classes/json.hpp"
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/string.hpp"
+#include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/vector3.hpp"
-#include <cstddef>
 #include <godot_cpp/classes/text_edit.hpp>
 #include <tuple>
 #include <unordered_map>
 
-class Temp_save_replay:public godot::Node{
+class Temp_save_replay : public godot::Node {
+	// Make class usable in godot with gdscript
+	GDCLASS(Temp_save_replay, Node)
 
-    // Make class usable in godot with gdscript
-    GDCLASS(Temp_save_replay, Node)
-    
-    protected:
-    // Bind c plus plus methods to gdscript class
-    static void _bind_methods();
+protected:
+	// Bind c plus plus methods to gdscript class
+	static void _bind_methods();
 
-    private:
-    godot::Array tracked_nodes;
-    std::unordered_multimap<int, std::tuple<godot::Node*,godot::Vector3>> temporary_data_map_3d_pos;
-    std::unordered_multimap<int, std::tuple<godot::Node*,godot::Vector2>> temporary_data_map_2d_pos;
-    std::unordered_map<godot::Node*, godot::Vector3> last_recorded_3d_pos;
-    std::unordered_map<godot::Node*, godot::Vector2> last_recorded_2d_pos;
-    
-    godot::TextEdit* input_screen = nullptr;
-    godot::TextEdit* position_screen = nullptr;
+private:
+	godot::Array tracked_nodes;
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos;
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos;
+    std::unordered_multimap<int, godot::StringName> temporary_data_map_input;
+	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos;
+	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos;
 
-    bool is_recording = false;
-    bool is_replaying = false;
-    int recording_frame = 0;
-    int replay_frame = 0;
+    godot::Input *input_singleton = godot::Input::get_singleton();
+    godot::InputMap *input_map_singleton = godot::InputMap::get_singleton();
+	bool is_recording = false;
+	bool is_replaying = false;
+	bool input_active = false;
+	int recording_frame = 0;
+	int replay_frame = 0;
 
-    godot::Ref<godot::JSON> json_path;
+	godot::Ref<godot::JSON> json_path;
 
-    void handle_recording();
-    void handle_replaying();
+	void handle_recording();
+	void handle_replaying();
 
-    void save_2dpos_to_json();
-    void load_json_file_to_game();
+    void record_input();
+    void replay_input();
 
-    void add_nodes_from_group();
-    
-    public:
-    void set_tracked_nodes(godot::Array new_tracked_nodes);
-    godot::Array get_tracked_nodes();
+	void save_2dpos_to_json();
+	void load_json_file_to_game();
 
-    void set_json_path(const godot::Ref<godot::JSON> &p_path);
+	void add_nodes_from_group();
 
-    bool add_node(godot::Node* node);
-    bool remove_node(godot::Node* node);
-    
-    void debug_print_array();
-    void debug_print_positions();
+public:
+	void set_tracked_nodes(godot::Array new_tracked_nodes);
+	godot::Array get_tracked_nodes();
 
-    void start_recording();
-    void stop_recording();
+	void set_json_path(const godot::Ref<godot::JSON> &p_path);
 
-    void start_replay();
-    void stop_replay();
+	bool add_node(godot::Node *node);
+	bool remove_node(godot::Node *node);
 
-    void check_input();
+	void debug_print_array();
+	void debug_print_positions();
 
-    bool set_input_screen(godot::TextEdit* new_screen);
-    godot::TextEdit* get_input_screen();
+	void start_recording();
+	void stop_recording();
 
-    void update();
+	void start_replay();
+	void stop_replay();
+
+    void set_input_recording(bool state)
+    {
+        input_active = state;
+    }
+    bool get_input_recording()
+    {
+        return input_active;
+    }
+
+	void check_input();
+
+	bool set_input_screen(godot::TextEdit *new_screen);
+	godot::TextEdit *get_input_screen();
+
+	void update();
 };
