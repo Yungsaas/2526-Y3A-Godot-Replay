@@ -121,10 +121,35 @@ void Temp_save_replay::stop_replay() {
 	is_replaying = false;
 }
 
-void Temp_save_replay::handle_recording() {
+void Temp_save_replay::replay_position() {
+	if (!position_active)
+		return;
+	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
+	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
 
-	record_input();
-	
+	//Set positions
+	for (auto data = range2d.first; data != range2d.second; data++) {
+		godot::Node *node = std::get<0>(data->second);
+		godot::Vector2 pos = std::get<1>(data->second);
+
+		if (auto node2d = godot::Object::cast_to<godot::Node2D>(node)) {
+			node2d->set_global_position(pos);
+		}
+	}
+
+	for (auto data = range3d.first; data != range3d.second; data++) {
+		godot::Node *node = std::get<0>(data->second);
+		godot::Vector3 pos = std::get<1>(data->second);
+
+		if (auto node3d = godot::Object::cast_to<godot::Node3D>(node)) {
+			node3d->set_global_position(pos);
+		}
+	}
+}
+
+void Temp_save_replay::record_position() {
+	if (!position_active)
+		return;
 	for (auto nodeVariant : tracked_nodes) {
 		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
 		auto node3d = godot::Object::cast_to<godot::Node3D>(node);
@@ -147,41 +172,25 @@ void Temp_save_replay::handle_recording() {
 			}
 		}
 	}
+}
+
+void Temp_save_replay::handle_recording() {
+	record_input();
+
+	record_position();
 
 	recording_frame++;
 }
 
 void Temp_save_replay::handle_replaying() {
-
-
-	if (recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty()) {
+	if (recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty() && temporary_data_map_input.empty()) {
 		godot::print_line("No recording in memory.");
 		return;
 	}
 
 	replay_input();
-	
-	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
-	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
 
-	//Set positions
-	for (auto data = range2d.first; data != range2d.second; data++) {
-		godot::Node *node = std::get<0>(data->second);
-		godot::Vector2 pos = std::get<1>(data->second);
-
-		if (auto node2d = godot::Object::cast_to<godot::Node2D>(node)) {
-			node2d->set_global_position(pos);
-		}
-	}
-
-	for (auto data = range3d.first; data != range3d.second; data++) {
-		godot::Node *node = std::get<0>(data->second);
-		godot::Vector3 pos = std::get<1>(data->second);
-
-		if (auto node3d = godot::Object::cast_to<godot::Node3D>(node)) {
-			node3d->set_global_position(pos);
-		}
-	}
+	record_position();
 
 	replay_frame++;
 
@@ -309,7 +318,6 @@ godot::Array Temp_save_replay::get_tracked_nodes() {
 }
 
 void Temp_save_replay::check_input() {
-
 	godot::Array actions = input_map_singleton->get_actions();
 
 	for (int i = 0; i < actions.size(); i++) {
@@ -320,11 +328,11 @@ void Temp_save_replay::check_input() {
 	}
 }
 
-void Temp_save_replay::record_input()
-{
-	if(!input_active) return;
+void Temp_save_replay::record_input() {
+	if (!input_active)
+		return;
 	godot::Array actions = input_map_singleton->get_actions();
-	for (int i = 0; i< actions.size(); i++){
+	for (int i = 0; i < actions.size(); i++) {
 		godot::StringName action_name = actions[i];
 		if (input_singleton->is_action_pressed(action_name)) {
 			temporary_data_map_input.emplace(recording_frame, action_name);
@@ -334,7 +342,8 @@ void Temp_save_replay::record_input()
 
 void Temp_save_replay::replay_input() //need help here
 {
-	if(!input_active) return;
+	if (!input_active)
+		return;
 
 	godot::Array actions = input_map_singleton->get_actions();
 	auto range_input = temporary_data_map_input.equal_range(replay_frame);
