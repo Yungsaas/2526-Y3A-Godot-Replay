@@ -191,7 +191,7 @@ void Temp_save_replay::handle_replaying() {
 
 	replay_input();
 
-	record_position();
+	replay_position();
 
 	replay_frame++;
 
