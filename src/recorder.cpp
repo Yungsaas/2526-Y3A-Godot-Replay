@@ -201,7 +201,7 @@ void Recorder::handle_replaying() {
 }
 
 void Recorder::save_2dpos_to_json() {
-	godot::Array entries;
+	godot::Dictionary node_entries;
 
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
 		auto range2d = temporary_data_map_2d_pos.equal_range(currentFrame);
