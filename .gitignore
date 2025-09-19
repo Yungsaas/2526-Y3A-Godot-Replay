@@ -8,6 +8,9 @@
 # Ignore all bin folders inside test_project
 /test_project/**/bin/
 
+# Ignore generated json files
+*/addons/replay_qol/json/
+
 # Ignore custom.py
 custom.py
 
