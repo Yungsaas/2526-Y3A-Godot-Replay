@@ -201,29 +201,35 @@ void Recorder::handle_replaying() {
 }
 
 void Recorder::save_2dpos_to_json() {
-	godot::Array entries;
+	godot::Dictionary node_entries;
 
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
 		auto range2d = temporary_data_map_2d_pos.equal_range(currentFrame);
 
 		for (auto iterator = range2d.first; iterator != range2d.second; iterator++) {
-			godot::Dictionary entry;
-
 			auto node = std::get<0>(iterator->second);
 			auto position = std::get<1>(iterator->second);
 
+			godot::Dictionary entry;
 			entry["frame"] = currentFrame;
-			entry["node"] = node->get_path();
 			entry["pos"] = position;
 
-			entries.push_back(entry);
+			godot::String node_name = node->get_path();
+
+			// If node key doesn’t exist, create an array
+			if (!node_entries.has(node_name)) {
+				node_entries[node_name] = godot::Array();
+			}
+
+			// Push entry into the node’s array
+			node_entries[node_name].call("push_back", entry);
 		}
 	}
 
 	godot::Dictionary root;
 	root["recorder_nodes"] = tracked_nodes.size();
 	root["frame_count"] = recording_frame; // total number of frames
-	root["entries"] = entries;
+	root["entries"] = node_entries;
 
 	auto json_string = godot::JSON::stringify(root);
 
@@ -249,48 +255,53 @@ void Recorder::save_2dpos_to_json() {
 
 void Recorder::load_json_file_to_game() {
 	if (json_path != NULL) {
-		auto json_data = json_path->get_data(); //json file -> Variant
-
+		auto json_data = json_path->get_data(); // JSON file -> Variant
 		godot::Dictionary dict = json_data; // Variant -> Dictionary
 
 		temporary_data_map_2d_pos.clear();
 
 		if (dict.has("frame_count")) {
-			int frames = dict["frame_count"];
-			recording_frame = frames;
+			recording_frame = (int)dict["frame_count"];
 		}
 
 		if (dict.has("entries")) {
-			godot::Array entires = dict["entries"]; // array of dictionaries holding the frames, nodes and positions
-			for (int i = 0; i < entires.size(); i++) {
-				godot::Dictionary entry = entires[i];
+			godot::Dictionary entries = dict["entries"];
 
-				int frame = (int)entry["frame"];
-
-				godot::String node_path_str = entry["node"];
-				godot::NodePath node_path(node_path_str);
+			godot::Array node_keys = entries.keys();
+			for (int k = 0; k < node_keys.size(); k++) {
+				godot::String node_path_string = node_keys[k];
+				godot::NodePath node_path(node_path_string);
 
 				godot::Node *node = get_node<godot::Node>(node_path);
 
-				godot::Variant pos_var = entry["pos"];
-				godot::Vector2 positions;
+				godot::Array node_entries = entries[node_path_string];
+				for (int i = 0; i < node_entries.size(); i++) {
+					godot::Dictionary entry = node_entries[i];
 
-				if (pos_var.get_type() == godot::Variant::STRING) {
-					godot::String pos_str = pos_var;
-					pos_str = pos_str.strip_edges().replace("(", "").replace(")", "");
-					godot::Array parts = pos_str.split(",");
-					if (parts.size() == 2) {
-						positions.x = (float)godot::Variant(parts[0]);
-						positions.y = (float)godot::Variant(parts[1]);
-					} else {
-						godot::print_line("Invalid position string!");
+					int frame = (int)entry["frame"];
+
+					godot::Variant pos_var = entry["pos"];
+					godot::Vector2 positions;
+
+					if (pos_var.get_type() == godot::Variant::STRING) {
+						godot::String pos_str = pos_var;
+						pos_str = pos_str.strip_edges().replace("(", "").replace(")", ""); // used chat gpt to format the file properly, no idea what this does
+						godot::Array parts = pos_str.split(",");
+
+						if (parts.size() == 2) {
+							positions.x = (float)godot::Variant(parts[0]);
+							positions.y = (float)godot::Variant(parts[1]);
+						} else {
+							godot::print_line("Invalid position string!");
+						}
+					} 
+					else 
+					{
+						godot::print_line("pos_var is not of type godot::Variant::STRING!");
 					}
-				} else {
-					godot::print_line("pos_var is not a STRING!");
-				}
 
-				temporary_data_map_2d_pos.insert({ frame, std::make_tuple(node, positions) });
-				//temporary_data_map_2d_pos.emplace(frame, std::make_tuple(node, positions));
+					temporary_data_map_2d_pos.insert({ frame, std::make_tuple(node, positions) });
+				}
 			}
 		}
 	}
