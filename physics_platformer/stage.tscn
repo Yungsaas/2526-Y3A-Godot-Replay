@@ -8,8 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://bbxsp4gp554vh" path="res://player/player.tscn" id="6_fauva"]
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
-[ext_resource type="AudioStream" uid="uid://gunv00cij80t" path="res://audio/music.ogg" id="9"]
 [ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="10_g8oy1"]
+[ext_resource type="JSON" path="res://addons/replay_qol/json/input_0.0.json" id="10_i76fu"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -356,7 +356,6 @@ To edit the base tiles for the  tileset, open the tileset_edit.tscn file and fol
 instructions."
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("9")
 autoplay = true
 
 [node name="Recorder" type="Recorder" parent="." node_paths=PackedStringArray("nodes_array")]
