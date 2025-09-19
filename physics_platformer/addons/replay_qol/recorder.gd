@@ -9,11 +9,20 @@ var is_replaying: bool = false
 @export var nodes_array: Array[Node] = []
 
 @export var json_path: JSON
+@export var input_json_path: JSON
 
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
-	#set_json_path(json_path)
-	#load_json_file()
+	
+	set_input_recording_state(true)
+	set_position_recording_state(false)
+	
+	set_json_path(json_path)
+	set_input_json_path(input_json_path)
+	
+	load_json_file()
+	
+	
 	pass
 
 func _on_btn_pressed() -> void:

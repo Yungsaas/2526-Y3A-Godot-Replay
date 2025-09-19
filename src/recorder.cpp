@@ -111,6 +111,7 @@ void Recorder::stop_recording() {
 	is_recording = false;
 
 	save_2dpos_to_json();
+	save_input_to_json();
 }
 
 void Recorder::start_replay() {
@@ -253,6 +254,50 @@ void Recorder::save_2dpos_to_json() {
 	}
 }
 
+void Recorder::save_input_to_json() {
+	godot::Array actions;
+
+	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
+		auto range_input = temporary_data_map_input.equal_range(currentFrame);
+		for (auto iterator = range_input.first; iterator != range_input.second; iterator++) {
+			auto string_name = std::get<0>(iterator->second);
+			auto pressed = std::get<1>(iterator->second);
+
+			godot::Dictionary entry;
+			entry["frame"] = currentFrame;
+			entry["name"] = string_name;
+			entry["pressed"] = pressed;
+
+			actions.push_back(entry);
+		}
+	}
+
+	godot::Dictionary root;
+	root["recording_frame"] = recording_frame; 
+	root["actions"] = actions; 
+
+	auto json_string = godot::JSON::stringify(root);
+
+	int recording_index = 0;
+	godot::String filename;
+
+	while (true) {
+		filename = "res://addons/replay_qol/json/input_" + godot::String::num(recording_index) + ".json";
+
+		if (!godot::FileAccess::file_exists(filename)) {
+			break; // found available filename
+		}
+		recording_index++;
+	}
+
+	auto file = godot::FileAccess::open(filename, godot::FileAccess::WRITE);
+
+	if (file.is_valid()) {
+		file->store_string(json_string); // Write JSON text to file
+		file->close();
+	}
+}
+
 void Recorder::load_json_file_to_game() {
 	if (json_path != NULL) {
 		auto json_data = json_path->get_data(); // JSON file -> Variant
@@ -294,9 +339,7 @@ void Recorder::load_json_file_to_game() {
 						} else {
 							godot::print_line("Invalid position string!");
 						}
-					} 
-					else 
-					{
+					} else {
 						godot::print_line("pos_var is not of type godot::Variant::STRING!");
 					}
 
@@ -305,10 +348,37 @@ void Recorder::load_json_file_to_game() {
 			}
 		}
 	}
+
+	if (input_json_path != NULL) {
+		auto json_data = input_json_path->get_data(); // JSON file -> Variant
+
+		// Root is now a Dictionary
+		godot::Dictionary root = json_data;
+
+		// Extract recording_frame once
+		recording_frame = root["recording_frame"];
+
+		// Extract actions array
+		godot::Array actions = root["actions"];
+
+		for (int i = 0; i < actions.size(); i++) {
+			godot::Dictionary entry = actions[i];
+
+			int frame = entry["frame"];
+			godot::StringName name = entry["name"];
+			bool pressed = entry["pressed"];
+
+			temporary_data_map_input.insert({ frame, std::make_tuple(name, pressed) });
+		}
+	}
 }
 
 void Recorder::set_json_path(const godot::Ref<godot::JSON> &p_path) {
 	json_path = p_path;
+}
+
+void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
+	input_json_path = p_path;
 }
 
 void Recorder::update() {
@@ -390,6 +460,7 @@ void Recorder::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Recorder::set_tracked_nodes);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Recorder::set_json_path);
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_input_json_path", "json_file"), &Recorder::set_input_json_path);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Recorder::check_input);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording_state", "state"), &Recorder::set_input_recording_state);
