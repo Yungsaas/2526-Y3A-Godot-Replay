@@ -12,8 +12,8 @@ var is_replaying: bool = false
 
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
-	set_json_path(json_path)
-	load_json_file()
+	#set_json_path(json_path)
+	#load_json_file()
 	pass
 
 func _on_btn_pressed() -> void:
