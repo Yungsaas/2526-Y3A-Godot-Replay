@@ -1,6 +1,6 @@
 // Include your classes, that you want to expose to Godot
 
-#include "temp_save_replay.hpp"
+#include "recorder.hpp"
 #include "selection_panels.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>

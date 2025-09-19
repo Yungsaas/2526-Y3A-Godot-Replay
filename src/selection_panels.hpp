@@ -3,8 +3,7 @@
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include <godot_cpp/classes/text_edit.hpp>
-#include "godot_cpp/variant/string.hpp"
-#include "temp_save_replay.hpp"
+#include "recorder.hpp"
 
 class Data_Panels:public godot::Node
 {
