@@ -358,5 +358,5 @@ instructions."
 stream = ExtResource("9")
 autoplay = true
 
-[node name="Recorder" type="Temp_save_replay" parent="."]
+[node name="Recorder" type="Recorder" parent="."]
 script = ExtResource("10_g8oy1")

@@ -16,7 +16,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	}
 
 	// Register your classes here, so they are available in the Godot editor and engine
-	GDREGISTER_CLASS(Temp_save_replay)
+	GDREGISTER_CLASS(Recorder)
 	GDREGISTER_CLASS(Data_Panels)
 }
 

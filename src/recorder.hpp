@@ -12,9 +12,9 @@
 #include <tuple>
 #include <unordered_map>
 
-class Temp_save_replay : public godot::Node {
+class Recorder : public godot::Node {
 	// Make class usable in godot with gdscript
-	GDCLASS(Temp_save_replay, Node)
+	GDCLASS(Recorder, Node)
 
 protected:
 	// Bind c plus plus methods to gdscript class

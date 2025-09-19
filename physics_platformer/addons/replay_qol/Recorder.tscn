@@ -2,6 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="1_6k7j1"]
 
-[node name="Recorder" type="Temp_save_replay" node_paths=PackedStringArray("nodes_array")]
+[node name="Recorder" type="Recorder" node_paths=PackedStringArray("nodes_array")]
 script = ExtResource("1_6k7j1")
 nodes_array = [null]

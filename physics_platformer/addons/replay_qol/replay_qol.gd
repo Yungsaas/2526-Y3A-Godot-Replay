@@ -31,7 +31,7 @@ func _enter_tree() -> void:
 	
 #	var edited_scene = get_editor_interface().get_edited_scene_root() #try to use this to instantiate a recorder instead of making one manualy
 #	if edited_scene:
-#		var recorder_new := edited_scene.get_node("Recorder") as Temp_save_replay
+#		var recorder_new := edited_scene.get_node("Recorder") as Recorder
 #		recorder_new.set_input_screen(data_panel.input_text)
 	# Add recording key mappings
 	var startReplayKey := "input/start_replay"

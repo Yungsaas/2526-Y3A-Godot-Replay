@@ -16,7 +16,7 @@ class Data_Panels:public godot::Node
     static void _bind_methods();
 
     private:
-    Temp_save_replay* replay_ptr;
+    Recorder* replay_ptr;
 
     godot::TextEdit* input_screen;
     godot::TextEdit* position_screen = nullptr;
@@ -25,9 +25,9 @@ class Data_Panels:public godot::Node
     void add_nodes_from_group();
 
     public:
-    //Selection_Panels(Temp_save_replay* existing_replay) : replay_ptr(existing_replay) {}
+    //Selection_Panels(Recorder* existing_replay) : replay_ptr(existing_replay) {}
 
-    void set_replay_ptr(Temp_save_replay* recorder);
+    void set_replay_ptr(Recorder* recorder);
 
     bool add_input_screen(godot::TextEdit* node);
     bool add_position_screen(godot::TextEdit* node);

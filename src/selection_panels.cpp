@@ -24,7 +24,7 @@ void Data_Panels::print_positions() {
 	position_screen->set_text("Position text!");
 }
 
-void Data_Panels::set_replay_ptr(Temp_save_replay *recorder) {
+void Data_Panels::set_replay_ptr(Recorder *recorder) {
 	replay_ptr = recorder;
 }
 

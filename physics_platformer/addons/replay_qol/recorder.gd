@@ -1,4 +1,4 @@
-extends Temp_save_replay
+extends Recorder
 
 # CTRL+K for start recording SHIFT+K for start replay
 # CTRL+L for stop recording SHIFT+K for stop replay

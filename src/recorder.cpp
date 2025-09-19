@@ -25,7 +25,7 @@
 #include <tuple>
 #include <unordered_map>
 
-bool Temp_save_replay::add_node(godot::Node *node) {
+bool Recorder::add_node(godot::Node *node) {
 	if (tracked_nodes.has(node)) {
 		godot::print_line("Node " + node->get_name() + " is already in the list");
 		return false;
@@ -35,7 +35,7 @@ bool Temp_save_replay::add_node(godot::Node *node) {
 	return true;
 }
 
-bool Temp_save_replay::remove_node(godot::Node *node) {
+bool Recorder::remove_node(godot::Node *node) {
 	;
 	if (tracked_nodes.has(node)) {
 		tracked_nodes.erase(node);
@@ -46,14 +46,14 @@ bool Temp_save_replay::remove_node(godot::Node *node) {
 	return false;
 }
 
-void Temp_save_replay::debug_print_array() {
+void Recorder::debug_print_array() {
 	for (auto nodeVariant : tracked_nodes) {
 		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
 		godot::print_line("Node: " + node->get_name());
 	}
 }
 
-void Temp_save_replay::debug_print_positions() {
+void Recorder::debug_print_positions() {
 	godot::print_line("Printing recorded positions: ");
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
 		// Print all data for each frame
@@ -78,7 +78,7 @@ void Temp_save_replay::debug_print_positions() {
 	}
 }
 
-void Temp_save_replay::start_recording() {
+void Recorder::start_recording() {
 	is_recording = true;
 	recording_frame = 0;
 	temporary_data_map_3d_pos.clear();
@@ -90,7 +90,7 @@ void Temp_save_replay::start_recording() {
 	add_nodes_from_group();
 }
 
-void Temp_save_replay::add_nodes_from_group() {
+void Recorder::add_nodes_from_group() {
 	godot::Node *self_node_ptr = this;
 	godot::Node *owner = self_node_ptr->get_owner();
 
@@ -107,22 +107,22 @@ void Temp_save_replay::add_nodes_from_group() {
 	}
 }
 
-void Temp_save_replay::stop_recording() {
+void Recorder::stop_recording() {
 	is_recording = false;
 
 	save_2dpos_to_json();
 }
 
-void Temp_save_replay::start_replay() {
+void Recorder::start_replay() {
 	is_replaying = true;
 	replay_frame = 0;
 }
 
-void Temp_save_replay::stop_replay() {
+void Recorder::stop_replay() {
 	is_replaying = false;
 }
 
-void Temp_save_replay::replay_position() {
+void Recorder::replay_position() {
 	if (!position_active)
 		return;
 	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
@@ -148,7 +148,7 @@ void Temp_save_replay::replay_position() {
 	}
 }
 
-void Temp_save_replay::record_position() {
+void Recorder::record_position() {
 	if (!position_active)
 		return;
 	for (auto nodeVariant : tracked_nodes) {
@@ -175,7 +175,7 @@ void Temp_save_replay::record_position() {
 	}
 }
 
-void Temp_save_replay::handle_recording() {
+void Recorder::handle_recording() {
 	record_input();
 
 	record_position();
@@ -183,7 +183,7 @@ void Temp_save_replay::handle_recording() {
 	recording_frame++;
 }
 
-void Temp_save_replay::handle_replaying() {
+void Recorder::handle_replaying() {
 	if (recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty() && temporary_data_map_input.empty()) {
 		godot::print_line("No recording in memory.");
 		return;
@@ -200,7 +200,7 @@ void Temp_save_replay::handle_replaying() {
 	}
 }
 
-void Temp_save_replay::save_2dpos_to_json() {
+void Recorder::save_2dpos_to_json() {
 	godot::Array entries;
 
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
@@ -247,7 +247,7 @@ void Temp_save_replay::save_2dpos_to_json() {
 	}
 }
 
-void Temp_save_replay::load_json_file_to_game() {
+void Recorder::load_json_file_to_game() {
 	if (json_path != NULL) {
 		auto json_data = json_path->get_data(); //json file -> Variant
 
@@ -296,11 +296,11 @@ void Temp_save_replay::load_json_file_to_game() {
 	}
 }
 
-void Temp_save_replay::set_json_path(const godot::Ref<godot::JSON> &p_path) {
+void Recorder::set_json_path(const godot::Ref<godot::JSON> &p_path) {
 	json_path = p_path;
 }
 
-void Temp_save_replay::update() {
+void Recorder::update() {
 	if (is_recording) {
 		handle_recording();
 	}
@@ -310,15 +310,15 @@ void Temp_save_replay::update() {
 	}
 }
 
-void Temp_save_replay::set_tracked_nodes(godot::Array tracked_nodes_new) {
+void Recorder::set_tracked_nodes(godot::Array tracked_nodes_new) {
 	tracked_nodes = tracked_nodes_new;
 }
 
-godot::Array Temp_save_replay::get_tracked_nodes() {
+godot::Array Recorder::get_tracked_nodes() {
 	return tracked_nodes;
 }
 
-void Temp_save_replay::check_input() {
+void Recorder::check_input() {
 	godot::Array actions = input_map_singleton->get_actions();
 
 	for (int i = 0; i < actions.size(); i++) {
@@ -329,7 +329,7 @@ void Temp_save_replay::check_input() {
 	}
 }
 
-void Temp_save_replay::record_input() {
+void Recorder::record_input() {
 	if (!input_active)
 		return;
 	godot::Array actions = input_map_singleton->get_actions();
@@ -348,7 +348,7 @@ void Temp_save_replay::record_input() {
 	}
 }
 
-void Temp_save_replay::replay_input() {
+void Recorder::replay_input() {
 	if (!input_active)
 		return;
 
@@ -366,23 +366,23 @@ void Temp_save_replay::replay_input() {
 	}
 }
 
-void Temp_save_replay::_bind_methods() {
-	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Temp_save_replay::debug_print_array);
-	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Temp_save_replay::debug_print_positions);
-	godot::ClassDB::bind_method(godot::D_METHOD("add_node", "node"), &Temp_save_replay::add_node);
-	godot::ClassDB::bind_method(godot::D_METHOD("remove_node", "node"), &Temp_save_replay::remove_node);
-	godot::ClassDB::bind_method(godot::D_METHOD("start_recording"), &Temp_save_replay::start_recording);
-	godot::ClassDB::bind_method(godot::D_METHOD("stop_recording"), &Temp_save_replay::stop_recording);
-	godot::ClassDB::bind_method(godot::D_METHOD("start_replay"), &Temp_save_replay::start_replay);
-	godot::ClassDB::bind_method(godot::D_METHOD("stop_replay"), &Temp_save_replay::stop_replay);
-	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Temp_save_replay::update);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Temp_save_replay::set_tracked_nodes);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Temp_save_replay::set_json_path);
-	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Temp_save_replay::load_json_file_to_game);
+void Recorder::_bind_methods() {
+	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Recorder::debug_print_array);
+	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Recorder::debug_print_positions);
+	godot::ClassDB::bind_method(godot::D_METHOD("add_node", "node"), &Recorder::add_node);
+	godot::ClassDB::bind_method(godot::D_METHOD("remove_node", "node"), &Recorder::remove_node);
+	godot::ClassDB::bind_method(godot::D_METHOD("start_recording"), &Recorder::start_recording);
+	godot::ClassDB::bind_method(godot::D_METHOD("stop_recording"), &Recorder::stop_recording);
+	godot::ClassDB::bind_method(godot::D_METHOD("start_replay"), &Recorder::start_replay);
+	godot::ClassDB::bind_method(godot::D_METHOD("stop_replay"), &Recorder::stop_replay);
+	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Recorder::update);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Recorder::set_tracked_nodes);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Recorder::set_json_path);
+	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
 
-	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Temp_save_replay::check_input);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording_state", "state"), &Temp_save_replay::set_input_recording_state);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Temp_save_replay::get_input_recording_state);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Temp_save_replay::set_position_recording_state);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Temp_save_replay::get_position_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Recorder::check_input);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording_state", "state"), &Recorder::set_input_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Recorder::get_input_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Recorder::set_position_recording_state);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
 }

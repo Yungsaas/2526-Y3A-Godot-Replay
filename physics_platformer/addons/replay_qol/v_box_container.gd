@@ -3,7 +3,7 @@ extends Control
 
 var editor_interface
 
-var recorder: Temp_save_replay
+var recorder: Recorder
 
 @onready var add_button: Button = $VBoxContainer/AddButton
 @onready var removeButton: Button = $VBoxContainer/Button2
