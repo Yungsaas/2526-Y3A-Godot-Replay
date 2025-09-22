@@ -53,6 +53,9 @@ private:
     void record_position();
     void replay_position();
 
+	void record_variant();
+	void replay_variant();
+
 	void save_2dpos_to_json();
 	void load_json_file_to_game();
 
