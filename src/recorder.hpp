@@ -5,6 +5,7 @@
 #include "godot_cpp/classes/json.hpp"
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
+#include "godot_cpp/variant/array.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/vector3.hpp"
@@ -40,6 +41,8 @@ private:
 	godot::Ref<godot::JSON> json_path;
 	godot::Ref<godot::JSON> input_json_path;
 
+	godot::Array excluded_nodes;
+
 	void handle_recording();
 	void handle_replaying();
 
@@ -61,6 +64,11 @@ public:
 
 	void set_json_path(const godot::Ref<godot::JSON> &p_path);
 	void set_input_json_path(const godot::Ref<godot::JSON> &p_path);
+
+	void collect_nodes_recursive(Node *node, godot::Array &result);
+	bool is_excluded(Node *node);
+	void set_snapshot();
+	void set_excluded_nodes(godot::Array tracked_nodes_new);
 
 	bool add_node(godot::Node *node);
 	bool remove_node(godot::Node *node);

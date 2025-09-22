@@ -356,5 +356,6 @@ instructions."
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 autoplay = true
 
-[node name="Recorder" type="Recorder" parent="."]
+[node name="Recorder" type="Recorder" parent="." node_paths=PackedStringArray("excluded_nodes")]
 script = ExtResource("10_g8oy1")
+excluded_nodes = [NodePath("../AudioStreamPlayer"), NodePath("."), NodePath("../Label"), NodePath("../ParallaxBg"), NodePath("../Coins")]

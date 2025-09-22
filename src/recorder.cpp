@@ -12,6 +12,7 @@
 #include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/core/class_db.hpp"
+#include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/array.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
@@ -273,8 +274,8 @@ void Recorder::save_input_to_json() {
 	}
 
 	godot::Dictionary root;
-	root["recording_frame"] = recording_frame; 
-	root["actions"] = actions; 
+	root["recording_frame"] = recording_frame;
+	root["actions"] = actions;
 
 	auto json_string = godot::JSON::stringify(root);
 
@@ -381,6 +382,48 @@ void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
 	input_json_path = p_path;
 }
 
+bool Recorder::is_excluded(Node *node) {
+    for (int i = 0; i < excluded_nodes.size(); i++) {
+        Node *excluded = Object::cast_to<Node>(excluded_nodes[i]);
+        if (excluded && excluded == node) {
+            godot::print_error("Node: ", node->get_name(), " will be ignored");
+            return true;
+        }
+    }
+    return false;
+}
+
+void Recorder::collect_nodes_recursive(Node *node, godot::Array &result) {
+
+    if (!is_excluded(node)) {
+        result.push_back(node);
+        godot::print_line("Added node: ", node, " to array");
+    }
+
+    int child_count = node->get_child_count();
+    for (int i = 0; i < child_count; i++) {
+        Node *child = node->get_child(i);
+        collect_nodes_recursive(child, result);
+    }
+}
+
+void Recorder::set_snapshot() {
+
+	godot::Array all_scene_children;
+
+    Node *scene_root = get_tree()->get_current_scene();
+    if (scene_root) {
+        collect_nodes_recursive(scene_root, all_scene_children);
+    }
+
+}
+
+void Recorder::set_excluded_nodes(godot::Array new_excluded_nodes)
+{
+	excluded_nodes = new_excluded_nodes;
+}
+
+
 void Recorder::update() {
 	if (is_recording) {
 		handle_recording();
@@ -467,4 +510,7 @@ void Recorder::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Recorder::get_input_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Recorder::set_position_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_snapshot"), &Recorder::set_snapshot);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_excluded_nodes", "new_excluded_nodes"), &Recorder::set_excluded_nodes);
 }
