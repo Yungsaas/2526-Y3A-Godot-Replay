@@ -38,6 +38,7 @@ private:
 	bool is_replaying = false;
 	bool input_active = true;
     bool position_active = true;
+	bool variant_active = false;
 	int recording_frame = 0;
 	int replay_frame = 0;
 
