@@ -25,7 +25,7 @@ private:
 	godot::Array tracked_nodes; //List of tracked nodes
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos; //Recorded data for 3D positions
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos; //Recorded data for 2D positions
-	std::unordered_multimap<int, godot::Variant> temporary_data_map_variant; //Recorded data for other data that is serializable in godot
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Variant>> temporary_data_map_variant; //Recorded data for other data that is serializable in godot
     std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input; //Recorded input data
 	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos; //Used for checking for position changes
 	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos; //Used for checking for position changes
@@ -33,7 +33,7 @@ private:
 
     godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
     godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
-	
+
 	bool is_recording = false;
 	bool is_replaying = false;
 	bool input_active = true;
