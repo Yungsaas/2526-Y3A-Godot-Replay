@@ -105,7 +105,7 @@ void Recorder::add_nodes_from_groups()
 		return;
 	}
 
-	//add nodes from generated recording group first
+	//add from generated recording group first
 	godot::Array group_nodes = owner->get_tree()->get_nodes_in_group("recording");
 	for (int i = 0; i < group_nodes.size(); i++) {
 		if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
@@ -113,8 +113,9 @@ void Recorder::add_nodes_from_groups()
 		}
 	}
 
-	//add nodes from added groups
-	for (auto group_name : recording_groups) {
+	//add from added groups
+	for(auto group_name : recording_groups)
+	{
 		godot::Array group_nodes = owner->get_tree()->get_nodes_in_group(group_name);
 		for (int i = 0; i < group_nodes.size(); i++) {
 			if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
@@ -379,7 +380,6 @@ void Recorder::load_json_file_to_game() {
 							godot::print_line("Invalid position string!");
 						}
 					} else {
-					} else {
 						godot::print_line("pos_var is not of type godot::Variant::STRING!");
 					}
 
@@ -499,9 +499,10 @@ void Recorder::replay_input()
 
 void Recorder::add_recording_group(godot::StringName group_to_add)
 {
-	for (const auto &existing_group : recording_groups) {
+	for (const auto& existing_group : recording_groups) 
+	{
 		if (existing_group == group_to_add) {
-			godot::print_error("Group: " + existing_group + " already exists.");
+			godot::print_error("Group: " + existing_group +" already exists.");
 			return;
 		}
 	}
