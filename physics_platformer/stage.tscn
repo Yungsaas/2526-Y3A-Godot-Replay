@@ -293,11 +293,11 @@ position = Vector2(126, 501)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="Enemy1" parent="Enemies" instance=ExtResource("7")]
+[node name="Enemy1" parent="Enemies" groups=["recording"] instance=ExtResource("7")]
 position = Vector2(417.332, 654.8)
 physics_material_override = SubResource("2")
 
-[node name="Enemy2" parent="Enemies" instance=ExtResource("7")]
+[node name="Enemy2" parent="Enemies" groups=["recording"] instance=ExtResource("7")]
 position = Vector2(353.832, 612.525)
 physics_material_override = SubResource("3")
 
