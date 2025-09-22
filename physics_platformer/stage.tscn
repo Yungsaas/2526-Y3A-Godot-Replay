@@ -358,5 +358,6 @@ instructions."
 stream = ExtResource("9")
 autoplay = true
 
-[node name="Recorder" type="Recorder" parent="."]
+[node name="Recorder" type="Recorder" parent="." node_paths=PackedStringArray("nodes_array")]
 script = ExtResource("10_g8oy1")
+nodes_array = [NodePath("../Enemies/Enemy3"), NodePath("../Enemies/Enemy4")]
