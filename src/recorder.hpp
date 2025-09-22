@@ -7,6 +7,7 @@
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/string_name.hpp"
+#include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector3.hpp"
 #include <godot_cpp/classes/text_edit.hpp>
 #include <tuple>
@@ -21,16 +22,18 @@ protected:
 	static void _bind_methods();
 
 private:
-	godot::Array tracked_nodes;
-	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos;
-	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos;
-    std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input;
-	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos;
-	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos;
-	std::vector<godot::StringName> recording_groups;
+	godot::Array tracked_nodes; //List of tracked nodes
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos; //Recorded data for 3D positions
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos; //Recorded data for 2D positions
+	std::unordered_multimap<int, godot::Variant> temporary_data_map_variant; //Recorded data for other data that is serializable in godot
+    std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input; //Recorded input data
+	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos; //Used for checking for position changes
+	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos; //Used for checking for position changes
+	std::vector<godot::StringName> recording_groups; //Vector of groups that are supposed to get recorded
 
-    godot::Input *input_singleton = godot::Input::get_singleton();
-    godot::InputMap *input_map_singleton = godot::InputMap::get_singleton();
+    godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
+    godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
+	
 	bool is_recording = false;
 	bool is_replaying = false;
 	bool input_active = true;
