@@ -105,7 +105,7 @@ void Recorder::add_nodes_from_groups()
 		return;
 	}
 
-	//add from generated recording group first
+	//add nodes from generated recording group first
 	godot::Array group_nodes = owner->get_tree()->get_nodes_in_group("recording");
 	for (int i = 0; i < group_nodes.size(); i++) {
 		if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
@@ -113,7 +113,7 @@ void Recorder::add_nodes_from_groups()
 		}
 	}
 
-	//add from added groups
+	//add nodes from added groups
 	for(auto group_name : recording_groups)
 	{
 		godot::Array group_nodes = owner->get_tree()->get_nodes_in_group(group_name);
