@@ -27,6 +27,7 @@ private:
     std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input;
 	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos;
 	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos;
+	std::vector<godot::StringName> recording_groups;
 
     godot::Input *input_singleton = godot::Input::get_singleton();
     godot::InputMap *input_map_singleton = godot::InputMap::get_singleton();
@@ -51,7 +52,7 @@ private:
 	void save_2dpos_to_json();
 	void load_json_file_to_game();
 
-	void add_nodes_from_group();
+	void add_nodes_from_groups();
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
@@ -88,6 +89,8 @@ public:
     {
         return position_active;
     }
+
+	void add_recording_group(godot::StringName group_to_add);
 
 	void check_input();
 

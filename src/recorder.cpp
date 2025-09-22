@@ -87,10 +87,10 @@ void Recorder::start_recording() {
 	last_recorded_3d_pos.clear();
 	last_recorded_2d_pos.clear();
 
-	add_nodes_from_group();
+	add_nodes_from_groups();
 }
 
-void Recorder::add_nodes_from_group() {
+void Recorder::add_nodes_from_groups() {
 	godot::Node *self_node_ptr = this;
 	godot::Node *owner = self_node_ptr->get_owner();
 
@@ -99,10 +99,22 @@ void Recorder::add_nodes_from_group() {
 		return;
 	}
 
+	//add from generated recording group first
 	godot::Array group_nodes = owner->get_tree()->get_nodes_in_group("recording");
 	for (int i = 0; i < group_nodes.size(); i++) {
 		if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
 			add_node(current_node);
+		}
+	}
+
+	//add from added groups
+	for(auto group_name : recording_groups)
+	{
+		godot::Array group_nodes = owner->get_tree()->get_nodes_in_group(group_name);
+		for (int i = 0; i < group_nodes.size(); i++) {
+			if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
+				add_node(current_node);
+			}
 		}
 	}
 }
@@ -377,6 +389,19 @@ void Recorder::replay_input() {
 	}
 }
 
+void Recorder::add_recording_group(godot::StringName group_to_add)
+{
+	for (const auto& existing_group : recording_groups) 
+	{
+		if (existing_group == group_to_add) {
+			godot::print_error("Group: " + existing_group +" already exists.");
+			return;
+		}
+	}
+	recording_groups.push_back(group_to_add);
+	godot::print_line("Group: " + group_to_add + " has been added to the recording.");
+}
+
 void Recorder::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Recorder::debug_print_array);
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Recorder::debug_print_positions);
@@ -396,4 +421,7 @@ void Recorder::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Recorder::get_input_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Recorder::set_position_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("add_recording_group", "group_name"), &Recorder::add_recording_group);
+
 }
