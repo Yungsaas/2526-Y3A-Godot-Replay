@@ -1,6 +1,5 @@
 #pragma once
 
-#include "recorder.hpp"
 #include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/input.hpp"
 #include "godot_cpp/classes/input_map.hpp"
@@ -19,6 +18,7 @@
 #include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector2.hpp"
+#include "recorder.hpp"
 #include <cstddef>
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
@@ -114,8 +114,7 @@ void Recorder::add_nodes_from_groups()
 	}
 
 	//add nodes from added groups
-	for(auto group_name : recording_groups)
-	{
+	for (auto group_name : recording_groups) {
 		godot::Array group_nodes = owner->get_tree()->get_nodes_in_group(group_name);
 		for (int i = 0; i < group_nodes.size(); i++) {
 			if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
@@ -499,10 +498,9 @@ void Recorder::replay_input()
 
 void Recorder::add_recording_group(godot::StringName group_to_add)
 {
-	for (const auto& existing_group : recording_groups) 
-	{
+	for (const auto &existing_group : recording_groups) {
 		if (existing_group == group_to_add) {
-			godot::print_error("Group: " + existing_group +" already exists.");
+			godot::print_error("Group: " + existing_group + " already exists.");
 			return;
 		}
 	}
