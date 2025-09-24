@@ -18,7 +18,7 @@
 struct CustomDataKey
 {
 	godot::Node* node_ptr;
-    godot::String data_name;
+    godot::StringName data_name;
     bool operator==(CustomDataKey const &o) const {
         return node_ptr == o.node_ptr && data_name == o.data_name;
     }
