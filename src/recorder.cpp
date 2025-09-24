@@ -1,6 +1,5 @@
 #pragma once
 
-#include "recorder.hpp"
 #include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/input.hpp"
 #include "godot_cpp/classes/input_map.hpp"
@@ -19,13 +18,15 @@
 #include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector2.hpp"
+#include "recorder.hpp"
 #include <cstddef>
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <tuple>
 #include <unordered_map>
 
-bool Recorder::add_node(godot::Node *node) {
+bool Recorder::add_node(godot::Node *node)
+{
 	if (tracked_nodes.has(node)) {
 		godot::print_line("Node " + node->get_name() + " is already in the list");
 		return false;
@@ -35,7 +36,8 @@ bool Recorder::add_node(godot::Node *node) {
 	return true;
 }
 
-bool Recorder::remove_node(godot::Node *node) {
+bool Recorder::remove_node(godot::Node *node)
+{
 	;
 	if (tracked_nodes.has(node)) {
 		tracked_nodes.erase(node);
@@ -46,14 +48,16 @@ bool Recorder::remove_node(godot::Node *node) {
 	return false;
 }
 
-void Recorder::debug_print_array() {
+void Recorder::debug_print_array()
+{
 	for (auto nodeVariant : tracked_nodes) {
 		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
 		godot::print_line("Node: " + node->get_name());
 	}
 }
 
-void Recorder::debug_print_positions() {
+void Recorder::debug_print_positions()
+{
 	godot::print_line("Printing recorded positions: ");
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
 		// Print all data for each frame
@@ -65,7 +69,7 @@ void Recorder::debug_print_positions() {
 		for (auto iterator = range2d.first; iterator != range2d.second; iterator++) {
 			auto node = std::get<0>(iterator->second);
 			auto position = std::get<1>(iterator->second);
-			godot::print_line("Node: " + node->get_name() +" Position: \nX: " + godot::String::num(position.x) + "\nY: " + godot::String::num(position.y));
+			godot::print_line("Node: " + node->get_name() + " Position: \nX: " + godot::String::num(position.x) + "\nY: " + godot::String::num(position.y));
 		}
 
 		godot::print_line("\n3D positions:");
@@ -77,7 +81,8 @@ void Recorder::debug_print_positions() {
 	}
 }
 
-void Recorder::start_recording() {
+void Recorder::start_recording()
+{
 	is_recording = true;
 	recording_frame = 0;
 	temporary_data_map_3d_pos.clear();
@@ -89,7 +94,8 @@ void Recorder::start_recording() {
 	add_nodes_from_groups();
 }
 
-void Recorder::add_nodes_from_groups() {
+void Recorder::add_nodes_from_groups()
+{
 	godot::Node *self_node_ptr = this;
 	godot::Node *owner = self_node_ptr->get_owner();
 
@@ -107,8 +113,7 @@ void Recorder::add_nodes_from_groups() {
 	}
 
 	//add nodes from added groups
-	for(auto group_name : recording_groups)
-	{
+	for (auto group_name : recording_groups) {
 		godot::Array group_nodes = owner->get_tree()->get_nodes_in_group(group_name);
 		for (int i = 0; i < group_nodes.size(); i++) {
 			if (godot::Node *current_node = godot::Object::cast_to<Node>(group_nodes[i])) {
@@ -118,25 +123,29 @@ void Recorder::add_nodes_from_groups() {
 	}
 }
 
-void Recorder::stop_recording() {
+void Recorder::stop_recording()
+{
 	is_recording = false;
 
 	save_2dpos_to_json();
 }
 
-void Recorder::start_replay() {
+void Recorder::start_replay()
+{
 	is_replaying = true;
 	replay_frame = 0;
 }
 
-void Recorder::stop_replay() {
+void Recorder::stop_replay()
+{
 	is_replaying = false;
 }
 
-void Recorder::replay_position() {
+void Recorder::replay_position()
+{
 	if (!position_active)
 		return;
-	
+
 	godot::print_line("Replaying Positions");
 	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
 	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
@@ -161,10 +170,11 @@ void Recorder::replay_position() {
 	}
 }
 
-void Recorder::record_position() {
+void Recorder::record_position()
+{
 	if (!position_active)
 		return;
-	
+
 	godot::print_line("Recording Position");
 	for (auto nodeVariant : tracked_nodes) {
 		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
@@ -190,8 +200,8 @@ void Recorder::record_position() {
 	}
 }
 
-void Recorder::handle_recording() {
-	
+void Recorder::handle_recording()
+{
 	godot::print_line("Recording Frame: " + godot::String::num_int64(recording_frame));
 	record_input();
 
@@ -200,7 +210,8 @@ void Recorder::handle_recording() {
 	recording_frame++;
 }
 
-void Recorder::handle_replaying() {
+void Recorder::handle_replaying()
+{
 	if (recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty() && temporary_data_map_input.empty()) {
 		godot::print_line("No recording in memory.");
 		return;
@@ -218,7 +229,8 @@ void Recorder::handle_replaying() {
 	}
 }
 
-void Recorder::save_2dpos_to_json() {
+void Recorder::save_2dpos_to_json()
+{
 	godot::Dictionary node_entries;
 
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
@@ -271,7 +283,8 @@ void Recorder::save_2dpos_to_json() {
 	}
 }
 
-void Recorder::load_json_file_to_game() {
+void Recorder::load_json_file_to_game()
+{
 	if (json_path != NULL) {
 		auto json_data = json_path->get_data(); // JSON file -> Variant
 		godot::Dictionary dict = json_data; // Variant -> Dictionary
@@ -312,9 +325,7 @@ void Recorder::load_json_file_to_game() {
 						} else {
 							godot::print_line("Invalid position string!");
 						}
-					} 
-					else 
-					{
+					} else {
 						godot::print_line("pos_var is not of type godot::Variant::STRING!");
 					}
 
@@ -325,11 +336,13 @@ void Recorder::load_json_file_to_game() {
 	}
 }
 
-void Recorder::set_json_path(const godot::Ref<godot::JSON> &p_path) {
+void Recorder::set_json_path(const godot::Ref<godot::JSON> &p_path)
+{
 	json_path = p_path;
 }
 
-void Recorder::update() {
+void Recorder::update()
+{
 	if (is_recording) {
 		handle_recording();
 	}
@@ -339,20 +352,21 @@ void Recorder::update() {
 	}
 }
 
-void Recorder::set_tracked_nodes(godot::Array tracked_nodes_new) {
-	for(auto new_node_variant : tracked_nodes_new)
-	{
+void Recorder::set_tracked_nodes(godot::Array tracked_nodes_new)
+{
+	for (auto new_node_variant : tracked_nodes_new) {
 		auto new_node = godot::Object::cast_to<Node>(new_node_variant);
 		add_node(new_node);
 	}
-	
 }
 
-godot::Array Recorder::get_tracked_nodes() {
+godot::Array Recorder::get_tracked_nodes()
+{
 	return tracked_nodes;
 }
 
-void Recorder::check_input() {
+void Recorder::check_input()
+{
 	godot::Array actions = input_map_singleton->get_actions();
 
 	for (int i = 0; i < actions.size(); i++) {
@@ -363,7 +377,8 @@ void Recorder::check_input() {
 	}
 }
 
-void Recorder::record_input() {
+void Recorder::record_input()
+{
 	if (!input_active)
 		return;
 	godot::print_line("Recording Input");
@@ -383,7 +398,8 @@ void Recorder::record_input() {
 	}
 }
 
-void Recorder::replay_input() {
+void Recorder::replay_input()
+{
 	if (!input_active)
 		return;
 	godot::print_line("Replaying Input");
@@ -403,10 +419,9 @@ void Recorder::replay_input() {
 
 void Recorder::add_recording_group(godot::StringName group_to_add)
 {
-	for (const auto& existing_group : recording_groups) 
-	{
+	for (const auto &existing_group : recording_groups) {
 		if (existing_group == group_to_add) {
-			godot::print_error("Group: " + existing_group +" already exists.");
+			godot::print_error("Group: " + existing_group + " already exists.");
 			return;
 		}
 	}
@@ -414,7 +429,19 @@ void Recorder::add_recording_group(godot::StringName group_to_add)
 	godot::print_line("Group: " + group_to_add + " has been added to the recording.");
 }
 
-void Recorder::_bind_methods() {
+void Recorder::add_custom_data(godot::Node *node, godot::StringName customDataName)
+{
+	//Save variant data type here
+	if (tracked_nodes.has(node)) {
+		tracked_custom_data.emplace(node, customDataName);
+		godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
+	} else {
+		godot::print_error("Node: " + node->get_name() + " is not in the recording list.");
+	}
+}
+
+void Recorder::_bind_methods()
+{
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Recorder::debug_print_array);
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_positions"), &Recorder::debug_print_positions);
 	godot::ClassDB::bind_method(godot::D_METHOD("add_node", "node"), &Recorder::add_node);
@@ -435,5 +462,4 @@ void Recorder::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("add_recording_group", "group_name"), &Recorder::add_recording_group);
-
 }
