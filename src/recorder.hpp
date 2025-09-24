@@ -26,9 +26,10 @@ struct CustomDataKey
 
 struct CustomDataKeyHash {
     size_t operator()(CustomDataKey const &k) const noexcept {
-		//ugly but works, might impact performance due to converting godot::String to std::string via utf8.getdata
-		//if found to be an issue, try to find a different way of doing this
-        return std::hash<godot::Node*>()(k.node_ptr) ^ (std::hash<std::string>()(k.data_name.utf8().get_data())<<1);
+		//Hashing the custom data key
+        size_t h1 = std::hash<godot::Node*>()(k.node_ptr);
+        size_t h2 = static_cast<size_t>(k.data_name.hash()); //Found the solution to the memory intensive utf8 conversion (was .hash() not .get_hash())
+        return h1 ^ (h2 << 1);
     }
 };
 
