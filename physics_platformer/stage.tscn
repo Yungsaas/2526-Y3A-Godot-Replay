@@ -290,6 +290,7 @@ position = Vector2(465, 560.405)
 
 [node name="Player" parent="." groups=["recording"] instance=ExtResource("6_fauva")]
 position = Vector2(126, 501)
+metadata/CoinScore = 0
 
 [node name="Enemies" type="Node2D" parent="."]
 

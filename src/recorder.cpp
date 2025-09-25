@@ -1,5 +1,6 @@
 #pragma once
 
+#include "recorder.hpp"
 #include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/input.hpp"
 #include "godot_cpp/classes/input_map.hpp"
@@ -18,7 +19,6 @@
 #include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector2.hpp"
-#include "recorder.hpp"
 #include <cstddef>
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
@@ -178,25 +178,29 @@ void Recorder::record_position()
 
 	godot::print_line("Recording Position");
 	for (auto nodeVariant : tracked_nodes) {
-		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
-		auto node3d = godot::Object::cast_to<godot::Node3D>(node);
-		auto node2d = godot::Object::cast_to<godot::Node2D>(node);
-		if (node3d) {
-			auto current_position = node3d->get_global_position();
+		if (nodeVariant.booleanize()) {
+			auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
+			auto node3d = godot::Object::cast_to<godot::Node3D>(node);
+			auto node2d = godot::Object::cast_to<godot::Node2D>(node);
+			if (node3d) {
+				auto current_position = node3d->get_global_position();
 
-			if (last_recorded_3d_pos[node] != current_position || recording_frame == 0) {
-				temporary_data_map_3d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
-				last_recorded_3d_pos[node] = current_position;
+				if (last_recorded_3d_pos[node] != current_position || recording_frame == 0) {
+					temporary_data_map_3d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
+					last_recorded_3d_pos[node] = current_position;
+				}
 			}
-		}
-		if (node2d) {
-			auto current_position = node2d->get_global_position();
+			if (node2d) {
+				auto current_position = node2d->get_global_position();
 
-			if (last_recorded_2d_pos[node] != current_position || recording_frame == 0) {
-				//godot::print_line("Recorded position: " + current_position);
-				temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
-				last_recorded_2d_pos[node] = current_position;
+				if (last_recorded_2d_pos[node] != current_position || recording_frame == 0) {
+					//godot::print_line("Recorded position: " + current_position);
+					temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
+					last_recorded_2d_pos[node] = current_position;
+				}
 			}
+		} else {
+			godot::print_error("Node in recording list was deleted");
 		}
 	}
 }
@@ -224,7 +228,7 @@ void Recorder::handle_replaying()
 	replay_input();
 
 	replay_position();
-	
+
 	replay_custom_data();
 
 	replay_frame++;
@@ -447,22 +451,21 @@ void Recorder::add_custom_data(godot::Node *node, godot::StringName customDataNa
 
 void Recorder::record_custom_data()
 {
-	if(!custom_data_active) return;
+	if (!custom_data_active)
+		return;
 
-	for(auto node_data_pair : tracked_custom_data)
-	{
+	for (auto node_data_pair : tracked_custom_data) {
 		//Using variables here for readability
 		auto node = node_data_pair.first;
 		auto data_name = node_data_pair.second;
 		godot::Variant data_content = node->get_meta(data_name);
 
-		CustomDataKey key{node,data_name};
+		CustomDataKey key{ node, data_name };
 
 		auto it = last_recorded_custom_data.find(key);
-		if(it == last_recorded_custom_data.end() || it->second != data_content)
-		{
+		if (it == last_recorded_custom_data.end() || it->second != data_content) {
 			//data entry either doesnt exist in last recorded custom data or has changed
-			temporary_data_map_custom_data.emplace(recording_frame, CustomDataEntry{node, data_name, data_content});
+			temporary_data_map_custom_data.emplace(recording_frame, CustomDataEntry{ node, data_name, data_content });
 			last_recorded_custom_data[key] = (data_content);
 			godot::print_line("Custom data: " + data_name + " with data content: " + data_content.stringify() + " has been recorded");
 		}
@@ -471,20 +474,18 @@ void Recorder::record_custom_data()
 
 void Recorder::replay_custom_data()
 {
-	if(!custom_data_active) return;
+	if (!custom_data_active)
+		return;
 
 	//Get current frame data
 	auto range_custom_data = temporary_data_map_custom_data.equal_range(replay_frame);
 
 	//Set data
-	for (auto data = range_custom_data.first; data != range_custom_data.second; data++)
-	{
+	for (auto data = range_custom_data.first; data != range_custom_data.second; data++) {
 		auto data_entry = data->second;
 		data_entry.node->set_meta(data_entry.variableName, data_entry.variableData);
 	}
-	
 }
-
 
 void Recorder::_bind_methods()
 {
@@ -508,9 +509,8 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_custom_data_recording_state", "state"), &Recorder::set_custom_data_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_custom_data_recording_state"), &Recorder::get_custom_data_recording_state);
-	
+
 	godot::ClassDB::bind_method(godot::D_METHOD("add_recording_group", "group_name"), &Recorder::add_recording_group);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("add_custom_data", "node", "custom_data"), &Recorder::add_custom_data);
-	
 }
