@@ -114,7 +114,7 @@ hframes = 4
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_4atuj")
+&"": SubResource("AnimationLibrary_4atuj")
 }
 autoplay = "spin"
 
@@ -128,10 +128,10 @@ stream = ExtResource("3")
 modulate = Color(0.596078, 0.639216, 1, 1)
 material = SubResource("4")
 emitting = false
+texture = ExtResource("4")
 lifetime = 0.4
 one_shot = true
 explosiveness = 0.7
-texture = ExtResource("4")
 emission_shape = 1
 emission_sphere_radius = 4.0
 gravity = Vector2(0, 0)

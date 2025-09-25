@@ -1,6 +1,7 @@
 #pragma once
 
 #include "recorder.hpp"
+#include "gdextension_interface.h"
 #include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/input.hpp"
 #include "godot_cpp/classes/input_map.hpp"
@@ -9,7 +10,9 @@
 #include "godot_cpp/classes/node2d.hpp"
 #include "godot_cpp/classes/node3d.hpp"
 #include "godot_cpp/classes/object.hpp"
+#include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/ref.hpp"
+#include "godot_cpp/classes/resource_loader.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/error_macros.hpp"
@@ -79,6 +82,18 @@ void Recorder::debug_print_positions() {
 	}
 }
 
+void Recorder::debug_print_temp() {
+	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
+	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
+
+	//Set positions
+	for (auto data = range2d.first; data != range2d.second; data++) {
+		godot::Node *node = std::get<0>(data->second);
+
+		godot::print_line(node->get_name());
+	}
+}
+
 void Recorder::start_recording() {
 	is_recording = true;
 	recording_frame = 0;
@@ -118,6 +133,8 @@ void Recorder::stop_recording() {
 void Recorder::start_replay() {
 	is_replaying = true;
 	replay_frame = 0;
+
+	get_missing_nodes();
 }
 
 void Recorder::stop_replay() {
@@ -382,47 +399,114 @@ void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
 	input_json_path = p_path;
 }
 
-bool Recorder::is_excluded(Node *node) {
-    for (int i = 0; i < excluded_nodes.size(); i++) {
-        Node *excluded = Object::cast_to<Node>(excluded_nodes[i]);
-        if (excluded && excluded == node) {
-            godot::print_error("Node: ", node->get_name(), " will be ignored");
-            return true;
-        }
-    }
-    return false;
-}
-
-void Recorder::collect_nodes_recursive(Node *node, godot::Array &result) {
-
-    if (!is_excluded(node)) {
-        result.push_back(node);
-        godot::print_line("Added node: ", node, " to array");
-    }
-
-    int child_count = node->get_child_count();
-    for (int i = 0; i < child_count; i++) {
-        Node *child = node->get_child(i);
-        collect_nodes_recursive(child, result);
-    }
-}
-
 void Recorder::set_snapshot() {
-
-	godot::Array all_scene_children;
-
-    Node *scene_root = get_tree()->get_current_scene();
-    if (scene_root) {
-        collect_nodes_recursive(scene_root, all_scene_children);
-    }
-
+	for (int i = 0; i < tracked_nodes.size(); i++) //get snapshot
+	{
+		godot::Node *original = Object::cast_to<Node>(tracked_nodes[i]);
+		Node *node = original->duplicate();
+		snapshot_nodes.push_back(node);
+	}
 }
 
-void Recorder::set_excluded_nodes(godot::Array new_excluded_nodes)
+void Recorder::get_missing_nodes() {
+	for (auto &nodes : snapshot_nodes) 
+	{
+		godot::Node *snapshot_node = Object::cast_to<Node>(nodes); //get snapshot node
+		if (!snapshot_node)
+			continue;
+
+		bool found = false;
+
+		for (auto &tracked_nodes_item : tracked_nodes) //compare nodes from snapshot_nodes and tracked_nodes, if names match the node is still there
+		{
+			if (!tracked_nodes_item || tracked_nodes_item.get_type() == godot::Variant::NIL)
+			continue;
+
+			godot::Node *tracked_node = Object::cast_to<Node>(tracked_nodes_item);
+
+			if (!tracked_node)
+				continue;
+
+			if (tracked_node->get_name() == snapshot_node->get_name()) 
+			{
+				found = true;
+				break;
+			}
+		}
+		if (found) 
+		{
+			godot::print_line(snapshot_node->get_name(), " is in array");
+		} 
+		else 
+		{
+			godot::print_line(snapshot_node->get_name(), " is not in array");
+			instantiate_from_snapshot(snapshot_node);
+		}
+	}
+
+	cleanup_tracked_nodes(); //clean tracked_nodes from free objects
+}
+
+void Recorder::cleanup_tracked_nodes() {
+	godot::Array temp_array;
+	for (int i = 0; i < tracked_nodes.size(); i++) //create a temp array before clearing tracked nodes
+	{
+		temp_array.append(tracked_nodes[i]);
+	}
+	tracked_nodes.clear();
+
+	godot::print_line("Temp array before clean: ", temp_array); //remove the free objects
+	for (int i = temp_array.size() - 1; i >= 0; i--) 
+	{
+		godot::Variant v = temp_array[i];
+		if (v.get_type() == godot::Variant::OBJECT) {
+			Object *obj = v;
+			if (!obj || obj->is_queued_for_deletion()) {
+				temp_array.remove_at(i);
+			}
+		}
+	}
+	godot::print_line("Temp array after clean: ", temp_array); // restore tracked nodes
+	for (int i = 0; i < temp_array.size(); i++) 
+	{
+		tracked_nodes.append(temp_array[i]);
+	}
+}
+
+void Recorder::instantiate_from_snapshot(godot::Node *snapshot_node) 
 {
-	excluded_nodes = new_excluded_nodes;
+	if (!snapshot_node)
+		return;
+
+	godot::Node *self_node_ptr = this; //get owner (change it to "Coins")
+	godot::Node *parent = self_node_ptr->get_owner();
+	if (!parent) {
+		godot::print_line("Snapshot node has no parent, cannot instantiate");
+		return;
+	}
+
+	if (snapshot_node->is_class("Node2D")) //set position
+	{
+		godot::Node2D *snap2d = Object::cast_to<godot::Node2D>(snapshot_node);
+		
+		snap2d->set_global_position(snap2d->get_position());
+		snap2d->set_global_rotation(snap2d->get_rotation());
+		snap2d->set_global_scale(snap2d->get_scale());
+		
+	}
+
+		parent->add_child(snapshot_node);
+
+		snapshot_node->set_name(snapshot_node->get_name());
+
+		tracked_nodes.append(snapshot_node); //update tracked_nodes
+
+		godot::print_line("Instantiated node: ", snapshot_node->get_name(), " under parent: ", parent->get_name());
 }
 
+godot::Array Recorder::get_snapshot() {
+	return snapshot_nodes;
+}
 
 void Recorder::update() {
 	if (is_recording) {
@@ -504,13 +588,15 @@ void Recorder::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Recorder::set_json_path);
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_json_path", "json_file"), &Recorder::set_input_json_path);
-
 	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Recorder::check_input);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording_state", "state"), &Recorder::set_input_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Recorder::get_input_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Recorder::set_position_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
-
 	godot::ClassDB::bind_method(godot::D_METHOD("set_snapshot"), &Recorder::set_snapshot);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_excluded_nodes", "new_excluded_nodes"), &Recorder::set_excluded_nodes);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_snapshot"), &Recorder::get_snapshot);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_missing_nodes"), &Recorder::get_missing_nodes);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_tracked_nodes"), &Recorder::get_tracked_nodes);
+	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_temp"), &Recorder::debug_print_temp);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_main_scene", "node_path"), &Recorder::get_main_scene);
 }

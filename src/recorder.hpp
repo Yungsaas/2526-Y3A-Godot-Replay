@@ -6,6 +6,7 @@
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/array.hpp"
+#include "godot_cpp/variant/node_path.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/vector3.hpp"
@@ -23,6 +24,7 @@ protected:
 
 private:
 	godot::Array tracked_nodes;
+	godot::Array snapshot_nodes;
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos;
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos;
     std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input;
@@ -38,10 +40,10 @@ private:
 	int recording_frame = 0;
 	int replay_frame = 0;
 
+	godot::NodePath main_scene_path;
+
 	godot::Ref<godot::JSON> json_path;
 	godot::Ref<godot::JSON> input_json_path;
-
-	godot::Array excluded_nodes;
 
 	void handle_recording();
 	void handle_replaying();
@@ -65,10 +67,12 @@ public:
 	void set_json_path(const godot::Ref<godot::JSON> &p_path);
 	void set_input_json_path(const godot::Ref<godot::JSON> &p_path);
 
-	void collect_nodes_recursive(Node *node, godot::Array &result);
-	bool is_excluded(Node *node);
+	void get_missing_nodes();
+	void instantiate_from_snapshot(godot::Node *node);
+	void cleanup_tracked_nodes();
+
 	void set_snapshot();
-	void set_excluded_nodes(godot::Array tracked_nodes_new);
+	godot::Array get_snapshot();
 
 	bool add_node(godot::Node *node);
 	bool remove_node(godot::Node *node);
@@ -76,11 +80,18 @@ public:
 	void debug_print_array();
 	void debug_print_positions();
 
+	void debug_print_temp();
+
 	void start_recording();
 	void stop_recording();
 
 	void start_replay();
 	void stop_replay();
+
+	void get_main_scene(godot::NodePath new_main_path)
+	{
+		main_scene_path = new_main_path;
+	}
 
     void set_input_recording_state(bool state)
     {

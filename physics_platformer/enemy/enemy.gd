@@ -64,6 +64,7 @@ func _die() -> void:
 	queue_free()
 
 
+
 func _pre_explode() -> void:
 	#make sure nothing collides against this
 	$Shape1.queue_free()
