@@ -18,7 +18,7 @@ func _ready() -> void:
 	
 	set_input_recording_state(false)
 	set_position_recording_state(true)
-	set_snapshot()
+	#set_snapshot()
 	set_json_path(json_path)
 	set_input_json_path(input_json_path)
 	
