@@ -79,6 +79,7 @@ private:
 	bool input_active = true;
     bool position_active = true;
 	bool custom_data_active = true;
+	bool json_enabled = true;
 
 	int recording_frame = 0;
 	int replay_frame = 0;
@@ -148,6 +149,15 @@ public:
     bool get_custom_data_recording_state()
     {
         return custom_data_active;
+    }
+
+	void set_json_saving(bool state)
+    {
+        json_enabled = state;
+    }
+    bool get_json_saving()
+    {
+        return json_enabled;
     }
 
 	void add_recording_group(godot::StringName group_to_add);

@@ -145,13 +145,13 @@ colors = PackedColorArray(1, 1, 1, 0.501961, 0, 0, 0, 0)
 [node name="Enemy" type="RigidBody2D"]
 physics_material_override = SubResource("PhysicsMaterial_eyxlk")
 lock_rotation = true
-max_contacts_reported = 4
 contact_monitor = true
+max_contacts_reported = 4
 script = ExtResource("1_hjwkx")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_ay0tp")
+&"": SubResource("AnimationLibrary_ay0tp")
 }
 
 [node name="SoundExplode" type="AudioStreamPlayer2D" parent="."]
@@ -190,11 +190,11 @@ position = Vector2(11, -4.672)
 modulate = Color(1, 1, 1, 0.685843)
 emitting = false
 amount = 32
+texture = ExtResource("3_7unrb")
 lifetime = 0.5
 one_shot = true
 speed_scale = 1.2
 explosiveness = 0.76
-texture = ExtResource("3_7unrb")
 emission_shape = 1
 emission_sphere_radius = 8.0
 spread = 180.0

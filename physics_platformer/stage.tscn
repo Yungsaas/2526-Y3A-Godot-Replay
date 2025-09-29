@@ -138,13 +138,13 @@ layer_0/tile_data = PackedInt32Array(0, 2, 0, 70, 2, 65536, 71, 10, 0, 72, 10, 0
 
 [node name="Coins" type="Node2D" parent="."]
 
-[node name="Coin" parent="Coins" instance=ExtResource("2")]
+[node name="Coin" parent="Coins" groups=["recording"] instance=ExtResource("2")]
 position = Vector2(336, 589.5)
 
-[node name="Coin2" parent="Coins" instance=ExtResource("2")]
+[node name="Coin2" parent="Coins" groups=["recording"] instance=ExtResource("2")]
 position = Vector2(352, 589.5)
 
-[node name="Coin3" parent="Coins" instance=ExtResource("2")]
+[node name="Coin3" parent="Coins" groups=["recording"] instance=ExtResource("2")]
 position = Vector2(368, 589.5)
 
 [node name="Coin4" parent="Coins" instance=ExtResource("2")]
@@ -357,6 +357,5 @@ instructions."
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 autoplay = true
 
-[node name="Recorder" type="Recorder" parent="." node_paths=PackedStringArray("nodes_array")]
+[node name="Recorder" type="Recorder" parent="."]
 script = ExtResource("10_g8oy1")
-nodes_array = [NodePath("../Enemies/Enemy3"), NodePath("../Enemies/Enemy4")]
