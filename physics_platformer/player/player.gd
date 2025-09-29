@@ -19,7 +19,7 @@ var siding_left := false
 var jumping := false
 var stopping_jump := false
 var shooting := false
-
+var coin_score = "metadata/CoinScore"
 var floor_h_velocity: float = 0.0
 
 var airborne_time: float = 1e20

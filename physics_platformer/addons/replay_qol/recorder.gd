@@ -32,12 +32,12 @@ func _on_btn_pressed() -> void:
 func _physics_process(_delta: float) -> void:
 	
 	#get input
-	var start_recording_input := Input.is_action_pressed(&"start_recording")
-	var stop_recording_input := Input.is_action_pressed(&"stop_recording")
+	var start_recording_input := Input.is_action_just_pressed(&"start_recording")
+	var stop_recording_input := Input.is_action_just_pressed(&"stop_recording")
 	
 	
-	var start_replay_input := Input.is_action_pressed(&"start_replay")
-	var stop_replay_input := Input.is_action_pressed(&"stop_replay")
+	var start_replay_input := Input.is_action_just_pressed(&"start_replay")
+	var stop_replay_input := Input.is_action_just_pressed(&"stop_replay")
 	
 	if start_recording_input and not is_recording:
 		print("Start Recording")
