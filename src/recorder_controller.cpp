@@ -3,9 +3,7 @@
 
 void Recorder_Controller::_bind_methods()
 {
-    //Recorder_Controller exposed properties
-	//Input recording
+    //Set recorder
 	godot::ClassDB::bind_method(godot::D_METHOD("set_recorder", "recorder"), &Recorder_Controller::set_recorder);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_recorder"), &Recorder_Controller::get_recorder);
-
 }
