@@ -2,6 +2,7 @@
 
 #include "gdextension_interface.h"
 #include "godot_cpp/classes/file_access.hpp"
+#include "godot_cpp/classes/global_constants.hpp"
 #include "godot_cpp/classes/input.hpp"
 #include "godot_cpp/classes/input_map.hpp"
 #include "godot_cpp/classes/json.hpp"
@@ -143,7 +144,7 @@ void Recorder::add_nodes_from_groups()
 void Recorder::stop_recording()
 {
 	is_recording = false;
-
+	godot::print_line("Stopping recording");
 	save_2dpos_to_json();
 	save_input_to_json();
 }
@@ -219,7 +220,7 @@ void Recorder::record_position()
 				}
 			}
 		} else {
-			godot::print_error("Node in recording list was deleted");
+			//godot::print_error("Node in recording list was deleted");
 		}
 	}
 }
@@ -259,6 +260,11 @@ void Recorder::handle_replaying()
 
 void Recorder::save_2dpos_to_json()
 {
+	if(!json_enabled)
+	{
+		return;
+	}
+
 	godot::Dictionary node_entries;
 
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
@@ -267,7 +273,7 @@ void Recorder::save_2dpos_to_json()
 		for (auto iterator = range2d.first; iterator != range2d.second; iterator++) {
 			auto node = std::get<0>(iterator->second);
 			auto position = std::get<1>(iterator->second);
-
+			
 			godot::Dictionary entry;
 			entry["frame"] = currentFrame;
 			entry["pos"] = position;
@@ -312,6 +318,11 @@ void Recorder::save_2dpos_to_json()
 }
 
 void Recorder::save_input_to_json() {
+	if(!json_enabled)
+	{
+		return;
+	}
+
 	godot::Array actions;
 
 	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
@@ -356,6 +367,12 @@ void Recorder::save_input_to_json() {
 }
 
 void Recorder::load_json_file_to_game() {
+	if(!json_enabled)
+	{
+		godot::print_error("Cant to load json file, json saving disabled");
+		return;
+	}
+
 	if (json_path != NULL) {
 		auto json_data = json_path->get_data(); // JSON file -> Variant
 		godot::Dictionary dict = json_data; // Variant -> Dictionary
@@ -432,10 +449,20 @@ void Recorder::load_json_file_to_game() {
 
 void Recorder::set_json_path(const godot::Ref<godot::JSON> &p_path)
 {
+	if(!json_enabled)
+	{
+		godot::print_error("cant set json path, json saving disabled");
+		return;
+	}
 	json_path = p_path;
 }
 
 void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
+		if(!json_enabled)
+	{
+		godot::print_error("cant set input json path, json saving disabled");
+		return;
+	}
 	input_json_path = p_path;
 }
 
@@ -642,7 +669,7 @@ void Recorder::add_custom_data(godot::Node *node, godot::StringName customDataNa
 		tracked_custom_data.emplace(node, customDataName);
 		godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
 	} else {
-		godot::print_error("Node: " + node->get_name() + " is not in the recording list.");
+		godot::print_line("Node: " + node->get_name() + " is not in the recording list.");
 	}
 }
 
@@ -700,8 +727,17 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_json_path", "json_file"), &Recorder::set_input_json_path);
 	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Recorder::check_input);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("add_recording_group", "group_name"), &Recorder::add_recording_group);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("add_custom_data", "node", "custom_data"), &Recorder::add_custom_data);
+	
+	//Recorder exposed properties
+	//Input recording
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_recording_state", "state"), &Recorder::set_input_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_input_recording_state"), &Recorder::get_input_recording_state);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "input_recording"), "set_input_recording_state", "get_input_recording_state");
+	//Position recording
 	godot::ClassDB::bind_method(godot::D_METHOD("set_position_recording_state", "state"), &Recorder::set_position_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_position_recording_state"), &Recorder::get_position_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_snapshot"), &Recorder::set_snapshot);
@@ -710,10 +746,13 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("get_tracked_nodes"), &Recorder::get_tracked_nodes);
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_temp"), &Recorder::debug_print_temp);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_main_scene", "node_path"), &Recorder::get_main_scene);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "position_recording"), "set_position_recording_state", "get_position_recording_state");
+	//Custom data recording
 	godot::ClassDB::bind_method(godot::D_METHOD("set_custom_data_recording_state", "state"), &Recorder::set_custom_data_recording_state);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_custom_data_recording_state"), &Recorder::get_custom_data_recording_state);
-
-	godot::ClassDB::bind_method(godot::D_METHOD("add_recording_group", "group_name"), &Recorder::add_recording_group);
-
-	godot::ClassDB::bind_method(godot::D_METHOD("add_custom_data", "node", "custom_data"), &Recorder::add_custom_data);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "custom_data_recording"), "set_custom_data_recording_state", "get_custom_data_recording_state");
+	//Json saving
+	godot::ClassDB::bind_method(godot::D_METHOD("set_json_saving", "state"), &Recorder::set_json_saving);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_json_saving"), &Recorder::get_json_saving);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "json_saving"), "set_json_saving", "get_json_saving");
 }
