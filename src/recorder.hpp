@@ -9,10 +9,43 @@
 #include "godot_cpp/variant/node_path.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/string_name.hpp"
+#include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector3.hpp"
+#include <functional>
 #include <godot_cpp/classes/text_edit.hpp>
 #include <tuple>
 #include <unordered_map>
+
+//Custom key for last recorded custom data
+struct CustomDataKey
+{
+	godot::Node* node_ptr;
+    godot::StringName data_name;
+    bool operator==(CustomDataKey const &o) const {
+        return node_ptr == o.node_ptr && data_name == o.data_name;
+    }
+};
+
+struct CustomDataKeyHash {
+    size_t operator()(CustomDataKey const &k) const noexcept {
+		//Hashing the custom data key
+        size_t h1 = std::hash<godot::Node*>()(k.node_ptr);
+        size_t h2 = static_cast<size_t>(k.data_name.hash()); //Found the solution to the memory intensive utf8 conversion (was .hash() not .get_hash())
+        return h1 ^ (h2 << 1);
+    }
+};
+
+struct CustomDataEntry
+{
+	godot::Node * node;
+	godot::StringName variableName;
+	godot::Variant variableData;
+
+	//Constructor
+	CustomDataEntry(godot::Node *n, godot::StringName &nm, const godot::Variant &v):
+	node(n), variableName(nm), variableData(v){}
+
+};
 
 class Recorder : public godot::Node {
 	// Make class usable in godot with gdscript
@@ -23,20 +56,33 @@ protected:
 	static void _bind_methods();
 
 private:
-	godot::Array tracked_nodes;
+	//node lists for data tracking
+	godot::Array tracked_nodes; //List of tracked nodes
+	std::unordered_multimap<godot::Node *, godot::StringName> tracked_custom_data; //List of tracked data of specific nodes (other than position)
+	
+	//temporary data maps
 	godot::Array snapshot_nodes;
-	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos;
-	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos;
-    std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input;
-	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos;
-	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos;
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos; //Recorded data for 3D positions
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos; //Recorded data for 2D positions
+    std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input; //Recorded input data
+	std::unordered_multimap<int, CustomDataEntry> temporary_data_map_custom_data; //Recorded data for other data that is serializable in godot
 
-    godot::Input *input_singleton = godot::Input::get_singleton();
-    godot::InputMap *input_map_singleton = godot::InputMap::get_singleton();
+	//last recorded data to avoid redundant data in memory
+	std::unordered_map<CustomDataKey, godot::Variant, CustomDataKeyHash> last_recorded_custom_data; //Used for cheking custom data changes
+	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos; //Used for checking for position changes
+	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos; //Used for checking for position changes
+
+	std::vector<godot::StringName> recording_groups; //Vector of groups that are supposed to get recorded
+
+    godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
+    godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
+
 	bool is_recording = false;
 	bool is_replaying = false;
 	bool input_active = true;
     bool position_active = true;
+	bool custom_data_active = true;
+
 	int recording_frame = 0;
 	int replay_frame = 0;
 
@@ -54,11 +100,14 @@ private:
     void record_position();
     void replay_position();
 
+	void record_custom_data();
+	void replay_custom_data();
+
 	void save_2dpos_to_json();
 	void save_input_to_json();
 	void load_json_file_to_game();
 
-	void add_nodes_from_group();
+	void add_nodes_from_groups();
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
@@ -110,6 +159,19 @@ public:
     {
         return position_active;
     }
+
+	void set_custom_data_recording_state(bool state)
+    {
+        custom_data_active = state;
+    }
+    bool get_custom_data_recording_state()
+    {
+        return custom_data_active;
+    }
+
+	void add_recording_group(godot::StringName group_to_add);
+
+	void add_custom_data(godot::Node * node, godot::StringName customDataName);
 
 	void check_input();
 
