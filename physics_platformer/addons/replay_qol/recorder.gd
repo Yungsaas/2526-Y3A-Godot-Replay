@@ -14,9 +14,6 @@ var is_replaying: bool = false
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
 	
-	set_input_recording_state(true)
-	set_position_recording_state(true)
-	
 	set_json_path(json_path)
 	set_input_json_path(input_json_path)
 	
