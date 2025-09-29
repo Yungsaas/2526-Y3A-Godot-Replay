@@ -1,7 +1,6 @@
 #pragma once
 
 #include "godot_cpp/classes/file_access.hpp"
-#include "godot_cpp/classes/global_constants.hpp"
 #include "godot_cpp/classes/input.hpp"
 #include "godot_cpp/classes/input_map.hpp"
 #include "godot_cpp/classes/json.hpp"

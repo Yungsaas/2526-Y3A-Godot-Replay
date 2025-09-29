@@ -358,4 +358,5 @@ instructions."
 autoplay = true
 
 [node name="Recorder" type="Recorder" parent="."]
+json_saving = false
 script = ExtResource("10_g8oy1")
