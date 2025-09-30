@@ -63,7 +63,7 @@ private:
 	//temporary data maps
 	godot::Array snapshot_nodes;
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos; //Recorded data for 3D positions
-	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos; //Recorded data for 2D positions
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2, godot::String>> temporary_data_map_2d_pos; //Recorded data for 2D positions
     std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input; //Recorded input data
 	std::unordered_multimap<int, CustomDataEntry> temporary_data_map_custom_data; //Recorded data for other data that is serializable in godot
 
@@ -120,6 +120,7 @@ public:
 	void get_missing_nodes();
 	void instantiate_from_snapshot(godot::Node *node);
 	void cleanup_tracked_nodes();
+	void insert_snapshot_in_map(godot::Node *snapshot_node);
 
 	void set_snapshot();
 	godot::Array get_snapshot();

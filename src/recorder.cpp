@@ -87,15 +87,18 @@ void Recorder::debug_print_positions()
 	}
 }
 
-void Recorder::debug_print_temp() {
-	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
-	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
+void Recorder::debug_print_temp()
+{
+	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) 
+	{
+		auto range2d = temporary_data_map_2d_pos.equal_range(currentFrame);
+		for (auto it = range2d.first; it != range2d.second; it++) 
+		{
+			auto node = std::get<0>(it->second);
+			auto name = std::get<2>(it->second);
 
-	//Set positions
-	for (auto data = range2d.first; data != range2d.second; data++) {
-		godot::Node *node = std::get<0>(data->second);
-
-		godot::print_line(node->get_name());
+			godot::print_line(node, "'s name is: ", name);
+		}
 	}
 }
 
@@ -215,7 +218,7 @@ void Recorder::record_position()
 
 				if (last_recorded_2d_pos[node] != current_position || recording_frame == 0) {
 					//godot::print_line("Recorded position: " + current_position);
-					temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, current_position));
+					temporary_data_map_2d_pos.emplace(recording_frame, std::make_tuple(node, current_position, node->get_name()));
 					last_recorded_2d_pos[node] = current_position;
 				}
 			}
@@ -417,7 +420,7 @@ void Recorder::load_json_file_to_game() {
 						godot::print_line("pos_var is not of type godot::Variant::STRING!");
 					}
 
-					temporary_data_map_2d_pos.insert({ frame, std::make_tuple(node, positions) });
+					temporary_data_map_2d_pos.insert({ frame, std::make_tuple(node, positions, node->get_name()) });
 				}
 			}
 		}
@@ -508,43 +511,41 @@ void Recorder::get_missing_nodes() {
 		{
 			godot::print_line(snapshot_node->get_name(), " is not in array");
 			instantiate_from_snapshot(snapshot_node);
+			insert_snapshot_in_map(snapshot_node);
 		}
 	}
 
-	cleanup_tracked_nodes(); //clean tracked_nodes from free objects
+	//cleanup_tracked_nodes(); //clean tracked_nodes from free objects
 }
 
 void Recorder::cleanup_tracked_nodes() {
 	godot::Array temp_array;
-	for (int i = 0; i < tracked_nodes.size(); i++) //create a temp array before clearing tracked nodes
-	{
+	for (int i = 0; i < tracked_nodes.size(); i++) {
 		temp_array.append(tracked_nodes[i]);
 	}
 	tracked_nodes.clear();
 
-	godot::print_line("Temp array before clean: ", temp_array); //remove the free objects
-	for (int i = temp_array.size() - 1; i >= 0; i--) 
-	{
+	godot::print_line("Temp array before clean: ", temp_array);
+
+	for (int i = temp_array.size() - 1; i >= 0; i--) {
 		godot::Variant v = temp_array[i];
 		if (v.get_type() == godot::Variant::OBJECT) {
-			Object *obj = v;
+			Object *obj = v.operator Object *(); // safe extraction
 			if (!obj || obj->is_queued_for_deletion()) {
 				temp_array.remove_at(i);
 			}
 		}
 	}
-	godot::print_line("Temp array after clean: ", temp_array); // restore tracked nodes
-	for (int i = 0; i < temp_array.size(); i++) 
-	{
+
+	godot::print_line("Temp array after clean: ", temp_array);
+
+	for (int i = 0; i < temp_array.size(); i++) {
 		tracked_nodes.append(temp_array[i]);
 	}
 }
 
 void Recorder::instantiate_from_snapshot(godot::Node *snapshot_node) 
 {
-	if (!snapshot_node)
-		return;
-
 	godot::Node *self_node_ptr = this; //get owner (change it to "Coins")
 	godot::Node *parent = self_node_ptr->get_owner();
 	if (!parent) {
@@ -571,6 +572,36 @@ void Recorder::instantiate_from_snapshot(godot::Node *snapshot_node)
 		godot::print_line("Instantiated node: ", snapshot_node->get_name(), " under parent: ", parent->get_name());
 }
 
+void Recorder::insert_snapshot_in_map(godot::Node *snapshot_node)
+{
+	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) 
+	{
+		auto range2d = temporary_data_map_2d_pos.equal_range(currentFrame);
+
+		for (auto it = range2d.first; it != range2d.second; it++) 
+		{
+			auto node = std::get<0>(it->second);
+			auto name = std::get<2>(it->second);
+
+			if (!(node && !node->is_queued_for_deletion() && snapshot_node)) 
+			{
+				if (name == snapshot_node->get_name()) 
+				{
+					node = snapshot_node;
+				}
+				
+			}
+			else {
+			godot::print_line("ne staa");
+			}
+			if (node == snapshot_node) 
+			{
+				godot::print_line("Node changed");
+					
+			}
+		}
+	}
+}
 godot::Array Recorder::get_snapshot() {
 	return snapshot_nodes;
 }

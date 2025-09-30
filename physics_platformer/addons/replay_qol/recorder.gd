@@ -18,7 +18,7 @@ func _ready() -> void:
 	
 	set_input_recording_state(false)
 	set_position_recording_state(true)
-	#set_snapshot()
+	set_snapshot()
 	set_json_path(json_path)
 	set_input_json_path(input_json_path)
 	
@@ -39,8 +39,6 @@ func _physics_process(_delta: float) -> void:
 	
 	var start_replay_input := Input.is_action_just_pressed(&"start_replay")
 	var stop_replay_input := Input.is_action_just_pressed(&"stop_replay")
-	var start_replay_input := Input.is_action_pressed(&"start_replay")
-	var stop_replay_input := Input.is_action_pressed(&"stop_replay")
 	
 	var check_nodes_input := Input.is_action_just_pressed(&"check_nodes")
 	
@@ -57,14 +55,14 @@ func _physics_process(_delta: float) -> void:
 		
 	if start_replay_input and not is_recording:
 		print("Start replaying")
-		
+			
 		start_replay()
 		
 	if stop_replay_input and not is_recording:
 		#print("Stop replaying manually")
 		stop_replay()
-	#if check_nodes_input:
-		#get_missing_nodes()
+	if check_nodes_input:
+		get_missing_nodes()
 		#print(get_tracked_nodes())
 	
 	
