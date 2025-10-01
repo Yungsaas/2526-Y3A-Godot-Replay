@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq06x8imnsowr"]
+
+[ext_resource type="Script" uid="uid://c1pyshjdxwqx2" path="res://addons/replay_qol/recorder_controller.gd" id="1_6qf2e"]
+
+[node name="RecorderController" type="Recorder_Controller"]
+script = ExtResource("1_6qf2e")
+
+[node name="PopupPanel" type="PopupPanel" parent="."]
+position = Vector2i(50, 400)
+size = Vector2i(700, 50)
+
+[node name="Control" type="Control" parent="PopupPanel"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 696.0
+offset_bottom = 46.0
+
+[node name="PlayStopButton" type="Button" parent="PopupPanel/Control"]
+layout_mode = 0
+offset_left = 293.0
+offset_top = -9.0
+offset_right = 386.0
+offset_bottom = 22.0
+text = "Play/Pause"
+
+[node name="TimeLineSlider" type="HSlider" parent="PopupPanel/Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[connection signal="pressed" from="PopupPanel/Control/PlayStopButton" to="." method="_on_play_stop_button_pressed"]
+[connection signal="drag_started" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_drag_started"]
+[connection signal="value_changed" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_value_changed"]

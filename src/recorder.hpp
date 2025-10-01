@@ -15,34 +15,33 @@
 #include <unordered_map>
 
 //Custom key for last recorded custom data
-struct CustomDataKey
-{
-	godot::Node* node_ptr;
-    godot::StringName data_name;
-    bool operator==(CustomDataKey const &o) const {
-        return node_ptr == o.node_ptr && data_name == o.data_name;
-    }
+struct CustomDataKey {
+	godot::Node *node_ptr;
+	godot::StringName data_name;
+	bool operator==(CustomDataKey const &o) const
+	{
+		return node_ptr == o.node_ptr && data_name == o.data_name;
+	}
 };
 
 struct CustomDataKeyHash {
-    size_t operator()(CustomDataKey const &k) const noexcept {
+	size_t operator()(CustomDataKey const &k) const noexcept
+	{
 		//Hashing the custom data key
-        size_t h1 = std::hash<godot::Node*>()(k.node_ptr);
-        size_t h2 = static_cast<size_t>(k.data_name.hash()); //Found the solution to the memory intensive utf8 conversion (was .hash() not .get_hash())
-        return h1 ^ (h2 << 1);
-    }
+		size_t h1 = std::hash<godot::Node *>()(k.node_ptr);
+		size_t h2 = static_cast<size_t>(k.data_name.hash()); //Found the solution to the memory intensive utf8 conversion (was .hash() not .get_hash())
+		return h1 ^ (h2 << 1);
+	}
 };
 
-struct CustomDataEntry
-{
-	godot::Node * node;
+struct CustomDataEntry {
+	godot::Node *node;
 	godot::StringName variableName;
 	godot::Variant variableData;
 
 	//Constructor
-	CustomDataEntry(godot::Node *n, godot::StringName &nm, const godot::Variant &v):
-	node(n), variableName(nm), variableData(v){}
-
+	CustomDataEntry(godot::Node *n, godot::StringName &nm, const godot::Variant &v) :
+			node(n), variableName(nm), variableData(v) {}
 };
 
 class Recorder : public godot::Node {
@@ -57,11 +56,11 @@ private:
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes
 	std::unordered_multimap<godot::Node *, godot::StringName> tracked_custom_data; //List of tracked data of specific nodes (other than position)
-	
+
 	//temporary data maps
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos; //Recorded data for 3D positions
 	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos; //Recorded data for 2D positions
-    std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input; //Recorded input data
+	std::unordered_multimap<int, std::tuple<godot::StringName, bool>> temporary_data_map_input; //Recorded input data
 	std::unordered_multimap<int, CustomDataEntry> temporary_data_map_custom_data; //Recorded data for other data that is serializable in godot
 
 	//last recorded data to avoid redundant data in memory
@@ -71,15 +70,19 @@ private:
 
 	std::vector<godot::StringName> recording_groups; //Vector of groups that are supposed to get recorded
 
-    godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
-    godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
+	godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
+	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
 
 	bool is_recording = false;
 	bool is_replaying = false;
 	bool input_active = true;
-    bool position_active = true;
+	bool position_active = true;
 	bool custom_data_active = true;
 	bool json_enabled = true;
+
+	bool replay_paused = false;
+
+	bool controlled_replay = false;
 
 	int recording_frame = 0;
 	int replay_frame = 0;
@@ -90,11 +93,11 @@ private:
 	void handle_recording();
 	void handle_replaying();
 
-    void record_input();
-    void replay_input();
+	void record_input();
+	void replay_input();
 
-    void record_position();
-    void replay_position();
+	void record_position();
+	void replay_position();
 
 	void record_custom_data();
 	void replay_custom_data();
@@ -124,45 +127,100 @@ public:
 	void start_replay();
 	void stop_replay();
 
-    void set_input_recording_state(bool state)
-    {
-        input_active = state;
-    }
-    bool get_input_recording_state()
-    {
-        return input_active;
-    }
+	void replay_pause_trigger()
+	{
+		if(replay_paused)
+		{
+			replay_paused = false;
+		} else {
+			replay_paused = true;
+		}
+	}
 
-    void set_position_recording_state(bool state)
-    {
-        position_active = state;
-    }
-    bool get_position_recording_state()
-    {
-        return position_active;
-    }
+	void force_pause_replay()
+	{
+		replay_paused = true;
+	}
+
+	void set_input_recording_state(bool state)
+	{
+		input_active = state;
+	}
+	bool get_input_recording_state()
+	{
+		return input_active;
+	}
+
+	void set_position_recording_state(bool state)
+	{
+		position_active = state;
+	}
+	bool get_position_recording_state()
+	{
+		return position_active;
+	}
 
 	void set_custom_data_recording_state(bool state)
-    {
-        custom_data_active = state;
-    }
-    bool get_custom_data_recording_state()
-    {
-        return custom_data_active;
-    }
+	{
+		custom_data_active = state;
+	}
+	bool get_custom_data_recording_state()
+	{
+		return custom_data_active;
+	}
 
 	void set_json_saving(bool state)
-    {
-        json_enabled = state;
-    }
-    bool get_json_saving()
-    {
-        return json_enabled;
-    }
+	{
+		json_enabled = state;
+	}
+	bool get_json_saving()
+	{
+		return json_enabled;
+	}
+
+	int get_replay_frame()
+	{
+		return replay_frame;
+	}
+
+	int get_recording_frame()
+	{
+		return recording_frame;
+	}
+
+	bool get_general_recording_state()
+	{
+		return is_recording;
+	}
+
+	bool get_general_replay_state()
+	{
+		return is_replaying;
+	}
+
+	void set_replay_frame(int f)
+	{
+		replay_frame = f;
+	}
+
+	bool get_replay_pause()
+	{
+		return replay_paused;
+	}
+
+	void set_controlled_replay(bool state)
+	{
+		controlled_replay = state;
+	}
+
+	void force_set_replay_frame(int forced_frame)
+	{
+		replay_frame = forced_frame;
+	}
 
 	void add_recording_group(godot::StringName group_to_add);
 
-	void add_custom_data(godot::Node * node, godot::StringName customDataName);
+	void add_custom_data(godot::Node *node, godot::StringName customDataName);
 
 	void check_input();
 

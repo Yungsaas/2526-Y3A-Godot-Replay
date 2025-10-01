@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://b53muvlsw1tx3"]
+[gd_scene load_steps=25 format=3 uid="uid://b53muvlsw1tx3"]
 
 [ext_resource type="TileSet" uid="uid://rowrak7ls50v" path="res://tileset.tres" id="1"]
 [ext_resource type="PackedScene" uid="uid://6uilf6rad880" path="res://coin/coin.tscn" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
 [ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="10_g8oy1"]
+[ext_resource type="PackedScene" uid="uid://bq06x8imnsowr" path="res://addons/replay_qol/Recorder_Controller.tscn" id="10_i76fu"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -138,13 +139,13 @@ layer_0/tile_data = PackedInt32Array(0, 2, 0, 70, 2, 65536, 71, 10, 0, 72, 10, 0
 
 [node name="Coins" type="Node2D" parent="."]
 
-[node name="Coin" parent="Coins" groups=["recording"] instance=ExtResource("2")]
+[node name="Coin" parent="Coins" instance=ExtResource("2")]
 position = Vector2(336, 589.5)
 
-[node name="Coin2" parent="Coins" groups=["recording"] instance=ExtResource("2")]
+[node name="Coin2" parent="Coins" instance=ExtResource("2")]
 position = Vector2(352, 589.5)
 
-[node name="Coin3" parent="Coins" groups=["recording"] instance=ExtResource("2")]
+[node name="Coin3" parent="Coins" instance=ExtResource("2")]
 position = Vector2(368, 589.5)
 
 [node name="Coin4" parent="Coins" instance=ExtResource("2")]
@@ -358,4 +359,8 @@ instructions."
 autoplay = true
 
 [node name="Recorder" type="Recorder" parent="."]
+custom_data_recording = false
+json_saving = false
 script = ExtResource("10_g8oy1")
+
+[node name="RecorderController" parent="." instance=ExtResource("10_i76fu")]

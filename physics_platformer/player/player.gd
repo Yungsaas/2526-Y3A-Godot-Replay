@@ -24,6 +24,9 @@ var floor_h_velocity: float = 0.0
 var airborne_time: float = 1e20
 var shoot_time: float = 1e20
 
+#specific for replay add on demo
+@onready var recorder := $"../Recorder" as Recorder
+
 @onready var sound_jump := $SoundJump as AudioStreamPlayer2D
 @onready var sound_shoot := $SoundShoot as AudioStreamPlayer2D
 @onready var sprite := $Sprite2D as Sprite2D
