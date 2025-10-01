@@ -89,6 +89,7 @@ private:
 
 	godot::Ref<godot::JSON> json_path;
 	godot::Ref<godot::JSON> input_json_path;
+	godot::Ref<godot::JSON> custom_json_path;
 
 	void handle_recording();
 	void handle_replaying();
@@ -104,6 +105,7 @@ private:
 
 	void save_2dpos_to_json();
 	void save_input_to_json();
+	void save_custom_to_json();
 	void load_json_file_to_game();
 
 	void add_nodes_from_groups();
@@ -114,6 +116,7 @@ public:
 
 	void set_json_path(const godot::Ref<godot::JSON> &p_path);
 	void set_input_json_path(const godot::Ref<godot::JSON> &p_path);
+	void set_custom_json_path(const godot::Ref<godot::JSON> &p_path);
 
 	bool add_node(godot::Node *node);
 	bool remove_node(godot::Node *node);
