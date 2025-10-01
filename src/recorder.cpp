@@ -666,12 +666,9 @@ void Recorder::add_recording_group(godot::StringName group_to_add)
 void Recorder::add_custom_data(godot::Node *node, godot::StringName customDataName)
 {
 	//Save custom data name to map
-	if (tracked_nodes.has(node)) {
-		tracked_custom_data.emplace(node, customDataName);
-		godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
-	} else {
-		godot::print_line("Node: " + node->get_name() + " is not in the recording list.");
-	}
+	tracked_custom_data.emplace(node, customDataName);
+	godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
+
 }
 
 void Recorder::record_custom_data()
