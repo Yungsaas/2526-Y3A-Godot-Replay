@@ -40,5 +40,20 @@ public:
 	{
 		return recorder;
 	}
+		void set_time_line_slider(godot::HSlider *new_slider)
+	{
+		time_line_slider = new_slider;
+	}
+
+	void set_frame(int frame)
+	{
+		recorder->force_set_replay_frame(frame);
+	}
+
+	bool get_replay_pause()
+	{
+		return recorder->get_replay_pause();
+	}
+
     void set_controls_popup(godot::PopupPanel*panel);
 };

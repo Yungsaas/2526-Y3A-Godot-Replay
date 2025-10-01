@@ -22,10 +22,14 @@ void Recorder_Controller::update()
 			}
 		}else //recorder controller needs to be initialized
 		{
+			int recordingMin = 0; //If clipping and/or instant replay become a thing this should be set to their starting frame
 			int recordingLength = recorder->get_recording_frame();
+			time_line_slider->set_min(recordingMin);
 			time_line_slider->set_max(recordingLength);
 			current_recording_frame = 0;
 			is_replaying=true;
+			controls_popup_panel->set_visible(true);
+			recorder->set_controlled_replay(true);
 			recorder->force_pause_replay();
 		}
 	}
@@ -43,10 +47,18 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("set_recorder", "recorder"), &Recorder_Controller::set_recorder);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_recorder"), &Recorder_Controller::get_recorder);
 
+	godot::ClassDB::bind_method(godot::D_METHOD("set_time_line_slider", "slider"), &Recorder_Controller::set_time_line_slider);
+
 	godot::ClassDB::bind_method(godot::D_METHOD("set_controls_popup_panel", "panel"), &Recorder_Controller::set_controls_popup);
 
 	//Functionality
 	godot::ClassDB::bind_method(godot::D_METHOD("replay_trigger"), &Recorder_Controller::replay_trigger);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("force_pause_replay"), &Recorder_Controller::force_pause_replay);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Recorder_Controller::update);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_paused"), &Recorder_Controller::get_replay_pause);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("set_frame", "frame"), &Recorder_Controller::set_frame);
 }

@@ -9,6 +9,11 @@ func _ready() -> void:
 		print("Recorder in Recorder Controller has been set.")
 		force_pause_replay()
 		
+	set_controls_popup_panel($PopupPanel)
+	set_time_line_slider($PopupPanel/Control/TimeLineSlider)
+
+func _physics_process(delta: float) -> void:
+	update()
 
 func _on_play_stop_button_pressed() -> void:
 	replay_trigger()
@@ -17,4 +22,6 @@ func _on_time_line_slider_drag_started() -> void:
 	force_pause_replay()
 
 func _on_time_line_slider_value_changed(value: float) -> void:
-	pass # Replace with function body.
+	if(get_replay_paused()):
+		set_frame(value)
+#aw

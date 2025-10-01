@@ -19,9 +19,11 @@ offset_bottom = 46.0
 
 [node name="PlayStopButton" type="Button" parent="PopupPanel/Control"]
 layout_mode = 0
-offset_left = 334.0
-offset_right = 342.0
-offset_bottom = 8.0
+offset_left = 293.0
+offset_top = -9.0
+offset_right = 386.0
+offset_bottom = 22.0
+text = "Play/Pause"
 
 [node name="TimeLineSlider" type="HSlider" parent="PopupPanel/Control"]
 layout_mode = 1

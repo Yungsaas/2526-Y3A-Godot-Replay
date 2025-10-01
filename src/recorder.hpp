@@ -82,6 +82,8 @@ private:
 
 	bool replay_paused = false;
 
+	bool controlled_replay = false;
+
 	int recording_frame = 0;
 	int replay_frame = 0;
 
@@ -204,6 +206,16 @@ public:
 	bool get_replay_pause()
 	{
 		return replay_paused;
+	}
+
+	void set_controlled_replay(bool state)
+	{
+		controlled_replay = state;
+	}
+
+	void force_set_replay_frame(int forced_frame)
+	{
+		replay_frame = forced_frame;
 	}
 
 	void add_recording_group(godot::StringName group_to_add);

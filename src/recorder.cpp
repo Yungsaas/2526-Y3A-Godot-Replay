@@ -9,6 +9,8 @@
 #include "godot_cpp/classes/node3d.hpp"
 #include "godot_cpp/classes/object.hpp"
 #include "godot_cpp/classes/ref.hpp"
+#include "godot_cpp/classes/rigid_body2d.hpp"
+#include "godot_cpp/classes/rigid_body3d.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
@@ -148,7 +150,7 @@ void Recorder::replay_position()
 	if (!position_active)
 		return;
 
-	godot::print_line("Replaying Positions");
+	//godot::print_line("Replaying Positions");
 	auto range2d = temporary_data_map_2d_pos.equal_range(replay_frame);
 	auto range3d = temporary_data_map_3d_pos.equal_range(replay_frame);
 
@@ -159,6 +161,15 @@ void Recorder::replay_position()
 
 		if (auto node2d = godot::Object::cast_to<godot::Node2D>(node)) {
 			node2d->set_global_position(pos);
+			if(replay_paused)
+			{
+				if(auto body2d = godot::Object::cast_to<godot::RigidBody2D>(node2d))
+				{
+					body2d->set_angular_velocity(0.0);
+					body2d->set_axis_velocity(godot::Vector2(0,0));
+					body2d->set_linear_velocity(godot::Vector2(0,0));
+				}
+			}
 		}
 	}
 
@@ -168,6 +179,15 @@ void Recorder::replay_position()
 
 		if (auto node3d = godot::Object::cast_to<godot::Node3D>(node)) {
 			node3d->set_global_position(pos);
+			if(replay_paused)
+			{
+				if(auto body3d = godot::Object::cast_to<godot::RigidBody3D>(node3d))
+				{
+					body3d->set_angular_velocity(godot::Vector3(0,0,0));
+					body3d->set_axis_velocity(godot::Vector3(0,0,0));
+					body3d->set_linear_velocity(godot::Vector3(0,0,0));
+				}
+			}
 		}
 	}
 }
@@ -177,7 +197,7 @@ void Recorder::record_position()
 	if (!position_active)
 		return;
 
-	godot::print_line("Recording Position");
+	//godot::print_line("Recording Position");
 	for (auto nodeVariant : tracked_nodes) {
 		if (nodeVariant.booleanize()) {
 			auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
@@ -237,11 +257,20 @@ void Recorder::handle_replaying()
 	{
 		return;
 	}
+
 	replay_frame++;
 
+
 	if (replay_frame > recording_frame) {
+		if(controlled_replay)
+		{
+			replay_frame = recording_frame;
+		}else {
 		is_replaying = false;
+		}
 	}
+	
+
 }
 
 void Recorder::save_2dpos_to_json()
@@ -491,7 +520,7 @@ void Recorder::record_input()
 {
 	if (!input_active)
 		return;
-	godot::print_line("Recording Input");
+	//godot::print_line("Recording Input");
 	godot::Array actions = input_map_singleton->get_actions();
 	for (int i = 0; i < actions.size(); i++) {
 		godot::StringName action_name = actions[i];
@@ -512,16 +541,27 @@ void Recorder::replay_input()
 {
 	if (!input_active)
 		return;
-	godot::print_line("Replaying Input");
+	//godot::print_line("Replaying Input");
 	godot::Array actions = input_map_singleton->get_actions();
 	auto range_input = temporary_data_map_input.equal_range(replay_frame);
 
 	for (auto data = range_input.first; data != range_input.second; data++) {
 		godot::StringName action_name = std::get<0>(data->second);
+		
+		//dont replay the recording related inputs
+		if (action_name == godot::StringName("start_recording") || action_name == godot::StringName("stop_recording") || action_name == godot::StringName("start_replay") || action_name == godot::StringName("stop_replay")) {
+			continue;
+		}
+		
 		bool press_bool = std::get<1>(data->second);
 		if (press_bool) {
 			input_singleton->action_press(action_name);
 		} else {
+			input_singleton->action_release(action_name);
+		}
+
+		if(replay_paused)
+		{
 			input_singleton->action_release(action_name);
 		}
 	}
@@ -603,6 +643,8 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Recorder::set_json_path);
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_json_path", "json_file"), &Recorder::set_input_json_path);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_state"), &Recorder::get_general_replay_state);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("check_input"), &Recorder::check_input);
 
