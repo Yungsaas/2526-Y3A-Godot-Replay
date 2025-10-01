@@ -20,6 +20,13 @@ void Recorder_Controller::update()
 			{
 				time_line_slider->set_value(recorder->get_replay_frame());
 			}
+
+			if(!controls_popup_panel->is_visible())
+			{
+				recorder->stop_replay();
+				recorder->set_controlled_replay(false);
+				is_replaying = false;
+			}
 		}else //recorder controller needs to be initialized
 		{
 			int recordingMin = 0; //If clipping and/or instant replay become a thing this should be set to their starting frame
