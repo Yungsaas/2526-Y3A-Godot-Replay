@@ -208,7 +208,7 @@ void Recorder::record_position()
 
 void Recorder::handle_recording()
 {
-	godot::print_line("Recording Frame: " + godot::String::num_int64(recording_frame));
+	//godot::print_line("Recording Frame: " + godot::String::num_int64(recording_frame));
 	record_input();
 
 	record_position();
@@ -221,10 +221,11 @@ void Recorder::handle_recording()
 void Recorder::handle_replaying()
 {
 	if (recording_frame == 0 || temporary_data_map_2d_pos.empty() && temporary_data_map_3d_pos.empty() && temporary_data_map_input.empty()) {
-		godot::print_line("No recording in memory.");
+		godot::print_error("No recording in memory.");
 		return;
 	}
-	godot::print_line("Replay Frame: " + godot::String::num_int64(replay_frame));
+	
+	//godot::print_line("Replay Frame: " + godot::String::num_int64(replay_frame));
 
 	replay_input();
 
@@ -232,6 +233,10 @@ void Recorder::handle_replaying()
 
 	replay_custom_data();
 
+	if(replay_paused)
+	{
+		return;
+	}
 	replay_frame++;
 
 	if (replay_frame > recording_frame) {

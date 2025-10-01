@@ -201,6 +201,11 @@ public:
 		replay_frame = f;
 	}
 
+	bool get_replay_pause()
+	{
+		return replay_paused;
+	}
+
 	void add_recording_group(godot::StringName group_to_add);
 
 	void add_custom_data(godot::Node *node, godot::StringName customDataName);

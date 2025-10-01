@@ -13,6 +13,13 @@ void Recorder_Controller::update()
 	{
 		if(is_replaying)//recorder controller has been initialized for this replay and is currently replaying
 		{
+			if(recorder->get_replay_pause())//replay is paused
+			{
+
+			}else //replay is playing
+			{
+				time_line_slider->set_value(recorder->get_replay_frame());
+			}
 		}else //recorder controller needs to be initialized
 		{
 			int recordingLength = recorder->get_recording_frame();
