@@ -18,6 +18,7 @@ func _ready() -> void:
 	
 	load_json_file()
 	
+	add_custom_data($"../Player", "coin_counter")
 	
 	pass
 
