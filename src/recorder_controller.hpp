@@ -1,8 +1,11 @@
 #pragma once
+#include "godot_cpp/classes/control.hpp"
 #include "godot_cpp/classes/h_slider.hpp"
 #include "godot_cpp/classes/label.hpp"
+#include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/popup_panel.hpp"
 #include "recorder.hpp"
+#include "godot_cpp/classes/resource_loader.hpp"
 
 class Recorder_Controller : public godot::Node {
 	// Make class usable in godot with gdscript
@@ -15,10 +18,17 @@ protected:
 private:
 	Recorder *recorder;
     godot::PopupPanel *controls_popup_panel;
+	godot::PopupPanel *input_popup_panel;
+	godot::Control *input_lable_parent;
     godot::HSlider *time_line_slider;
 	godot::Label *frame_counter_ui;
 	godot::String label_string_static_part;
     bool is_replaying = false;
+
+	godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
+	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
+
+	godot::Ref<godot::PackedScene> label_scene = godot::ResourceLoader::get_singleton()->load("res://addons/replay_qol/input_label.tscn");
 
 public:
 
@@ -63,4 +73,8 @@ public:
 	}
 
     void set_controls_popup(godot::PopupPanel*panel);
+
+	void set_input_popup(godot::PopupPanel*panel);
+
+	void set_input_lable_parent(godot::Control*control);
 };
