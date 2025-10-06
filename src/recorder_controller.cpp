@@ -76,53 +76,49 @@ void Recorder_Controller::update()
 			recorder->set_controlled_replay(true);
 			recorder->force_pause_replay();
 		}
-	}
 
-	godot::Array actions = input_map_singleton->get_actions();
+		godot::Array actions = input_map_singleton->get_actions();
 
-	for (int i = 0; i < actions.size(); i++) 
-	{
-		godot::StringName action_name = actions[i];
-		if (action_name == godot::StringName("start_recording") || action_name == godot::StringName("stop_recording") || action_name == godot::StringName("start_replay") || action_name == godot::StringName("stop_replay")) {
-			continue;
-		}
-
-		if (input_singleton->is_action_just_pressed(action_name)) 
-		{
-			if (label_scene.is_null()) {
-				godot::print_line("Failed to load MyLabel.tscn!");
-				return;
+		for (int i = 0; i < actions.size(); i++) {
+			godot::StringName action_name = actions[i];
+			if (action_name == godot::StringName("start_recording") || action_name == godot::StringName("stop_recording") || action_name == godot::StringName("start_replay") || action_name == godot::StringName("stop_replay")) {
+				continue;
 			}
 
-			for (int i = 0; i < input_lable_parent->get_child_count(); i++) 
-			{
-				godot::Node* child = input_lable_parent->get_child(i);
-				godot::Label *label = godot::Object::cast_to<godot::Label>(child);
-
-				godot::Vector2 pos = label->get_position();
-				pos.y += 30;
-				label->set_position(pos);
-
-				int times_moved = label->get_meta("times_moved", 0);
-				times_moved++;
-				label->set_meta("times_moved", times_moved);
-
-				if (times_moved >= 10) 
-				{
-					label->queue_free();
+			if (input_singleton->is_action_just_pressed(action_name)) {
+				if (label_scene.is_null()) {
+					godot::print_line("Failed to load MyLabel.tscn!");
+					return;
 				}
-			
+
+				for (int i = 0; i < input_lable_parent->get_child_count(); i++) {
+					godot::Node *child = input_lable_parent->get_child(i);
+					godot::Label *label = godot::Object::cast_to<godot::Label>(child);
+
+					godot::Vector2 pos = label->get_position();
+					pos.y += 30;
+					label->set_position(pos);
+
+					int times_moved = label->get_meta("times_moved", 0);
+					times_moved++;
+					label->set_meta("times_moved", times_moved);
+
+					if (times_moved >= 10) {
+						label->queue_free();
+					}
+				}
+				Node *label_instance = label_scene->instantiate();
+
+				godot::Label *label = godot::Object::cast_to<godot::Label>(label_instance);
+				label->set_text(action_name);
+				label->set_meta("times_moved", 0);
+
+				input_lable_parent->add_child(label_instance);
 			}
-			Node *label_instance = label_scene->instantiate();
-
-			godot::Label* label = godot::Object::cast_to<godot::Label>(label_instance);
-			label->set_text(action_name);
-			label->set_meta("times_moved", 0);
-			
-			input_lable_parent->add_child(label_instance);
-
 		}
 	}
+
+	
 }
 void Recorder_Controller::exit_replay()
 {
