@@ -35,6 +35,14 @@ offset_top = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 
+[node name="ReplayFrameCounter" type="Label" parent="PopupPanel/Control"]
+layout_mode = 0
+offset_left = 565.0
+offset_right = 690.0
+offset_bottom = 23.0
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [connection signal="pressed" from="PopupPanel/Control/PlayStopButton" to="." method="_on_play_stop_button_pressed"]
 [connection signal="drag_started" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_drag_started"]
 [connection signal="value_changed" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_value_changed"]

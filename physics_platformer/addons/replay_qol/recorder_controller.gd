@@ -11,6 +11,7 @@ func _ready() -> void:
 		
 	set_controls_popup_panel($PopupPanel)
 	set_time_line_slider($PopupPanel/Control/TimeLineSlider)
+	set_frame_counter_label($PopupPanel/Control/ReplayFrameCounter)
 
 func _physics_process(delta: float) -> void:
 	update()

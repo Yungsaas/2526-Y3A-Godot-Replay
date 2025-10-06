@@ -1,5 +1,6 @@
 #pragma once
 #include "godot_cpp/classes/h_slider.hpp"
+#include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/popup_panel.hpp"
 #include "recorder.hpp"
 
@@ -15,7 +16,8 @@ private:
 	Recorder *recorder;
     godot::PopupPanel *controls_popup_panel;
     godot::HSlider *time_line_slider;
-    int current_recording_frame = 0;
+	godot::Label *frame_counter_ui;
+	godot::String label_string_static_part;
     bool is_replaying = false;
 
 public:
@@ -53,6 +55,11 @@ public:
 	bool get_replay_pause()
 	{
 		return recorder->get_replay_pause();
+	}
+
+	void set_frame_counter_ui(godot::Label *new_label)
+	{
+		frame_counter_ui = new_label;
 	}
 
     void set_controls_popup(godot::PopupPanel*panel);
