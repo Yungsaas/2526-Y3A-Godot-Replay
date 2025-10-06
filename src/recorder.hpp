@@ -52,7 +52,27 @@ protected:
 	// Bind c plus plus methods to gdscript class
 	static void _bind_methods();
 
-private:
+	virtual void handle_recording();
+	void handle_replaying();
+
+	void record_input();
+	void replay_input();
+
+	void record_position();
+	void replay_position();
+
+	void record_custom_data();
+	void replay_custom_data();
+
+	void save_2dpos_to_json();
+	void save_input_to_json();
+	void load_json_file_to_game();
+
+	void add_nodes_from_groups();
+
+	
+	
+
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes
 	std::unordered_multimap<godot::Node *, godot::StringName> tracked_custom_data; //List of tracked data of specific nodes (other than position)
@@ -72,7 +92,7 @@ private:
 
 	godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
 	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
-
+	
 	bool is_recording = false;
 	bool is_replaying = false;
 	bool input_active = true;
@@ -84,29 +104,13 @@ private:
 
 	bool controlled_replay = false;
 
-	int recording_frame = 0;
 	int replay_frame = 0;
+	int recording_frame = 0;
 
 	godot::Ref<godot::JSON> json_path;
 	godot::Ref<godot::JSON> input_json_path;
 
-	void handle_recording();
-	void handle_replaying();
-
-	void record_input();
-	void replay_input();
-
-	void record_position();
-	void replay_position();
-
-	void record_custom_data();
-	void replay_custom_data();
-
-	void save_2dpos_to_json();
-	void save_input_to_json();
-	void load_json_file_to_game();
-
-	void add_nodes_from_groups();
+private:
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
@@ -126,7 +130,10 @@ public:
 
 	void start_replay();
 	void stop_replay();
-
+	virtual int get_min_record_frame()
+	{
+		return 0;
+	}
 	void replay_pause_trigger()
 	{
 		if(replay_paused)
@@ -228,4 +235,6 @@ public:
 	godot::TextEdit *get_input_screen();
 
 	void update();
+
+	virtual ~Recorder() = default;
 };

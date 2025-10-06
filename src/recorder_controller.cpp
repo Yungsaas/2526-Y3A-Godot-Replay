@@ -3,6 +3,7 @@
 #include "godot_cpp/classes/popup_panel.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "recorder.hpp"
+#include "instant_replay_recorder.hpp"
 
 void Recorder_Controller::set_controls_popup(godot::PopupPanel*panel)
 {
@@ -15,6 +16,7 @@ void Recorder_Controller::update()
 		godot::print_error("Recorder has not been set, recorder controller will not work.");
 		return;
 	}
+
 	if(recorder->get_general_replay_state())//is replaying
 	{
 		if(!time_line_slider)
@@ -47,7 +49,7 @@ void Recorder_Controller::update()
 			}
 		}else //recorder controller needs to be initialized
 		{
-			int recordingMin = 0; //If clipping and/or instant replay become a thing this should be set to their starting frame
+			int recordingMin = recorder->get_min_record_frame(); //If clipping and/or instant replay become a thing this should be set to their starting frame
 			int recordingLength = recorder->get_recording_frame();
 			time_line_slider->set_min(recordingMin);
 			time_line_slider->set_max(recordingLength);

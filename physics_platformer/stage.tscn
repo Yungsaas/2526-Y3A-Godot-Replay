@@ -8,8 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://bbxsp4gp554vh" path="res://player/player.tscn" id="6_fauva"]
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
-[ext_resource type="Script" uid="uid://dc550jk23230y" path="res://addons/replay_qol/recorder.gd" id="10_g8oy1"]
 [ext_resource type="PackedScene" uid="uid://bq06x8imnsowr" path="res://addons/replay_qol/Recorder_Controller.tscn" id="10_i76fu"]
+[ext_resource type="PackedScene" uid="uid://cmdmqq4qv7do4" path="res://addons/replay_qol/InstantReplayRecorder.tscn" id="10_uis2a"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -358,9 +358,6 @@ instructions."
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 autoplay = true
 
-[node name="Recorder" type="Recorder" parent="."]
-custom_data_recording = false
-json_saving = false
-script = ExtResource("10_g8oy1")
+[node name="InstantReplayRecorder" parent="." instance=ExtResource("10_uis2a")]
 
 [node name="RecorderController" parent="." instance=ExtResource("10_i76fu")]
