@@ -516,13 +516,10 @@ void Recorder::load_json_file_to_game() {
 	if (input_json_path != NULL) {
 		auto json_data = input_json_path->get_data(); // JSON file -> Variant
 
-		// Root is now a Dictionary
 		godot::Dictionary root = json_data;
 
-		// Extract recording_frame once
 		recording_frame = root["recording_frame"];
 
-		// Extract actions array
 		godot::Array actions = root["actions"];
 
 		for (int i = 0; i < actions.size(); i++) {
@@ -533,6 +530,34 @@ void Recorder::load_json_file_to_game() {
 			bool pressed = entry["pressed"];
 
 			temporary_data_map_input.insert({ frame, std::make_tuple(name, pressed) });
+		}
+	}
+
+
+	if (custom_json_path != NULL) {
+		auto json_data = custom_json_path->get_data(); // JSON file -> Variant
+
+		temporary_data_map_custom_data.clear();
+
+		godot::Dictionary root = json_data;
+
+		recording_frame = root["recording_frame"];
+
+		godot::Array custom_data = root["custom_data"];
+
+		for (int i = 0; i < custom_data.size(); i++) {
+			godot::Dictionary entry = custom_data[i];
+
+			int frame = entry["frame"];
+
+			godot::String node_path = entry["node"];
+            godot::Node *node = get_node<godot::Node>(node_path);
+			
+			godot::StringName name = entry["name"];
+
+			godot::Variant custom_data = entry["custom_variant"];
+
+			temporary_data_map_custom_data.emplace(frame, CustomDataEntry(node, name, custom_data));
 		}
 	}
 }
