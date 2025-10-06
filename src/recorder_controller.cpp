@@ -38,7 +38,7 @@ void Recorder_Controller::update()
 			{
 				int replayFrame = recorder->get_replay_frame();
 				time_line_slider->set_value(replayFrame);
-				frame_counter_ui->set_text(godot::String::num_int64(time_line_slider->get_value()) + label_string_static_part);
+				frame_counter_ui->set_text(godot::String::num_int64(time_line_slider->get_value() - recorder->get_max_recording_length()) + label_string_static_part);
 			}
 
 			if(!controls_popup_panel->is_visible())
@@ -55,7 +55,11 @@ void Recorder_Controller::update()
 			time_line_slider->set_max(recordingLength);
 			int tempInt = recordingLength;
 			is_replaying=true;
-			label_string_static_part = "/" + godot::String::num_int64(recordingLength);
+			if(recordingMin>0)
+			{
+				label_string_static_part = "/" + godot::String::num_int64(recordingLength - recorder->get_max_recording_length());
+			}else{
+			label_string_static_part = "/" + godot::String::num_int64(recordingLength);}
 			controls_popup_panel->set_visible(true);
 			recorder->set_controlled_replay(true);
 			recorder->force_pause_replay();

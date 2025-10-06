@@ -236,5 +236,10 @@ public:
 
 	void update();
 
+	virtual int get_max_recording_length()
+	{
+		return 0; //no max recording length
+	}
+	
 	virtual ~Recorder() = default;
 };

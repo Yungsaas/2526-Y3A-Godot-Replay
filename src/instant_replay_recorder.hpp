@@ -23,7 +23,7 @@ class InstantReplayRecorder:public Recorder
     void set_max_recording_length(int new_length){
         max_recording_length = new_length;
     }
-    int get_max_recording_length(){
+    int get_max_recording_length() override{
         return max_recording_length;
     }
 };
