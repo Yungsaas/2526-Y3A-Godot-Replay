@@ -66,6 +66,15 @@ protected:
 
 	void save_2dpos_to_json();
 	void save_input_to_json();
+
+	void save_all_to_json()
+	{
+		save_2dpos_to_json();
+		save_input_to_json();
+	}
+
+	void clear_all_temp_maps();
+
 	void load_json_file_to_game();
 
 	void add_nodes_from_groups();

@@ -40,12 +40,14 @@ void AutoClippingRecorder::trim_recording() //same trimming as in instant replay
 	temporary_data_map_input.erase(rangei.first, rangei.second);
 }
 
-void save_clip()
-{
-
-}
-
 void AutoClippingRecorder::_bind_methods()
 {
+	godot::ClassDB::bind_method(godot::D_METHOD("clip_begin"), &AutoClippingRecorder::clip_begin);
+	godot::ClassDB::bind_method(godot::D_METHOD("clip_end"), &AutoClippingRecorder::clip_end);
+	
+	//Buffer size
+	godot::ClassDB::bind_method(godot::D_METHOD("set_buffer_size", "size"), &AutoClippingRecorder::set_buffer_size);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_buffer_size"), &AutoClippingRecorder::get_buffer_size);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "clip_buffer_size"), "set_buffer_size", "get_buffer_size");
 
 }

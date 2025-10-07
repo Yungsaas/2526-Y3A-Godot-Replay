@@ -10,6 +10,7 @@ class AutoClippingRecorder:public Recorder
 
     protected:
     static void _bind_methods();
+    bool is_recording = true;
 
     private:
     void handle_recording() override;
@@ -20,5 +21,23 @@ class AutoClippingRecorder:public Recorder
 
     public:
 
-    void save_clip();
+    void clip_begin()
+    {
+        is_clipping = true;
+    }
+    void clip_end()
+    {
+        save_all_to_json();     //Save the clip
+        is_clipping = false;    //Begin trimming
+        clear_all_temp_maps();  //Clear out all temporary data maps
+    }
+
+    void set_buffer_size(int new_size)
+    {
+        buffer_size = new_size;
+    }
+    int get_buffer_size()
+    {
+        return buffer_size;
+    }
 };
