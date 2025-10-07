@@ -3,7 +3,7 @@
 
 void AutoClippingRecorder::handle_recording()
 {
-    if(!is_clipping)    //currently not clipping
+    if(!is_clipping && buffer_counter == 0)    //currently not clipping
     {
         trim_recording(); //trim the recording
     }
@@ -14,7 +14,14 @@ void AutoClippingRecorder::handle_recording()
 
 	record_custom_data();
 
-	recording_frame++;
+	recording_frame++;	
+
+	if(buffer_counter > 0)
+	{
+		buffer_counter--;
+	} else {
+		save_clip(); //Buffer has run out of frames, save clip and set is clipping to false
+	}
 }
 
 void AutoClippingRecorder::trim_recording() //same trimming as in instant replay
