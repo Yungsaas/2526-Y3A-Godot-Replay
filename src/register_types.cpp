@@ -3,6 +3,7 @@
 #include "recorder.hpp"
 #include "recorder_controller.hpp"
 #include "selection_panels.hpp"
+#include "instant_replay_recorder.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
@@ -20,6 +21,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	GDREGISTER_CLASS(Recorder)
 	GDREGISTER_CLASS(Data_Panels)
 	GDREGISTER_CLASS(Recorder_Controller)
+	GDREGISTER_CLASS(InstantReplayRecorder)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

@@ -9,6 +9,7 @@
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/vector2.hpp"
 #include "recorder.hpp"
+#include "instant_replay_recorder.hpp"
 
 void Recorder_Controller::set_controls_popup(godot::PopupPanel*panel)
 {
@@ -32,6 +33,7 @@ void Recorder_Controller::update()
 		godot::print_error("Recorder has not been set, recorder controller will not work.");
 		return;
 	}
+
 	if(recorder->get_general_replay_state())//is replaying
 	{
 		if(!time_line_slider)
@@ -53,7 +55,7 @@ void Recorder_Controller::update()
 			{
 				int replayFrame = recorder->get_replay_frame();
 				time_line_slider->set_value(replayFrame);
-				frame_counter_ui->set_text(godot::String::num_int64(time_line_slider->get_value()) + label_string_static_part);
+				frame_counter_ui->set_text(godot::String::num_int64(time_line_slider->get_value() - recorder->get_max_recording_length()) + label_string_static_part);
 			}
 
 			if(!controls_popup_panel->is_visible())
@@ -64,13 +66,17 @@ void Recorder_Controller::update()
 			}
 		}else //recorder controller needs to be initialized
 		{
-			int recordingMin = 0; //If clipping and/or instant replay become a thing this should be set to their starting frame
+			int recordingMin = recorder->get_min_record_frame(); //If clipping and/or instant replay become a thing this should be set to their starting frame
 			int recordingLength = recorder->get_recording_frame();
 			time_line_slider->set_min(recordingMin);
 			time_line_slider->set_max(recordingLength);
 			int tempInt = recordingLength;
 			is_replaying=true;
-			label_string_static_part = "/" + godot::String::num_int64(recordingLength);
+			if(recordingMin>0)
+			{
+				label_string_static_part = "/" + godot::String::num_int64(recordingLength - recorder->get_max_recording_length());
+			}else{
+			label_string_static_part = "/" + godot::String::num_int64(recordingLength);}
 			controls_popup_panel->set_visible(true);
 			input_popup_panel->set_visible(true);
 			recorder->set_controlled_replay(true);

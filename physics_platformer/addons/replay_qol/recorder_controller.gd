@@ -3,7 +3,11 @@ extends Recorder_Controller
 func _ready() -> void:
 	
 	if(not $"../Recorder"):
-		push_error("Recorder Controller could not find Recorder node!\nMake sure to add a Recorder node to your scene!")
+		if(not $"../InstantReplayRecorder"):
+			push_error("Recorder Controller could not find Recorder node!\nMake sure to add a Recorder node to your scene!")
+		else:
+			print("Instant Replay Recorder has been added")
+			set_recorder($"../InstantReplayRecorder")
 	else:
 		set_recorder($"../Recorder")
 		print("Recorder in Recorder Controller has been set.")
