@@ -10,6 +10,8 @@ func _ready() -> void:
 		force_pause_replay()
 		
 	set_controls_popup_panel($PopupPanel)
+	set_input_popup_panel($PopupPanel2)
+	set_label_parent($PopupPanel2/Control2)
 	set_time_line_slider($PopupPanel/Control/TimeLineSlider)
 	set_frame_counter_label($PopupPanel/Control/ReplayFrameCounter)
 
