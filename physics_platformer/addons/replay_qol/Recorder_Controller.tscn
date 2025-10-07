@@ -47,7 +47,6 @@ vertical_alignment = 1
 [node name="PopupPanel2" type="PopupPanel" parent="."]
 position = Vector2i(14, 15)
 size = Vector2i(130, 320)
-visible = true
 
 [node name="Control2" type="Control" parent="PopupPanel2"]
 layout_mode = 3
@@ -56,6 +55,34 @@ offset_left = 4.0
 offset_top = 4.0
 offset_right = 126.0
 offset_bottom = 316.0
+
+[node name="PopupPanel3" type="PopupPanel" parent="."]
+size = Vector2i(350, 100)
+visible = true
+
+[node name="Control" type="Control" parent="PopupPanel3"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 346.0
+offset_bottom = 96.0
+
+[node name="FPS_Label" type="Label" parent="PopupPanel3/Control"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 255.0
+offset_bottom = 31.0
+text = "FPS: 0.0 Process (12.4ms)"
+
+[node name="Memory_Label" type="Label" parent="PopupPanel3/Control"]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 21.0
+offset_right = 254.0
+offset_bottom = 53.0
+text = "Memory:"
 
 [connection signal="pressed" from="PopupPanel/Control/PlayStopButton" to="." method="_on_play_stop_button_pressed"]
 [connection signal="drag_started" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_drag_started"]

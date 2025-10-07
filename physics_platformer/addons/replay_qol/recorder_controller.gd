@@ -15,11 +15,23 @@ func _ready() -> void:
 		
 	set_controls_popup_panel($PopupPanel)
 	set_input_popup_panel($PopupPanel2)
+	set_debug_popup_panel($PopupPanel3)
+	
 	set_label_parent($PopupPanel2/Control2)
+	set_fps_label($PopupPanel3/Control/FPS_Label)
+	set_memory_label($PopupPanel3/Control/Memory_Label)
+	
 	set_time_line_slider($PopupPanel/Control/TimeLineSlider)
 	set_frame_counter_label($PopupPanel/Control/ReplayFrameCounter)
 
 func _physics_process(delta: float) -> void:
+	
+	var open_debug_window := Input.is_action_just_pressed(&"Debug_Window")
+	
+	if open_debug_window:
+		print("")
+		enable_debug_window()
+	
 	update()
 
 func _on_play_stop_button_pressed() -> void:

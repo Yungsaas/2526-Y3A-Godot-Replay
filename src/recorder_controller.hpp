@@ -16,14 +16,23 @@ protected:
 	static void _bind_methods();
 
 private:
+    void Measure_node_allocation(godot::Node *node);
+
 	Recorder *recorder;
     godot::PopupPanel *controls_popup_panel;
 	godot::PopupPanel *input_popup_panel;
+	godot::PopupPanel *debug_popup_panel;
+
 	godot::Control *input_lable_parent;
     godot::HSlider *time_line_slider;
+
 	godot::Label *frame_counter_ui;
+	godot::Label *fps_label;
+	godot::Label *memory_label;
+
 	godot::String label_string_static_part;
     bool is_replaying = false;
+	bool in_debug = false;
 
 	godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
 	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
@@ -72,9 +81,27 @@ public:
 		frame_counter_ui = new_label;
 	}
 
+	void set_fps_label(godot::Label *new_label)
+	{
+		fps_label = new_label;
+	}
+
+	void set_memory_label(godot::Label *new_label)
+	{
+		memory_label = new_label;
+	}
+
     void set_controls_popup(godot::PopupPanel*panel);
 
 	void set_input_popup(godot::PopupPanel*panel);
 
+	void set_debug_popup(godot::PopupPanel*panel);
+
 	void set_input_lable_parent(godot::Control*control);
+
+
+	void enable_debug_window()
+	{
+		in_debug = !in_debug;
+	}
 };

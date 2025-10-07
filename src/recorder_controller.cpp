@@ -3,13 +3,17 @@
 #include "godot_cpp/classes/control.hpp"
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/node.hpp"
+#include "godot_cpp/classes/object.hpp"
 #include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/popup_panel.hpp"
 #include "godot_cpp/classes/resource_loader.hpp"
 #include "godot_cpp/core/print_string.hpp"
+#include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/vector2.hpp"
+#include "godot_cpp/classes/performance.hpp"
 #include "recorder.hpp"
 #include "instant_replay_recorder.hpp"
+#include <godot_cpp/classes/os.hpp>
 
 void Recorder_Controller::set_controls_popup(godot::PopupPanel*panel)
 {
@@ -19,6 +23,11 @@ void Recorder_Controller::set_controls_popup(godot::PopupPanel*panel)
 void Recorder_Controller::set_input_popup(godot::PopupPanel*panel)
 {
 	input_popup_panel = panel;
+}
+
+void Recorder_Controller::set_debug_popup(godot::PopupPanel*panel)
+{
+	debug_popup_panel = panel;
 }
 
 void Recorder_Controller::set_input_lable_parent(godot::Control*control)
@@ -124,8 +133,41 @@ void Recorder_Controller::update()
 		}
 	}
 
+	if (in_debug) 
+	{
+		debug_popup_panel->set_visible(true);
+
+		double fps = godot::Performance::get_singleton()->get_monitor(godot::Performance::TIME_FPS);
+		double process_time_ms = godot::Performance::get_singleton()->get_monitor(godot::Performance::TIME_PROCESS) * 1000.0;
+
+		godot::String text = "FPS: " + godot::String::num(fps, 1) + " (Process: " + godot::String::num(process_time_ms, 2) + " ms)";
+		fps_label->set_text(text);
+
+		double memory_bytes = godot::Performance::get_singleton()->get_monitor(godot::Performance::MEMORY_STATIC);
+		double memory_mb = memory_bytes / (1024.0 * 1024.0);
+		godot::String memory_text = "Memory: " + godot::String::num(memory_mb, 1) + " MB";
+		memory_label->set_text(memory_text);
+
+		auto first_node_from_recorder = godot::Object::cast_to<Node>(recorder->get_tracked_nodes()[0]);
+		Measure_node_allocation(first_node_from_recorder);
+		
+
+	}
+
 	
 }
+
+void Recorder_Controller::Measure_node_allocation(godot::Node *node) {
+    uint64_t start_time = godot::OS::get_singleton()->get_ticks_usec();
+
+    // Your processing code here
+
+    uint64_t end_time = OS::get_singleton()->get_ticks_usec();
+    uint64_t elapsed = end_time - start_time; // in microseconds
+
+    print_line("MyNode _process time: " + itos(elapsed) + " µs");
+}
+
 void Recorder_Controller::exit_replay()
 {
 	recorder->stop_replay();
@@ -143,14 +185,22 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("set_controls_popup_panel", "panel"), &Recorder_Controller::set_controls_popup);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_popup_panel", "panel"), &Recorder_Controller::set_input_popup);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("set_debug_popup_panel", "panel"), &Recorder_Controller::set_debug_popup);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("set_label_parent", "panel"), &Recorder_Controller::set_input_lable_parent);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("set_fps_label", "label"), &Recorder_Controller::set_fps_label);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("set_memory_label", "label"), &Recorder_Controller::set_memory_label);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_paused"), &Recorder_Controller::get_replay_pause);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("set_frame", "frame"), &Recorder_Controller::set_frame);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("set_frame_counter_label", "label"), &Recorder_Controller::set_frame_counter_ui);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("enable_debug_window"), &Recorder_Controller::enable_debug_window);
 
 	//Functionality
 	godot::ClassDB::bind_method(godot::D_METHOD("replay_trigger"), &Recorder_Controller::replay_trigger);
