@@ -134,11 +134,11 @@ public:
 	void debug_print_array();
 	void debug_print_positions();
 
-	void start_recording();
-	void stop_recording();
+	virtual void start_recording();
+	virtual void stop_recording();
 
-	void start_replay();
-	void stop_replay();
+	virtual void start_replay();
+	virtual void stop_replay();
 
 	virtual int get_min_record_frame()
 	{

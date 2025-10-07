@@ -1,6 +1,7 @@
 #pragma once
 
 #include "godot_cpp/classes/wrapped.hpp"
+#include "godot_cpp/core/print_string.hpp"
 #include "recorder.hpp"
 
 class AutoClippingRecorder:public Recorder
@@ -29,6 +30,30 @@ class AutoClippingRecorder:public Recorder
     
 
     public:
+
+    void start_recording() override //deactivate
+    {
+        godot::print_error("Start recording is disabled in auto clipping recorder");
+        return;
+    }
+
+    void start_replay() override //deactivate
+    {
+        godot::print_error("Start replay is disabled in auto clipping recorder");
+        return;
+    }
+
+    void stop_recording() override //deactivate
+    {
+        godot::print_error("Stop recording is disabled in auto clipping recorder");
+        return;
+    }
+
+    void stop_replay() override //deactivate
+    {
+        godot::print_error("Stop replay is disabled in auto clipping recorder");
+        return;
+    }
 
     void clip_begin()   //User needs to engage clipping manually with this function
     {
