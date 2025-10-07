@@ -38,10 +38,14 @@ void InstantReplayRecorder::handle_shift()
 int InstantReplayRecorder::get_min_record_frame()
 {
 	int oldest_frame = recording_frame - max_recording_length;
-	if (oldest_frame < 0){
-		return 0;}
+	if (oldest_frame < 0)
+	{
+		return 0;
+	}else
+	{
+		return oldest_frame;
+	}
 
-	return oldest_frame;
 }
 
 void InstantReplayRecorder::_bind_methods()

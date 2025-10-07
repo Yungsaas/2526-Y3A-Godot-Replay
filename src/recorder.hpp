@@ -130,10 +130,12 @@ public:
 
 	void start_replay();
 	void stop_replay();
+
 	virtual int get_min_record_frame()
 	{
 		return 0;
 	}
+	
 	void replay_pause_trigger()
 	{
 		if(replay_paused)
