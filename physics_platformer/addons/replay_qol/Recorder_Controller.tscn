@@ -84,6 +84,14 @@ offset_right = 254.0
 offset_bottom = 53.0
 text = "Memory:"
 
+[node name="Replay_Buffer_Label" type="Label" parent="PopupPanel3/Control"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 47.0
+offset_right = 255.0
+offset_bottom = 79.0
+text = "Replay Buffer: 12.3MB"
+
 [connection signal="pressed" from="PopupPanel/Control/PlayStopButton" to="." method="_on_play_stop_button_pressed"]
 [connection signal="drag_started" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_drag_started"]
 [connection signal="value_changed" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_value_changed"]

@@ -147,25 +147,9 @@ void Recorder_Controller::update()
 		double memory_mb = memory_bytes / (1024.0 * 1024.0);
 		godot::String memory_text = "Memory: " + godot::String::num(memory_mb, 1) + " MB";
 		memory_label->set_text(memory_text);
-
-		auto first_node_from_recorder = godot::Object::cast_to<Node>(recorder->get_tracked_nodes()[0]);
-		Measure_node_allocation(first_node_from_recorder);
-		
-
 	}
 
 	
-}
-
-void Recorder_Controller::Measure_node_allocation(godot::Node *node) {
-    uint64_t start_time = godot::OS::get_singleton()->get_ticks_usec();
-
-    // Your processing code here
-
-    uint64_t end_time = OS::get_singleton()->get_ticks_usec();
-    uint64_t elapsed = end_time - start_time; // in microseconds
-
-    print_line("MyNode _process time: " + itos(elapsed) + " µs");
 }
 
 void Recorder_Controller::exit_replay()
@@ -193,7 +177,7 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("set_fps_label", "label"), &Recorder_Controller::set_fps_label);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("set_memory_label", "label"), &Recorder_Controller::set_memory_label);
-
+	
 	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_paused"), &Recorder_Controller::get_replay_pause);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("set_frame", "frame"), &Recorder_Controller::set_frame);

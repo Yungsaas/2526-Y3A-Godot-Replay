@@ -16,8 +16,6 @@ protected:
 	static void _bind_methods();
 
 private:
-    void Measure_node_allocation(godot::Node *node);
-
 	Recorder *recorder;
     godot::PopupPanel *controls_popup_panel;
 	godot::PopupPanel *input_popup_panel;
@@ -90,7 +88,6 @@ public:
 	{
 		memory_label = new_label;
 	}
-
     void set_controls_popup(godot::PopupPanel*panel);
 
 	void set_input_popup(godot::PopupPanel*panel);

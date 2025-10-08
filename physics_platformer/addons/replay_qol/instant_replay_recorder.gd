@@ -34,6 +34,7 @@ func _physics_process(_delta: float) -> void:
 	var start_replay_input := Input.is_action_just_pressed(&"start_replay")
 	var stop_replay_input := Input.is_action_just_pressed(&"stop_replay")
 	
+	
 
 	if start_replay_input:
 		stop_recording()
