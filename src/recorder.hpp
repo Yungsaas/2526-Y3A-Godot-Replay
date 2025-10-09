@@ -66,6 +66,15 @@ protected:
 
 	void save_2dpos_to_json();
 	void save_input_to_json();
+
+	void save_all_to_json()
+	{
+		save_2dpos_to_json();
+		save_input_to_json();
+	}
+
+	void clear_all_temp_maps();
+
 	void load_json_file_to_game();
 
 	void add_nodes_from_groups();
@@ -125,11 +134,11 @@ public:
 	void debug_print_array();
 	void debug_print_positions();
 
-	void start_recording();
-	void stop_recording();
+	virtual void start_recording();
+	virtual void stop_recording();
 
-	void start_replay();
-	void stop_replay();
+	virtual void start_replay();
+	virtual void stop_replay();
 
 	virtual int get_min_record_frame()
 	{

@@ -1,5 +1,6 @@
 // Include your classes, that you want to expose to Godot
 
+#include "auto_clipping_recorder.hpp"
 #include "recorder.hpp"
 #include "recorder_controller.hpp"
 #include "selection_panels.hpp"
@@ -22,6 +23,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	GDREGISTER_CLASS(Data_Panels)
 	GDREGISTER_CLASS(Recorder_Controller)
 	GDREGISTER_CLASS(InstantReplayRecorder)
+	GDREGISTER_CLASS(AutoClippingRecorder)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

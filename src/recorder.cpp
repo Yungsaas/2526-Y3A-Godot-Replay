@@ -88,9 +88,7 @@ void Recorder::start_recording()
 {
 	is_recording = true;
 	recording_frame = 0;
-	temporary_data_map_3d_pos.clear();
-	temporary_data_map_2d_pos.clear();
-	temporary_data_map_input.clear();
+	clear_all_temp_maps();
 	last_recorded_3d_pos.clear();
 	last_recorded_2d_pos.clear();
 
@@ -132,6 +130,17 @@ void Recorder::stop_recording()
 	godot::print_line("Stopping recording");
 	save_2dpos_to_json();
 	save_input_to_json();
+}
+void Recorder::clear_all_temp_maps()
+{
+	temporary_data_map_2d_pos.clear();
+	temporary_data_map_3d_pos.clear();
+	temporary_data_map_custom_data.clear();
+	temporary_data_map_input.clear();
+
+	last_recorded_2d_pos.clear();
+	last_recorded_3d_pos.clear();
+	last_recorded_custom_data.clear();
 }
 
 void Recorder::start_replay()
