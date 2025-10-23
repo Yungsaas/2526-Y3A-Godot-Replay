@@ -1,5 +1,6 @@
 #pragma once
 #include "ghost_player_manager.hpp"
+#include "godot_cpp/classes/object.hpp"
 #include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/classes/resource.hpp"
@@ -22,7 +23,8 @@ void Ghost_Player_Manager::update()
 {
     if(ghost_replaying)
     {
-        //replay ghost
+        replay_position();
+        ghost_replay_current_frame++;
     }
 }
 
@@ -41,7 +43,7 @@ void Ghost_Player_Manager::start_ghost_replay()
     }
 
     ghost_replaying = true;
-    
+
     //Create ghost player node
     godot::Ref<godot::Resource> res_player = godot::ResourceLoader::get_singleton()->load(player_packed_scene_path);
     godot::Ref<godot::PackedScene> packed_player = res_player;
@@ -53,6 +55,10 @@ void Ghost_Player_Manager::start_ghost_replay()
         {
             ghost_player_node->set_owner(player_parent_node->get_owner());
             player_parent_node->add_child(ghost_player_node);
+
+            disable_physics_for_ghost();
+            remove_script_from_ghost();
+
         } else {
             godot::print_error("Ghost player could not be instantiated.");
         }
@@ -99,6 +105,46 @@ void Ghost_Player_Manager::continue_ghost_replay()
 void Ghost_Player_Manager::stop_ghost_replay()
 {
     ghost_replaying = false;
+    //remove and delete ghost player
+}
+
+void Ghost_Player_Manager::delete_ghost_player()
+{
+    if(!ghost_player_node)
+    {
+        godot::print_error("Unable to delete ghost player, no ghost player found.");
+        return;
+    }
+
+    if(ghost_player_node->get_parent())
+    {
+        ghost_player_node->get_parent()->remove_child(ghost_player_node);
+    }
+
+    ghost_player_node->queue_free();
+
+    ghost_player_node = nullptr;
+}
+
+void Ghost_Player_Manager::replay_position()
+{
+    //replay position:
+    if(auto node2d = godot::Object::cast_to<godot::Node2D>(ghost_player_node))
+    {
+        auto it =temporary_data_map_2d_pos.find(ghost_replay_current_frame);
+        if( it != temporary_data_map_2d_pos.end() )
+        {
+            node2d->set_global_position(temporary_data_map_2d_pos[ghost_replay_current_frame]);
+        }
+    }
+    if(auto node3d = godot::Object::cast_to<godot::Node3D>(ghost_player_node))
+    {
+        auto it =temporary_data_map_3d_pos.find(ghost_replay_current_frame);
+        if( it != temporary_data_map_3d_pos.end())
+        {
+            node3d->set_global_position(temporary_data_map_3d_pos[ghost_replay_current_frame]);
+        }
+    }
 }
 
 void Ghost_Player_Manager::_bind_methods()
