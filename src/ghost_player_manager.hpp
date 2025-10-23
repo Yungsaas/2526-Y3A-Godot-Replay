@@ -22,18 +22,22 @@ godot::PackedScene player_packed_scene;
 godot::String player_packed_scene_path;
 
 //Temporary data maps for ghost player replay
-std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> temporary_data_map_3d_pos; //Recorded data for 3D positions
-std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> temporary_data_map_2d_pos; //Recorded data for 2D positions
+std::unordered_map<int, godot::Vector3> temporary_data_map_3d_pos; //Recorded data for 3D positions
+std::unordered_map<int, godot::Vector2> temporary_data_map_2d_pos; //Recorded data for 2D positions
 
 void load_json_file();
 
 bool ghost_replaying = false;
+int ghost_replay_current_frame = 0;
+int ghost_replay_max_frame;
 
 godot::Node* ghost_player_node;
 godot::NodePath ghost_player_node_path;
 
 void disable_physics_for_ghost();
 void remove_script_from_ghost();
+void delete_ghost_player();
+void replay_position();
 
 public:
 
