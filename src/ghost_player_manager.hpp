@@ -24,9 +24,15 @@ godot::String player_packed_scene_path;
 std::unordered_map<int, godot::Vector3> temporary_data_map_3d_rep;
 std::unordered_map<int, godot::Vector2> temporary_data_map_2d_rep;
 
+std::unordered_map<int, godot::Vector3> temporary_data_map_3d_rotation_rep;
+std::unordered_map<int, float> temporary_data_map_2d_rotation_rep;
+
 //Temporary data maps for ghost player recording
 std::unordered_map<int, godot::Vector3> temporary_data_map_3d_rec;
 std::unordered_map<int, godot::Vector2> temporary_data_map_2d_rec;
+
+std::unordered_map<int, godot::Vector3> temporary_data_map_3d_rotation_rec;
+std::unordered_map<int, float> temporary_data_map_2d_rotation_rec;
 
 bool ghost_replaying = false;
 bool ghost_recording = false;
@@ -36,6 +42,9 @@ int ghost_recording_frame = 0;
 
 godot::Vector3 prev_pos3;
 godot::Vector2 prev_pos2;
+
+godot::Vector3 prev_rot3;
+float prev_rot2;
 
 godot::Node* ghost_player_node;
 godot::NodePath ghost_player_node_path;
@@ -47,6 +56,7 @@ void disable_physics_for_ghost();
 void remove_script_from_ghost();
 void delete_ghost_player();
 void replay_position();
+void replay_rotation();
 void record_ghost();
 void set_metadata();
 
@@ -65,6 +75,21 @@ void stop_ghost_replay();
 
 void start_ghost_recording();
 void stop_ghost_recording();
+
+void set_ghost_player_node(godot::Node* new_ghost_player) //very insecure, only use when you know what you are doing
+{
+	ghost_player_node = new_ghost_player;
+}
+
+godot::Node* get_ghost_player_node()
+{
+	return ghost_player_node;
+}
+
+void set_player_node_raw(godot::Node* new_player) //very insecure, only use when you know what you are doing
+{
+	player_node = new_player;
+}
 
 void load_ghost_recording_from_memory();
 
