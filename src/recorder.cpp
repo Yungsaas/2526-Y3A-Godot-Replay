@@ -129,6 +129,7 @@ void Recorder::stop_recording()
 	is_recording = false;
 	godot::print_line("Stopping recording");
 	save_2dpos_to_json();
+	save_3dpos_to_json();
 	save_input_to_json();
 	save_custom_to_json();
 }
@@ -395,7 +396,7 @@ void Recorder::save_3dpos_to_json()
 	godot::String filename;
 
 	while (true) {
-		filename = "res://addons/replay_qol/json/test_" + godot::String::num(recording_index) + ".json";
+		filename = "res://addons/replay_qol/json/test3d_" + godot::String::num(recording_index) + ".json";
 
 		if (!godot::FileAccess::file_exists(filename)) {
 			break; // found available filename
