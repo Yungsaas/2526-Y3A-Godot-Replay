@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bbxsp4gp554vh" path="res://player/player.tscn" id="6_fauva"]
 [ext_resource type="PackedScene" uid="uid://daqqtote00syu" path="res://enemy/enemy.tscn" id="7"]
 [ext_resource type="PackedScene" uid="uid://csdn3dwkaprow" path="res://background/parallax_bg.tscn" id="8"]
-[ext_resource type="Script" uid="uid://b50ub1wjfs6u" path="res://ghost_player_manager.gd" id="9_jx6rg"]
+[ext_resource type="PackedScene" uid="uid://d1187r2eo4l6w" path="res://addons/replay_qol/ghost_player_manager.tscn" id="9_jx6rg"]
 
 [sub_resource type="Animation" id="Animation_oxal6"]
 length = 0.001
@@ -358,6 +358,4 @@ instructions."
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 autoplay = true
 
-[node name="Ghost_Player_Manager" type="Ghost_Player_Manager" parent="."]
-json_replay_path = "/ghost_player_replays/"
-script = ExtResource("9_jx6rg")
+[node name="Ghost_Player_Manager" parent="." instance=ExtResource("9_jx6rg")]

@@ -80,7 +80,7 @@ void Ghost_Player_Manager::start_ghost_replay()
 
             disable_physics_for_ghost();
             set_metadata();
-            //remove_script_from_ghost();
+            remove_script_from_ghost();
 
         } else {
             godot::print_error("Ghost player could not be instantiated.");
