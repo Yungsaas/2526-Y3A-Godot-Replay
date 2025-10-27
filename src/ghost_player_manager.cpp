@@ -30,6 +30,7 @@ void Ghost_Player_Manager::update()
     if(ghost_replaying)
     {
         replay_position();
+        replay_rotation();
         ghost_replay_current_frame++;
         if(ghost_replay_current_frame > ghost_replay_max_frame)
         {
@@ -107,12 +108,40 @@ void Ghost_Player_Manager::disable_physics_for_ghost()
         rb3d->set_collision_mask(0);
         rb3d->set_freeze_enabled(true);
     }
+
+    //Disable physics for ghost children
+    for (int i = 0; i < ghost_player_node->get_child_count(); ++i) 
+    {
+        godot::Node *child = ghost_player_node->get_child(i);
+        //2D
+        if(auto rb2d = godot::Object::cast_to<godot::RigidBody2D>(child))
+        {
+            rb2d->set_collision_layer(0);
+            rb2d->set_collision_mask(0);
+            rb2d->set_freeze_enabled(true);
+        }
+
+        //3D
+        if(auto rb3d = godot::Object::cast_to<godot::RigidBody3D>(child))
+        {
+            rb3d->set_collision_layer(0);
+            rb3d->set_collision_mask(0);
+            rb3d->set_freeze_enabled(true);
+        }
+    }
 }
 
 void Ghost_Player_Manager::remove_script_from_ghost()
 {
     //set to empty script
     ghost_player_node->set_script(godot::Ref<godot::Script>());
+
+        //Remove scripts for children
+    for (int i = 0; i < ghost_player_node->get_child_count(); ++i) 
+    {
+        godot::Node *child = ghost_player_node->get_child(i);
+        child->set_script(godot::Ref<godot::Script>());
+    }
 }
 
 void Ghost_Player_Manager::set_metadata()
@@ -189,6 +218,33 @@ void Ghost_Player_Manager::replay_position()
     }
 }
 
+void Ghost_Player_Manager::replay_rotation()
+{
+    if(!ghost_player_node)
+    {
+        godot::print_error("Ghost player node not initiated, aborting replay.");
+        ghost_replaying = false;
+        return;
+    }
+    //replay rotation:
+    if(auto node2d = godot::Object::cast_to<godot::Node2D>(ghost_player_node))
+    {
+        auto it =temporary_data_map_2d_rep.find(ghost_replay_current_frame);
+        if( it != temporary_data_map_2d_rep.end() )
+        {
+            node2d->set_global_rotation(temporary_data_map_2d_rotation_rep[ghost_replay_current_frame]);
+        }
+    }
+    if(auto node3d = godot::Object::cast_to<godot::Node3D>(ghost_player_node))
+    {
+        auto it =temporary_data_map_3d_rep.find(ghost_replay_current_frame);
+        if( it != temporary_data_map_3d_rep.end())
+        {
+            node3d->set_global_rotation(temporary_data_map_3d_rotation_rep[ghost_replay_current_frame]);
+        }
+    }
+}
+
 godot::Node* Ghost_Player_Manager::get_player_node()
 {
     return player_node;
@@ -208,6 +264,12 @@ void Ghost_Player_Manager::start_ghost_recording()
 {
     ghost_recording = true;
     ghost_recording_frame = 0;
+
+    //make sure all recording maps are cleared out
+    temporary_data_map_2d_rec.clear();
+    temporary_data_map_2d_rotation_rec.clear();
+    temporary_data_map_3d_rec.clear();
+    temporary_data_map_3d_rotation_rec.clear();
 }
 
 void Ghost_Player_Manager::record_ghost()
@@ -228,12 +290,24 @@ void Ghost_Player_Manager::record_ghost()
         if(prev_pos2!=p2dn->get_global_position()){
         temporary_data_map_2d_rec[ghost_recording_frame] = p2dn->get_global_position();
         prev_pos2 = temporary_data_map_2d_rec[ghost_recording_frame];}
+
+        if(prev_rot2!=p2dn->get_global_rotation())
+        {
+            temporary_data_map_2d_rotation_rec[ghost_recording_frame] = p2dn->get_global_rotation();
+            prev_rot2 = temporary_data_map_2d_rotation_rec[ghost_recording_frame];
+        }
     }
     if(auto p3dn = godot::Object::cast_to<godot::Node3D>(player_node))
     {
         if(prev_pos3!=p3dn->get_global_position()){
         temporary_data_map_3d_rec[ghost_recording_frame] = p3dn->get_global_position();
         prev_pos3 = temporary_data_map_3d_rec[ghost_recording_frame];}
+
+        if(prev_rot3!=p3dn->get_global_rotation())
+        {
+            temporary_data_map_3d_rotation_rec[ghost_recording_frame] = p3dn->get_global_rotation();
+            prev_rot3 = temporary_data_map_3d_rec[ghost_recording_frame];
+        }
     }
 }
 
@@ -247,6 +321,8 @@ void Ghost_Player_Manager::load_ghost_recording_from_memory()
 {
     temporary_data_map_2d_rep = temporary_data_map_2d_rec;
     temporary_data_map_3d_rep = temporary_data_map_3d_rec;
+    temporary_data_map_2d_rotation_rep = temporary_data_map_2d_rotation_rec;
+    temporary_data_map_3d_rotation_rep = temporary_data_map_3d_rotation_rec;
 }
 
 
@@ -279,5 +355,11 @@ void Ghost_Player_Manager::_bind_methods()
     //Player node
 	godot::ClassDB::bind_method(godot::D_METHOD("set_player_node", "node"), &Ghost_Player_Manager::set_player_node);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_player_node"), &Ghost_Player_Manager::get_player_node);
+
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_player_node_raw", "node"), &Ghost_Player_Manager::set_player_node_raw);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_ghost_player_node", "node"), &Ghost_Player_Manager::set_ghost_player_node);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_ghost_player_node"), &Ghost_Player_Manager::get_ghost_player_node);
     
 }
