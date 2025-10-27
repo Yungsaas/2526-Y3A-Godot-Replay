@@ -1,6 +1,7 @@
 #pragma once
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/variant/node_path.hpp"
+#include "godot_cpp/variant/vector3.hpp"
 
 class Ghost_Player_Manager : public godot::Node
 {
@@ -32,6 +33,9 @@ bool ghost_recording = false;
 int ghost_replay_current_frame = 0;
 int ghost_replay_max_frame;
 int ghost_recording_frame = 0;
+
+godot::Vector3 prev_pos3;
+godot::Vector2 prev_pos2;
 
 godot::Node* ghost_player_node;
 godot::NodePath ghost_player_node_path;
