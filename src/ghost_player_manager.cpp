@@ -34,7 +34,7 @@ void Ghost_Player_Manager::update()
         if(ghost_replay_current_frame > ghost_replay_max_frame)
         {
             ghost_replaying = false;
-            stop_ghost_replay();
+            pause_ghost_replay();
         }
     }
 
@@ -122,6 +122,7 @@ void Ghost_Player_Manager::set_metadata()
 
 void Ghost_Player_Manager::pause_ghost_replay()
 {
+    godot::print_line("Paused ghost replay.");
     ghost_replaying = false;
 }
 
@@ -255,6 +256,7 @@ void Ghost_Player_Manager::_bind_methods()
     
     //General functions    
 	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Ghost_Player_Manager::update);
+    godot::ClassDB::bind_method(godot::D_METHOD("delete_ghost_player"), &Ghost_Player_Manager::delete_ghost_player);
 
     //Ghost replay functionality
 	godot::ClassDB::bind_method(godot::D_METHOD("start_ghost_replay"), &Ghost_Player_Manager::start_ghost_replay);
