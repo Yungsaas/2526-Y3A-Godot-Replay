@@ -1,5 +1,7 @@
 #pragma once
 #include "ghost_player_manager.hpp"
+#include "godot_cpp/classes/node.hpp"
+#include "godot_cpp/classes/node2d.hpp"
 #include "godot_cpp/classes/object.hpp"
 #include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/ref.hpp"
@@ -8,6 +10,7 @@
 #include "godot_cpp/classes/rigid_body2d.hpp"
 #include "godot_cpp/classes/rigid_body3d.hpp"
 #include "godot_cpp/classes/script.hpp"
+#include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/string.hpp"
 
@@ -25,6 +28,17 @@ void Ghost_Player_Manager::update()
     {
         replay_position();
         ghost_replay_current_frame++;
+        if(ghost_replay_current_frame > ghost_replay_max_frame)
+        {
+            ghost_replaying = false;
+            stop_ghost_replay();
+        }
+    }
+
+    if(ghost_recording)
+    {
+        record_ghost();
+        ghost_recording_frame++;
     }
 }
 
@@ -106,6 +120,7 @@ void Ghost_Player_Manager::stop_ghost_replay()
 {
     ghost_replaying = false;
     //remove and delete ghost player
+    delete_ghost_player();
 }
 
 void Ghost_Player_Manager::delete_ghost_player()
@@ -128,26 +143,115 @@ void Ghost_Player_Manager::delete_ghost_player()
 
 void Ghost_Player_Manager::replay_position()
 {
+    if(!ghost_player_node)
+    {
+        godot::print_error("Ghost player node not initiated, aborting replay.");
+        ghost_replaying = false;
+        return;
+    }
+
     //replay position:
     if(auto node2d = godot::Object::cast_to<godot::Node2D>(ghost_player_node))
     {
-        auto it =temporary_data_map_2d_pos.find(ghost_replay_current_frame);
-        if( it != temporary_data_map_2d_pos.end() )
+        auto it =temporary_data_map_2d_rep.find(ghost_replay_current_frame);
+        if( it != temporary_data_map_2d_rep.end() )
         {
-            node2d->set_global_position(temporary_data_map_2d_pos[ghost_replay_current_frame]);
+            node2d->set_global_position(temporary_data_map_2d_rep[ghost_replay_current_frame]);
         }
     }
     if(auto node3d = godot::Object::cast_to<godot::Node3D>(ghost_player_node))
     {
-        auto it =temporary_data_map_3d_pos.find(ghost_replay_current_frame);
-        if( it != temporary_data_map_3d_pos.end())
+        auto it =temporary_data_map_3d_rep.find(ghost_replay_current_frame);
+        if( it != temporary_data_map_3d_rep.end())
         {
-            node3d->set_global_position(temporary_data_map_3d_pos[ghost_replay_current_frame]);
+            node3d->set_global_position(temporary_data_map_3d_rep[ghost_replay_current_frame]);
         }
     }
 }
 
+godot::Node* Ghost_Player_Manager::get_player_node()
+{
+    return player_node;
+}
+
+void Ghost_Player_Manager::set_replay_path(godot::String new_path)
+{
+    json_replay_path = new_path;
+    json_replay_path_ref = json_replay_path;
+}
+
+godot::String Ghost_Player_Manager::get_replay_path()
+{
+    return json_replay_path;
+}
+
+void Ghost_Player_Manager::start_ghost_recording()
+{
+    ghost_recording = true;
+    ghost_recording_frame = 0;
+}
+
+void Ghost_Player_Manager::record_ghost()
+{
+    if(!ghost_recording)
+    {
+        return;
+    }
+    
+    if(!player_node)
+    {
+        godot::print_error("No player node set in ghost player manager!");
+        return;
+    }
+
+    if(auto p2dn = godot::Object::cast_to<godot::Node2D>(player_node))
+    {
+        temporary_data_map_2d_rec[ghost_recording_frame] = p2dn->get_global_position();
+    }
+    if(auto p3dn = godot::Object::cast_to<godot::Node3D>(player_node))
+    {
+        temporary_data_map_3d_rec[ghost_recording_frame] = p3dn->get_global_position();
+    }
+}
+
+void Ghost_Player_Manager::stop_ghost_recording()
+{
+    ghost_recording = false;
+}
+
+void Ghost_Player_Manager::load_ghost_recording_from_memory()
+{
+    temporary_data_map_2d_rep = temporary_data_map_2d_rec;
+    temporary_data_map_3d_rep = temporary_data_map_3d_rec;
+}
+
+
+
 void Ghost_Player_Manager::_bind_methods()
 {
+    //General functions    
+	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Ghost_Player_Manager::update);
 
+    //Ghost replay functionality
+	godot::ClassDB::bind_method(godot::D_METHOD("start_ghost_replay"), &Ghost_Player_Manager::start_ghost_replay);
+	godot::ClassDB::bind_method(godot::D_METHOD("pause_ghost_replay"), &Ghost_Player_Manager::pause_ghost_replay);
+	godot::ClassDB::bind_method(godot::D_METHOD("continue_ghost_replay"), &Ghost_Player_Manager::continue_ghost_replay);
+	godot::ClassDB::bind_method(godot::D_METHOD("stop_ghost_replay"), &Ghost_Player_Manager::stop_ghost_replay);
+
+    //Ghost recording functionality
+    godot::ClassDB::bind_method(godot::D_METHOD("start_ghost_recording"), &Ghost_Player_Manager::start_ghost_recording);
+    godot::ClassDB::bind_method(godot::D_METHOD("stop_ghost_recording"), &Ghost_Player_Manager::stop_ghost_recording);
+
+    //Recording/replay data
+    godot::ClassDB::bind_method(godot::D_METHOD("load_from_memory"), &Ghost_Player_Manager::load_ghost_recording_from_memory);
+
+    //Add json replay path property
+	godot::ClassDB::bind_method(godot::D_METHOD("set_replay_path", "json_path"), &Ghost_Player_Manager::set_replay_path);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_path"), &Ghost_Player_Manager::get_replay_path);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::STRING, "json_replay_path"), "set_replay_path", "get_replay_path");
+
+    //Add player node property
+	godot::ClassDB::bind_method(godot::D_METHOD("set_player_node", "node"), &Ghost_Player_Manager::set_player_node);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_player_node"), &Ghost_Player_Manager::get_player_node);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::OBJECT, "player_node"), "set_player_node", "get_player_node");
 }
