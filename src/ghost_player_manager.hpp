@@ -1,8 +1,5 @@
 #pragma once
-#include "godot_cpp/classes/json.hpp"
 #include "godot_cpp/classes/node.hpp"
-#include "godot_cpp/classes/packed_scene.hpp"
-#include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/variant/node_path.hpp"
 
 class Ghost_Player_Manager : public godot::Node
@@ -20,7 +17,6 @@ godot::Node* player_node;
 godot::Node* player_parent_node;
 godot::NodePath player_node_path;
 godot::NodePath player_parent_node_path;
-godot::PackedScene player_packed_scene;
 godot::String player_packed_scene_path;
 
 //Temporary data maps for ghost player replay
@@ -30,8 +26,6 @@ std::unordered_map<int, godot::Vector2> temporary_data_map_2d_rep;
 //Temporary data maps for ghost player recording
 std::unordered_map<int, godot::Vector3> temporary_data_map_3d_rec;
 std::unordered_map<int, godot::Vector2> temporary_data_map_2d_rec;
-
-void load_json_file();
 
 bool ghost_replaying = false;
 bool ghost_recording = false;
@@ -43,7 +37,6 @@ godot::Node* ghost_player_node;
 godot::NodePath ghost_player_node_path;
 
 godot::String json_replay_path;
-godot::Ref<godot::JSON> json_replay_path_ref;
 
 
 void disable_physics_for_ghost();
@@ -51,6 +44,7 @@ void remove_script_from_ghost();
 void delete_ghost_player();
 void replay_position();
 void record_ghost();
+void set_metadata();
 
 public:
 
@@ -69,9 +63,6 @@ void start_ghost_recording();
 void stop_ghost_recording();
 
 void load_ghost_recording_from_memory();
-
-void save_ghost_recording_to_json(); //TODO
-void load_ghost_recording_from_json(); //TODO
 
 void update();
 };
