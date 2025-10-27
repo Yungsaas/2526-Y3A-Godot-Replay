@@ -222,12 +222,16 @@ void Ghost_Player_Manager::record_ghost()
         return;
     }
 
+    int prev_frame = ghost_recording_frame - 1;
+
     if(auto p2dn = godot::Object::cast_to<godot::Node2D>(player_node))
     {
+        if(temporary_data_map_2d_rec[prev_frame]!=p2dn->get_global_position())
         temporary_data_map_2d_rec[ghost_recording_frame] = p2dn->get_global_position();
     }
     if(auto p3dn = godot::Object::cast_to<godot::Node3D>(player_node))
     {
+        if(temporary_data_map_3d_rec[prev_frame]!=p3dn->get_global_position())
         temporary_data_map_3d_rec[ghost_recording_frame] = p3dn->get_global_position();
     }
 }
