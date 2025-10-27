@@ -79,9 +79,6 @@ protected:
 
 	void add_nodes_from_groups();
 
-	
-	
-
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes
 	std::unordered_multimap<godot::Node *, godot::StringName> tracked_custom_data; //List of tracked data of specific nodes (other than position)
@@ -120,24 +117,7 @@ protected:
 	godot::Ref<godot::JSON> input_json_path;
 	godot::Ref<godot::JSON> custom_json_path;
 
-	void handle_recording();
-	void handle_replaying();
-
-	void record_input();
-	void replay_input();
-
-	void record_position();
-	void replay_position();
-
-	void record_custom_data();
-	void replay_custom_data();
-
-	void save_2dpos_to_json();
-	void save_input_to_json();
 	void save_custom_to_json();
-	void load_json_file_to_game();
-
-	void add_nodes_from_groups();
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
