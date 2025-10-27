@@ -79,9 +79,6 @@ protected:
 
 	void add_nodes_from_groups();
 
-	
-	
-
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes
 	std::unordered_multimap<godot::Node *, godot::StringName> tracked_custom_data; //List of tracked data of specific nodes (other than position)
@@ -118,8 +115,9 @@ protected:
 
 	godot::Ref<godot::JSON> json_path;
 	godot::Ref<godot::JSON> input_json_path;
+	godot::Ref<godot::JSON> custom_json_path;
 
-private:
+	void save_custom_to_json();
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
@@ -127,6 +125,7 @@ public:
 
 	void set_json_path(const godot::Ref<godot::JSON> &p_path);
 	void set_input_json_path(const godot::Ref<godot::JSON> &p_path);
+	void set_custom_json_path(const godot::Ref<godot::JSON> &p_path);
 
 	bool add_node(godot::Node *node);
 	bool remove_node(godot::Node *node);
