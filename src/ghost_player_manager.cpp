@@ -109,6 +109,7 @@ void Ghost_Player_Manager::disable_physics_for_ghost()
         rb3d->set_freeze_enabled(true);
     }
 
+    /*
     //Disable physics for ghost children
     for (int i = 0; i < ghost_player_node->get_child_count(); ++i) 
     {
@@ -129,6 +130,7 @@ void Ghost_Player_Manager::disable_physics_for_ghost()
             rb3d->set_freeze_enabled(true);
         }
     }
+    */
 }
 
 void Ghost_Player_Manager::remove_script_from_ghost()
