@@ -45,6 +45,12 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	var jump := Input.is_action_pressed(&"jump")
 	var shoot := Input.is_action_pressed(&"shoot")
 	var spawn := Input.is_action_just_pressed(&"spawn")
+	if get_meta("is_ghost"):
+		move_left = false
+		move_right = false
+		jump = false
+		shoot = false
+		spawn = false
 
 	if spawn:
 		_spawn_enemy_above.call_deferred()
