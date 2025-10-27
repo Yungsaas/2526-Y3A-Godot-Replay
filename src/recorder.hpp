@@ -65,11 +65,13 @@ protected:
 	void replay_custom_data();
 
 	void save_2dpos_to_json();
+	void save_3dpos_to_json();
 	void save_input_to_json();
 
 	void save_all_to_json()
 	{
 		save_2dpos_to_json();
+		save_3dpos_to_json();
 		save_input_to_json();
 	}
 
@@ -78,9 +80,6 @@ protected:
 	void load_json_file_to_game();
 
 	void add_nodes_from_groups();
-
-	
-	
 
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes
@@ -117,16 +116,20 @@ protected:
 	int recording_frame = 0;
 
 	godot::Ref<godot::JSON> json_path;
+	godot::Ref<godot::JSON> json_3d_path;
 	godot::Ref<godot::JSON> input_json_path;
+	godot::Ref<godot::JSON> custom_json_path;
 
-private:
+	void save_custom_to_json();
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
 	godot::Array get_tracked_nodes();
 
 	void set_json_path(const godot::Ref<godot::JSON> &p_path);
+	void set_3d_json_path(const godot::Ref<godot::JSON> &p_path);
 	void set_input_json_path(const godot::Ref<godot::JSON> &p_path);
+	void set_custom_json_path(const godot::Ref<godot::JSON> &p_path);
 
 	bool add_node(godot::Node *node);
 	bool remove_node(godot::Node *node);

@@ -9,15 +9,18 @@ var is_replaying: bool = false
 @export var nodes_array: Array[Node] = []
 @export var json_path: JSON
 @export var input_json_path: JSON
+@export var custom_json_path: JSON
 
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
 	
 	set_json_path(json_path)
 	set_input_json_path(input_json_path)
+	set_custom_json_path(custom_json_path)
 	
 	load_json_file()
 	
+	add_custom_data($"../Player", "coin_counter")
 	
 	pass
 

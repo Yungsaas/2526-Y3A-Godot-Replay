@@ -129,7 +129,9 @@ void Recorder::stop_recording()
 	is_recording = false;
 	godot::print_line("Stopping recording");
 	save_2dpos_to_json();
+	save_3dpos_to_json();
 	save_input_to_json();
+	save_custom_to_json();
 }
 void Recorder::clear_all_temp_maps()
 {
@@ -302,7 +304,17 @@ void Recorder::save_2dpos_to_json()
 			entry["frame"] = currentFrame;
 			entry["pos"] = position;
 
-			godot::String node_name = node->get_path();
+			godot::String node_name; // temp fix so we can save destoryed json files
+			if (!node->get_path().is_empty()) 
+			{
+				node_name = node->get_path();
+			}
+			else 
+			{
+				node_name = "empty";
+			}
+
+			
 
 			// If node key doesn’t exist, create an array
 			if (!node_entries.has(node_name)) {
@@ -326,6 +338,65 @@ void Recorder::save_2dpos_to_json()
 
 	while (true) {
 		filename = "res://addons/replay_qol/json/test_" + godot::String::num(recording_index) + ".json";
+
+		if (!godot::FileAccess::file_exists(filename)) {
+			break; // found available filename
+		}
+		recording_index++;
+	}
+
+	auto file = godot::FileAccess::open(filename, godot::FileAccess::WRITE);
+
+	if (file.is_valid()) {
+		file->store_string(json_string); // Write JSON text to file
+		file->close();
+	}
+}
+
+void Recorder::save_3dpos_to_json()
+{
+	if(!json_enabled)
+	{
+		return;
+	}
+
+	godot::Dictionary node_entries;
+
+	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
+		auto range3d = temporary_data_map_3d_pos.equal_range(currentFrame);
+
+		for (auto iterator = range3d.first; iterator != range3d.second; iterator++) {
+			auto node = std::get<0>(iterator->second);
+			auto position = std::get<1>(iterator->second);
+			
+			godot::Dictionary entry;
+			entry["frame"] = currentFrame;
+			entry["pos"] = position;
+
+			godot::String node_name = node->get_path();
+
+			// If node key doesn’t exist, create an array
+			if (!node_entries.has(node_name)) {
+				node_entries[node_name] = godot::Array();
+			}
+
+			// Push entry into the node’s array
+			node_entries[node_name].call("push_back", entry);
+		}
+	}
+
+	godot::Dictionary root;
+	root["recorder_nodes"] = tracked_nodes.size();
+	root["frame_count"] = recording_frame; // total number of frames
+	root["entries"] = node_entries;
+
+	auto json_string = godot::JSON::stringify(root);
+
+	int recording_index = 0;
+	godot::String filename;
+
+	while (true) {
+		filename = "res://addons/replay_qol/json/test3d_" + godot::String::num(recording_index) + ".json";
 
 		if (!godot::FileAccess::file_exists(filename)) {
 			break; // found available filename
@@ -390,6 +461,61 @@ void Recorder::save_input_to_json() {
 	}
 }
 
+void Recorder::save_custom_to_json()
+{
+	if(!json_enabled)
+	{
+		return;
+	}
+
+	godot::Array custom_data;
+
+	for (int currentFrame = 0; currentFrame < recording_frame; currentFrame++) {
+		auto range_input = temporary_data_map_custom_data.equal_range(currentFrame);
+		for (auto iterator = range_input.first; iterator != range_input.second; iterator++) {
+			auto custom_data_entry = (iterator->second);
+
+			auto custom_data_node = custom_data_entry.node;
+			auto custom_data_name = custom_data_entry.variableName;
+			auto custom_data_variant = custom_data_entry.variableData;
+
+			godot::Dictionary entry;
+			entry["frame"] = currentFrame;
+			entry["node"] = custom_data_node;
+			entry["name"] = custom_data_name;
+			entry["custom_variant"] = custom_data_variant;
+
+			custom_data.push_back(entry);
+		}
+	}
+
+	godot::Dictionary root;
+	root["recording_frame"] = recording_frame; 
+	root["custom_data"] = custom_data; 
+
+	auto json_string = godot::JSON::stringify(root);
+
+	int recording_index = 0;
+	godot::String filename;
+
+	while (true) {
+		filename = "res://addons/replay_qol/json/custom_data_" + godot::String::num(recording_index) + ".json";
+
+		if (!godot::FileAccess::file_exists(filename)) {
+			break; // found available filename
+		}
+		recording_index++;
+	}
+
+	auto file = godot::FileAccess::open(filename, godot::FileAccess::WRITE);
+
+	if (file.is_valid()) {
+		file->store_string(json_string); // Write JSON text to file
+		file->close();
+	}
+
+}
+
 void Recorder::load_json_file_to_game() {
 	if(!json_enabled)
 	{
@@ -447,16 +573,64 @@ void Recorder::load_json_file_to_game() {
 		}
 	}
 
+	if (json_3d_path != NULL) {
+		auto json_data = json_3d_path->get_data(); // JSON file -> Variant
+		godot::Dictionary dict = json_data; // Variant -> Dictionary
+
+		temporary_data_map_2d_pos.clear();
+
+		if (dict.has("frame_count")) {
+			recording_frame = (int)dict["frame_count"];
+		}
+
+		if (dict.has("entries")) {
+			godot::Dictionary entries = dict["entries"];
+
+			godot::Array node_keys = entries.keys();
+			for (int k = 0; k < node_keys.size(); k++) {
+				godot::String node_path_string = node_keys[k];
+				godot::NodePath node_path(node_path_string);
+
+				godot::Node *node = get_node<godot::Node>(node_path);
+
+				godot::Array node_entries = entries[node_path_string];
+				for (int i = 0; i < node_entries.size(); i++) {
+					godot::Dictionary entry = node_entries[i];
+
+					int frame = (int)entry["frame"];
+
+					godot::Variant pos_var = entry["pos"];
+					godot::Vector3 positions;
+
+					if (pos_var.get_type() == godot::Variant::STRING) {
+						godot::String pos_str = pos_var;
+						pos_str = pos_str.strip_edges().replace("(", "").replace(")", ""); // used chat gpt to format the file properly, no idea what this does
+						godot::Array parts = pos_str.split(",");
+
+						if (parts.size() == 3) {
+							positions.x = (float)godot::Variant(parts[0]);
+							positions.y = (float)godot::Variant(parts[1]);
+							positions.z = (float)godot::Variant(parts[2]);
+						} else {
+							godot::print_line("Invalid position string!");
+						}
+					} else {
+						godot::print_line("pos_var is not of type godot::Variant::STRING!");
+					}
+
+					temporary_data_map_3d_pos.insert({ frame, std::make_tuple(node, positions) });
+				}
+			}
+		}
+	}
+
 	if (input_json_path != NULL) {
 		auto json_data = input_json_path->get_data(); // JSON file -> Variant
 
-		// Root is now a Dictionary
 		godot::Dictionary root = json_data;
 
-		// Extract recording_frame once
 		recording_frame = root["recording_frame"];
 
-		// Extract actions array
 		godot::Array actions = root["actions"];
 
 		for (int i = 0; i < actions.size(); i++) {
@@ -467,6 +641,34 @@ void Recorder::load_json_file_to_game() {
 			bool pressed = entry["pressed"];
 
 			temporary_data_map_input.insert({ frame, std::make_tuple(name, pressed) });
+		}
+	}
+
+
+	if (custom_json_path != NULL) {
+		auto json_data = custom_json_path->get_data(); // JSON file -> Variant
+
+		temporary_data_map_custom_data.clear();
+
+		godot::Dictionary root = json_data;
+
+		recording_frame = root["recording_frame"];
+
+		godot::Array custom_data = root["custom_data"];
+
+		for (int i = 0; i < custom_data.size(); i++) {
+			godot::Dictionary entry = custom_data[i];
+
+			int frame = entry["frame"];
+
+			godot::String node_path = entry["node"];
+            godot::Node *node = get_node<godot::Node>(node_path);
+			
+			godot::StringName name = entry["name"];
+
+			godot::Variant custom_data = entry["custom_variant"];
+
+			temporary_data_map_custom_data.emplace(frame, CustomDataEntry(node, name, custom_data));
 		}
 	}
 }
@@ -481,6 +683,16 @@ void Recorder::set_json_path(const godot::Ref<godot::JSON> &p_path)
 	json_path = p_path;
 }
 
+void Recorder::set_3d_json_path(const godot::Ref<godot::JSON> &p_path)
+{
+	if(!json_enabled)
+	{
+		godot::print_error("cant set json path, json saving disabled");
+		return;
+	}
+	json_3d_path = p_path;
+}
+
 void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
 		if(!json_enabled)
 	{
@@ -488,6 +700,15 @@ void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
 		return;
 	}
 	input_json_path = p_path;
+}
+
+void Recorder::set_custom_json_path(const godot::Ref<godot::JSON> &p_path) {
+		if(!json_enabled)
+	{
+		godot::print_error("cant set input json path, json saving disabled");
+		return;
+	}
+	custom_json_path = p_path;
 }
 
 void Recorder::update() {
@@ -591,12 +812,9 @@ void Recorder::add_recording_group(godot::StringName group_to_add)
 void Recorder::add_custom_data(godot::Node *node, godot::StringName customDataName)
 {
 	//Save custom data name to map
-	if (tracked_nodes.has(node)) {
-		tracked_custom_data.emplace(node, customDataName);
-		godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
-	} else {
-		godot::print_line("Node: " + node->get_name() + " is not in the recording list.");
-	}
+	tracked_custom_data.emplace(node, customDataName);
+	godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
+
 }
 
 void Recorder::record_custom_data()
@@ -650,8 +868,12 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Recorder::update);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Recorder::set_tracked_nodes);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Recorder::set_json_path);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_3d_json_path", "json_file"), &Recorder::set_3d_json_path);
+
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_json_path", "json_file"), &Recorder::set_input_json_path);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_custom_json_path", "json_file"), &Recorder::set_custom_json_path);
+
 
 	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_state"), &Recorder::get_general_replay_state);
 
