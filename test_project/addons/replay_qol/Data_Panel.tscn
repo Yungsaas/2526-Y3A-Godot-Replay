@@ -1,0 +1,125 @@
+[gd_scene load_steps=2 format=3 uid="uid://dev8qaq1ofquu"]
+
+[ext_resource type="Script" uid="uid://bpo6tn4rehd4q" path="res://addons/replay_qol/data_panel.gd" id="1_a6qs2"]
+
+[node name="DataPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 9.0
+offset_top = 7.0
+offset_right = 9.0
+offset_bottom = 7.0
+script = ExtResource("1_a6qs2")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Input" type="Button" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+text = "Input"
+icon_alignment = 1
+
+[node name="Positions" type="Button" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+text = "Positions"
+icon_alignment = 1
+
+[node name="Events" type="Button" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+text = "Events"
+icon_alignment = 1
+
+[node name="Console" type="Button" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+text = "Console"
+icon_alignment = 1
+
+[node name="Input Text" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 34.0
+offset_right = 290.0
+offset_bottom = 299.0
+text = "Input Text"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
+wrap_mode = 1
+
+[node name="Position Text" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 34.0
+offset_right = 290.0
+offset_bottom = 299.0
+text = "Position Text"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
+wrap_mode = 1
+
+[node name="Events Text" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 34.0
+offset_right = 290.0
+offset_bottom = 299.0
+text = "Events Text"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
+wrap_mode = 1
+
+[node name="Console Text" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 34.0
+offset_right = 290.0
+offset_bottom = 299.0
+text = "Console Text"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
+wrap_mode = 1
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Input" to="." method="_on_input_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Positions" to="." method="_on_positions_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Events" to="." method="_on_events_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Console" to="." method="_on_console_pressed"]

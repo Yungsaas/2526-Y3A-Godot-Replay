@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://bf5parkbhxuvo"]
+
+[ext_resource type="Script" uid="uid://c82njoqos71di" path="res://addons/replay_qol/record_panel.gd" id="1_i1mk1"]
+
+[node name="RecordPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 184.0
+offset_bottom = 66.0
+script = ExtResource("1_i1mk1")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+offset_right = 184.0
+offset_bottom = 23.0
+text = "Input seconds to record"
+
+[node name="Button" type="Button" parent="."]
+modulate = Color(1, 0, 0, 1)
+layout_mode = 2
+offset_top = 27.0
+offset_right = 101.0
+offset_bottom = 58.0
+text = "Record"
+
+[node name="HSlider" type="HSlider" parent="."]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 35.0
+offset_right = 910.25
+offset_bottom = 51.0
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
