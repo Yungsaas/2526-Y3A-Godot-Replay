@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://co71dvmmvqk38"]
+
+[ext_resource type="Script" uid="uid://ddymt3hj2sswe" path="res://addons/replay_qol/v_box_container.gd" id="1_cxyd2"]
+
+[node name="SelectionPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_cxyd2")
+
+[node name="VBoxContainer" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 85.0
+offset_bottom = 52.0
+
+[node name="AddButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+offset_right = 117.0
+offset_bottom = 31.0
+text = "Add Node"
+
+[node name="Button2" type="Button" parent="VBoxContainer"]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 1.0
+offset_right = 240.0
+offset_bottom = 32.0
+text = "Remove Node"
+
+[node name="Tree" type="Tree" parent="VBoxContainer"]
+layout_mode = 2
+offset_top = 35.0
+offset_right = 243.0
+offset_bottom = 286.0
+select_mode = 2
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/AddButton" to="." method="_on_add_button_pressed"]
+[connection signal="toggled" from="VBoxContainer/AddButton" to="." method="_on_button_toggled"]
+[connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_2_pressed"]
+[connection signal="toggled" from="VBoxContainer/Button2" to="." method="_on_button_toggled"]
