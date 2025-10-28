@@ -21,7 +21,15 @@ project/assembly_name="Test_Project"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/asd/plugin.cfg")
+enabled=PackedStringArray("res://addons/replay_qol/plugin.cfg")
+
+[global_group]
+
+recording=true
+
+[input]
+
+start_replay=true
 
 [rendering]
 
