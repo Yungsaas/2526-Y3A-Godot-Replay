@@ -36,6 +36,9 @@ Example video for Ghost player feature:
 https://github.com/user-attachments/assets/af06e8c4-a6dd-4f99-9ea9-ec785a744ddf
 
 Shoutout to [nikoladevelops](https://github.com/nikoladevelops) for making an easy to use template for making extensions in c++ for godot
+
 [Template](https://github.com/nikoladevelops/godot-plus-plus)
+
 [Tutorial for template](https://www.youtube.com/watch?v=I79u5KNl34o)
+
 [Nikoladevelops youtube channel](https://www.youtube.com/@realnikich)
