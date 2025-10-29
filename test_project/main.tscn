@@ -1,3 +1,10 @@
-[gd_scene format=3 uid="uid://hn8dh5y3yq6a"]
+[gd_scene load_steps=3 format=3 uid="uid://hn8dh5y3yq6a"]
+
+[ext_resource type="PackedScene" uid="uid://c0n4vu6ye20rp" path="res://addons/replay_qol/Recorder.tscn" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cmdmqq4qv7do4" path="res://addons/replay_qol/InstantReplayRecorder.tscn" id="2_h2yge"]
 
 [node name="Main" type="Node2D"]
+
+[node name="Recorder" parent="." instance=ExtResource("1_0xm2m")]
+
+[node name="InstantReplayRecorder" parent="." instance=ExtResource("2_h2yge")]
