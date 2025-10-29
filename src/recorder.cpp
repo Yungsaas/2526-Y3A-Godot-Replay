@@ -337,7 +337,7 @@ void Recorder::save_2dpos_to_json()
 	godot::String filename;
 
 	while (true) {
-		filename = "res://addons/replay_qol/json/test_" + godot::String::num(recording_index) + ".json";
+		filename = "res://addons/replay_qol/json/position_2D_" + godot::String::num(recording_index) + ".json";
 
 		if (!godot::FileAccess::file_exists(filename)) {
 			break; // found available filename
@@ -396,7 +396,7 @@ void Recorder::save_3dpos_to_json()
 	godot::String filename;
 
 	while (true) {
-		filename = "res://addons/replay_qol/json/test3d_" + godot::String::num(recording_index) + ".json";
+		filename = "res://addons/replay_qol/json/position_3D_" + godot::String::num(recording_index) + ".json";
 
 		if (!godot::FileAccess::file_exists(filename)) {
 			break; // found available filename
@@ -867,7 +867,7 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("stop_replay"), &Recorder::stop_replay);
 	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Recorder::update);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_tracked_nodes", "new_tracked_nodes"), &Recorder::set_tracked_nodes);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_json_path", "json_file"), &Recorder::set_json_path);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_2d_json_path", "json_file"), &Recorder::set_json_path);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_3d_json_path", "json_file"), &Recorder::set_3d_json_path);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);

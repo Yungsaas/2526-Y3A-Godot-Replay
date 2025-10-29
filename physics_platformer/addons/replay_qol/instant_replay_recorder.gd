@@ -15,7 +15,7 @@ var is_replaying: bool = false
 func _ready() -> void:
 	set_tracked_nodes(nodes_array)
 	 
-	set_json_path(json_path)
+	set_2d_json_path(json_path)
 	set_3d_json_path(json_3d_path)
 	set_input_json_path(input_json_path)
 	set_custom_json_path(custom_json_path)
