@@ -1,28 +1,7 @@
 @tool
 extends EditorPlugin
 
-var selection_panel
-const SELECTION_PANEL = preload("res://addons/replay_qol/Selection_Panel.tscn")
-
-var data_panel
-const DATA_PANEL = preload("res://addons/replay_qol/Data_Panel.tscn")
-
-var data_panels:Data_Panels = Data_Panels.new()
-
-
 func _enter_tree() -> void:
-	
-	selection_panel = SELECTION_PANEL.instantiate()
-	selection_panel.editor_interface = get_editor_interface() # Pass editor interface to panel
-	add_control_to_dock(DOCK_SLOT_RIGHT_UL, selection_panel)
-	
-	data_panel = DATA_PANEL.instantiate()
-	add_control_to_dock(DOCK_SLOT_LEFT_UR, data_panel)
-	
-	data_panel.data_panels = data_panels
-	data_panel.data_panels.add_position_screen(data_panel.position_text)
-	data_panel.data_panels.add_input_screen(data_panel.input_text)
-
 	# Add recording key mappings
 	var startReplayKey := "input/start_replay"
 	if not ProjectSettings.has_setting(startReplayKey):
@@ -46,11 +25,5 @@ func _enter_tree() -> void:
 		ProjectSettings.add_property_info({"name": groupKey, "type":TYPE_BOOL, "usage": PROPERTY_USAGE_GROUP})
 
 func _exit_tree() -> void:
-	
-	remove_control_from_docks(selection_panel)
-	selection_panel.queue_free()
-	
-	remove_control_from_docks(data_panel)
-	data_panel.queue_free()
 	
 	ProjectSettings.clear("global_group/recording")
