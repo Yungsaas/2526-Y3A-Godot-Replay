@@ -30,3 +30,8 @@ A full list of features can be found below:
 - Ghost Players
 
 If you are looking for documentation please go to the [wiki](https://github.com/Yungsaas/2526-Y3A-Godot-Replay/wiki)
+
+Example video for Ghost player feature:
+
+https://github.com/user-attachments/assets/af06e8c4-a6dd-4f99-9ea9-ec785a744ddf
+
