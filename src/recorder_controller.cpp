@@ -6,6 +6,7 @@
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/popup_panel.hpp"
+#include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/vector2.hpp"
 #include "instant_replay_recorder.hpp"
@@ -54,7 +55,7 @@ void Recorder_Controller::update()
 	}
 
 	check_tracked_objects();
-
+	
 	if (recorder->get_general_replay_state()) //is replaying
 	{
 		if (!time_line_slider) {
@@ -434,6 +435,56 @@ void Recorder_Controller::check_tracked_objects()
     }
 }
 
+void Recorder_Controller::initialize_spawn_tracking(godot::Array objects)
+{
+    tracked_spawn_objects.clear();
+    
+    // Store all initial object IDs
+    for (int i = 0; i < objects.size(); i++) {
+        godot::Object *obj = objects[i];
+        godot::Node *node = godot::Object::cast_to<godot::Node>(obj);
+        
+        if (node) {
+            tracked_spawn_objects.push_back(node->get_instance_id());
+        }
+    }
+    
+    godot::print_line("Spawn tracking initialized with " + godot::String::num_int64(tracked_spawn_objects.size()) + " objects");
+}
+
+void Recorder_Controller::check_for_spawns(godot::Array current_objects)
+{
+    // Check each object in current array
+    for (int i = 0; i < current_objects.size(); i++) {
+        godot::Object *obj = current_objects[i];
+        godot::Node *node = godot::Object::cast_to<godot::Node>(obj);
+        
+        if (!node) continue;
+        
+        int64_t node_id = node->get_instance_id();
+        
+        // Check if this ID exists in our tracked array
+        bool is_new = true;
+        for (int j = 0; j < tracked_spawn_objects.size(); j++) {
+            int64_t tracked_id = tracked_spawn_objects[j];
+            if (tracked_id == node_id) {
+                is_new = false;
+                break;
+            }
+        }
+        
+        // If it's new, add bookmark and add to tracked array
+        if (is_new) {
+            godot::String node_name = node->get_name();
+            add_bookmark("spawn", node_name);
+            tracked_spawn_objects.push_back(node_id);
+            
+            godot::print_line("New spawn detected: " + node_name);
+        }
+    }
+}
+
+
 void Recorder_Controller::_bind_methods()
 {
 	//Recorder setting and getting
@@ -490,4 +541,8 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("track_object_for_deletion"), &Recorder_Controller::track_object_for_deletion);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("check_tracked_objects"), &Recorder_Controller::check_tracked_objects);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("initialize_spawn_tracking", "objects"), &Recorder_Controller::initialize_spawn_tracking);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("check_for_spawns", "current_objects"), &Recorder_Controller::check_for_spawns);
 }

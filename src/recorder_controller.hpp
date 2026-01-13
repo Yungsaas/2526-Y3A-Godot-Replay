@@ -54,6 +54,8 @@ private:
 
 	godot::Array tracked_objects;
 
+	godot::Array tracked_spawn_objects; 
+
 public:
 
     void update();
@@ -134,5 +136,8 @@ public:
 
 	void track_object_for_deletion();
     void check_tracked_objects();
+
+	void initialize_spawn_tracking(godot::Array objects);
+    void check_for_spawns(godot::Array current_objects);
 
 };

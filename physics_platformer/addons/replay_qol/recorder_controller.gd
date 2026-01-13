@@ -36,10 +36,17 @@ func _ready() -> void:
 	set_frame_counter_label($PopupPanel/Control/ReplayFrameCounter)
 	
 	track_object_for_deletion()
+	var spawn_parent = $".."
+	var initial_objects = spawn_parent.get_children() 
+	initialize_spawn_tracking(initial_objects)
+	
 
 func _physics_process(delta: float) -> void:
 	update()
-
+	var spawn_parent = $".."
+	var current_objects = spawn_parent.get_children()
+	check_for_spawns(current_objects)
+ 
 func _on_play_stop_button_pressed() -> void:
 	replay_trigger()
 
