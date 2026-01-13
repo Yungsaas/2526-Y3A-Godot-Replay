@@ -19,6 +19,8 @@ struct Bookmark {
         : frame(f), event_type(type), event_data(data), marker_color(color) {}
 };
 
+
+
 class Recorder_Controller : public godot::Node {
 	// Make class usable in godot with gdscript
 	GDCLASS(Recorder_Controller, Node)
@@ -43,13 +45,14 @@ private:
 
 	godot::Ref<godot::PackedScene> label_scene = godot::ResourceLoader::get_singleton()->load("res://addons/replay_qol/input_label.tscn");
 
-	private:
     godot::Vector<Bookmark> bookmarks;
     godot::PackedScene *bookmark_marker_scene;
     godot::Control *bookmark_marker_container;
 
 	godot::PopupPanel *bookmark_info_popup;
     godot::Label *bookmark_info_label;
+
+	godot::Array tracked_objects;
 
 public:
 
@@ -129,9 +132,7 @@ public:
 
     void hide_bookmark_info();
 
-	void save_bookmarks_to_json();
+	void track_object_for_deletion(godot::Node *node, godot::String object_name);
+    void check_tracked_objects();
 
-    void load_bookmarks_from_json(godot::String filename);
-
-    void set_json_enabled(bool enabled);
 };
