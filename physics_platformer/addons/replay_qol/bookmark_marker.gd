@@ -12,15 +12,22 @@ func _on_gui_input(event: InputEvent):
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			var bookmark_index = get_meta("bookmark_index", -1)
 			if bookmark_index >= 0:
-				# Get the recorder controller from the scene tree
 				var controller = get_tree().get_first_node_in_group("recorder_controller")
 				if controller:
 					controller.on_bookmark_marker_clicked(bookmark_index)
 
 func _on_mouse_entered():
-	# Visual feedback - make slightly bigger or brighter
 	scale = Vector2(1.2, 1.2)
+	
+	var bookmark_index = get_meta("bookmark_index", -1)
+	if bookmark_index >= 0:
+		var controller = get_tree().get_first_node_in_group("recorder_controller")
+		if controller:
+			var popup_position = global_position + Vector2(0, -20)
+			controller.show_bookmark_info(bookmark_index, popup_position)       
 
 func _on_mouse_exited():
-	# Return to normal size
 	scale = Vector2(1.0, 1.0)
+	var controller = get_tree().get_first_node_in_group("recorder_controller")
+	if controller:
+		controller.hide_bookmark_info()

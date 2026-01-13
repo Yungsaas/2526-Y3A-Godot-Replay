@@ -345,13 +345,13 @@ void Recorder_Controller::show_bookmark_info(int bookmark_index, godot::Vector2 
     
     // Position the popup near the marker
     bookmark_info_popup->set_position(position);
-    bookmark_info_popup->popup();
+    bookmark_info_popup->set_visible(true);
 }
 
 void Recorder_Controller::hide_bookmark_info()
 {
     if (bookmark_info_popup) {
-        bookmark_info_popup->hide();
+        bookmark_info_popup->set_visible(false);
     }
 }
 

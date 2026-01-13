@@ -71,10 +71,11 @@ offset_top = 4.0
 offset_right = 126.0
 offset_bottom = 316.0
 
-[node name="BookmarkInfoPopup" type="PopupPanel" parent="."]
+[node name="BookmarkInfoPanel" type="PopupPanel" parent="."]
+position = Vector2i(15, 65)
 visible = true
 
-[node name="BookmarkInfoLabel" type="Label" parent="BookmarkInfoPopup"]
+[node name="BookmarkInfoLabel" type="Label" parent="BookmarkInfoPanel"]
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 96.0

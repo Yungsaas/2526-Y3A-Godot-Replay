@@ -4,8 +4,8 @@ extends Recorder_Controller
 @onready var marker_scene = preload("res://addons/replay_qol/bookmark_marker.tscn")
 @onready var marker_container = $PopupPanel/Control/TimeLineSlider/Control
 
-@onready var bookmark_info_popup = $BookmarkInfoPopup
-@onready var bookmark_info_label = $BookmarkInfoPopup/BookmarkInfoLabel
+@onready var bookmark_info_panel = $BookmarkInfoPanel
+@onready var bookmark_info_label = $BookmarkInfoPanel/BookmarkInfoLabel
 
 func _ready() -> void:
 	add_to_group("recorder_controller")
@@ -13,7 +13,7 @@ func _ready() -> void:
 	set_bookmark_marker_scene(marker_scene)
 	set_bookmark_marker_container(marker_container)
 	
-	set_bookmark_info_popup(bookmark_info_popup)
+	set_bookmark_info_popup(bookmark_info_panel)
 	set_bookmark_info_label(bookmark_info_label)
 	
 	if(not $"../Recorder"):
