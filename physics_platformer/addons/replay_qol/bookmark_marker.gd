@@ -29,5 +29,6 @@ func _on_mouse_entered():
 func _on_mouse_exited():
 	scale = Vector2(1.0, 1.0)
 	var controller = get_tree().get_first_node_in_group("recorder_controller")
-	if controller:
-		controller.hide_bookmark_info()
+	#if controller:
+		#controller.hide_bookmark_info()
+		
