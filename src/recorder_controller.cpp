@@ -154,6 +154,36 @@ void Recorder_Controller::add_bookmark(godot::String event_type, godot::String e
 	godot::print_line("Bookmark added: " + event_type + " at frame " + godot::String::num_int64(bookmark_frame));
 }
 
+void Recorder_Controller::remove_bookmark(int index)
+{
+    if (index >= 0 && index < bookmarks.size()) {
+        bookmarks.remove_at(index);
+        godot::print_line("Bookmark removed at index " + godot::String::num_int64(index));
+    } else {
+        godot::print_error("Invalid bookmark index: " + godot::String::num_int64(index));
+    }
+}
+
+void Recorder_Controller::clear_bookmarks()
+{
+    bookmarks.clear();
+    godot::print_line("All bookmarks cleared");
+}
+
+int Recorder_Controller::get_bookmark_count()
+{
+    return bookmarks.size();
+}
+
+Bookmark Recorder_Controller::get_bookmark(int index)
+{
+    if (index >= 0 && index < bookmarks.size()) {
+        return bookmarks[index];
+    }
+    
+    godot::print_error("Invalid bookmark index: " + godot::String::num_int64(index));
+    return Bookmark(); // Return empty bookmark
+}
 
 void Recorder_Controller::_bind_methods()
 {
@@ -181,4 +211,12 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("force_pause_replay"), &Recorder_Controller::force_pause_replay);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("update"), &Recorder_Controller::update);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("add_bookmark", "event_type", "event_data", "frame"), &Recorder_Controller::add_bookmark, DEFVAL(-1));
+
+    godot::ClassDB::bind_method(godot::D_METHOD("remove_bookmark", "index"), &Recorder_Controller::remove_bookmark);
+	
+    godot::ClassDB::bind_method(godot::D_METHOD("clear_bookmarks"), &Recorder_Controller::clear_bookmarks);
+
+    godot::ClassDB::bind_method(godot::D_METHOD("get_bookmark_count"), &Recorder_Controller::get_bookmark_count);
 }
