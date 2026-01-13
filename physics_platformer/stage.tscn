@@ -130,7 +130,8 @@ friction = 0.0
 
 [node name="Stage" type="Node2D"]
 
-[node name="Recorder" parent="." instance=ExtResource("1_g8oy1")]
+[node name="Recorder" parent="." node_paths=PackedStringArray("nodes_array") instance=ExtResource("1_g8oy1")]
+nodes_array = [NodePath("../Enemies/Enemy1"), NodePath("../Enemies/Enemy2")]
 
 [node name="RecorderController" parent="." instance=ExtResource("2_i76fu")]
 

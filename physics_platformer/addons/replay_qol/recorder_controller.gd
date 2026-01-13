@@ -16,6 +16,8 @@ func _ready() -> void:
 	set_bookmark_info_popup(bookmark_info_panel)
 	set_bookmark_info_label(bookmark_info_label)
 	
+	
+	
 	if(not $"../Recorder"):
 		if(not $"../InstantReplayRecorder"):
 			push_error("Recorder Controller could not find Recorder node!\nMake sure to add a Recorder node to your scene!")
@@ -32,6 +34,8 @@ func _ready() -> void:
 	set_label_parent($PopupPanel2/Control2)
 	set_time_line_slider($PopupPanel/Control/TimeLineSlider)
 	set_frame_counter_label($PopupPanel/Control/ReplayFrameCounter)
+	
+	track_object_for_deletion()
 
 func _physics_process(delta: float) -> void:
 	update()

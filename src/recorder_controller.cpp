@@ -53,6 +53,8 @@ void Recorder_Controller::update()
 		return;
 	}
 
+	check_tracked_objects();
+
 	if (recorder->get_general_replay_state()) //is replaying
 	{
 		if (!time_line_slider) {
@@ -356,27 +358,64 @@ void Recorder_Controller::hide_bookmark_info()
     }
 }
 
-void Recorder_Controller::track_object_for_deletion(godot::Node *node, godot::String object_name)
+void Recorder_Controller::track_object_for_deletion()
 {
-    if (!node) {
-        godot::print_error("Cannot track null node");
+    if (!recorder) {
+        godot::print_error("Recorder not set");
         return;
     }
     
-    // Store the node and its name in a dictionary
-    godot::Dictionary tracked_data;
-    tracked_data["node"] = node;
-    tracked_data["name"] = object_name;
-    tracked_data["id"] = node->get_instance_id();
+    godot::Array tracked_nodes = recorder->get_tracked_nodes();
+
+    if (tracked_nodes.is_empty()) 
+    {
+        godot::print_line("No nodes to track");
+        return;
+    }
+
+    godot::print_line("Starting to track " + godot::String::num_int64(tracked_nodes.size()) + " nodes");
+
+    for (int i = 0; i < tracked_nodes.size(); i++) 
+    {
+        godot::Variant node_variant = tracked_nodes[i];
+        
+        // Check if it's actually an object
+        if (node_variant.get_type() != godot::Variant::OBJECT) {
+            godot::print_error("Tracked item at index " + godot::String::num_int64(i) + " is not an object");
+            continue;
+        }
+        
+        godot::Object *obj = node_variant;
+        godot::Node *node = godot::Object::cast_to<godot::Node>(obj);
+        
+        if (!node) {
+            godot::print_error("Could not cast to Node at index " + godot::String::num_int64(i));
+            continue;
+        }
+        
+        // Create a fresh dictionary for THIS node
+        godot::Dictionary tracked_data;
+        tracked_data["node"] = node;
+        tracked_data["name"] = node->get_name();
+        tracked_data["id"] = node->get_instance_id();
+
+        tracked_objects.push_back(tracked_data);
+
+        godot::print_line("Now tracking: " + node->get_name());
+    }
     
-    tracked_objects.push_back(tracked_data);
-    
-    godot::print_line("Now tracking: " + object_name);
+    godot::print_line("Finished tracking setup. Total tracked: " + godot::String::num_int64(tracked_objects.size()));
 }
 
 void Recorder_Controller::check_tracked_objects()
 {
-    for (int i = tracked_objects.size() - 1; i >= 0; i--) {
+	if (recorder->get_tracked_nodes().is_empty()) 
+	{
+		godot::print_error("Cannot track null node");
+        return;
+	}
+    for (int i = tracked_objects.size() - 1; i >= 0; i--) 
+	{
         godot::Dictionary tracked_data = tracked_objects[i];
         godot::Object *obj = tracked_data["node"];
         
@@ -447,4 +486,8 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("show_bookmark_info", "bookmark_index", "position"), &Recorder_Controller::show_bookmark_info);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("hide_bookmark_info"), &Recorder_Controller::hide_bookmark_info);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("track_object_for_deletion"), &Recorder_Controller::track_object_for_deletion);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("check_tracked_objects"), &Recorder_Controller::check_tracked_objects);
 }

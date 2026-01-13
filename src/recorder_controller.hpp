@@ -132,7 +132,7 @@ public:
 
     void hide_bookmark_info();
 
-	void track_object_for_deletion(godot::Node *node, godot::String object_name);
+	void track_object_for_deletion();
     void check_tracked_objects();
 
 };
