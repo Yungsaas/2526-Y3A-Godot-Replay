@@ -273,16 +273,16 @@ void Recorder_Controller::update_bookmark_markers()
         godot::Control *marker_control = godot::Object::cast_to<godot::Control>(marker_instance);
         
         if (marker_control) {
-            // Set position
+            
             marker_control->set_position(godot::Vector2(x_position, 0));
             
-            // Set color if the marker has a modulate property
+            
             marker_control->set_modulate(bookmark.marker_color);
             
-            // Store bookmark index for later reference
+           
             marker_control->set_meta("bookmark_index", i);
             
-            // Add to container
+            
             bookmark_marker_container->add_child(marker_control);
         }
     }

@@ -45,6 +45,11 @@ offset_top = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 
+[node name="Control" type="Control" parent="PopupPanel/Control/TimeLineSlider"]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
 [node name="ReplayFrameCounter" type="Label" parent="PopupPanel/Control"]
 layout_mode = 0
 offset_left = 565.0

@@ -1,6 +1,12 @@
 extends Recorder_Controller
 
+
+@onready var marker_scene = preload("res://addons/replay_qol/bookmark_marker.tscn")
+@onready var marker_container = $PopupPanel/Control/TimeLineSlider/Control
+
 func _ready() -> void:
+	set_bookmark_marker_scene(marker_scene)
+	set_bookmark_marker_container(marker_container)
 	
 	if(not $"../Recorder"):
 		if(not $"../InstantReplayRecorder"):
