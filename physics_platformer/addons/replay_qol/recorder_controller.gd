@@ -5,6 +5,8 @@ extends Recorder_Controller
 @onready var marker_container = $PopupPanel/Control/TimeLineSlider/Control
 
 func _ready() -> void:
+	add_to_group("recorder_controller")
+	
 	set_bookmark_marker_scene(marker_scene)
 	set_bookmark_marker_container(marker_container)
 	

@@ -1,5 +1,8 @@
-[gd_scene format=3 uid="uid://xmexdd275qtv"]
+[gd_scene load_steps=2 format=3 uid="uid://xmexdd275qtv"]
+
+[ext_resource type="Script" uid="uid://cghuu1j7adlgi" path="res://addons/replay_qol/bookmark_marker.gd" id="1_cn80m"]
 
 [node name="BookmarkMarker" type="ColorRect"]
 offset_right = 4.0
 offset_bottom = 20.0
+script = ExtResource("1_cn80m")
