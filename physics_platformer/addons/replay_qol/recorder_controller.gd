@@ -32,3 +32,8 @@ func _on_time_line_slider_value_changed(value: float) -> void:
 	if(get_replay_paused()):
 		set_frame(value)
 #aw
+func _on_test_button_pressed() -> void:
+	if get_bookmark_count() > 0:
+		jump_to_bookmark(0)  # Jump to first bookmark
+	
+		

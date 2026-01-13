@@ -7,6 +7,18 @@
 #include "recorder.hpp"
 #include "godot_cpp/classes/resource_loader.hpp"
 
+struct Bookmark {
+    int frame;
+    godot::String event_type;  // "input", "spawn", "destroy", etc.
+    godot::String event_data;  // Description or additional info
+    godot::Color marker_color;
+    
+    Bookmark() : frame(0), marker_color(godot::Color(1, 0, 0, 1)) {}
+    
+    Bookmark(int f, godot::String type, godot::String data, godot::Color color = godot::Color(1, 0, 0, 1))
+        : frame(f), event_type(type), event_data(data), marker_color(color) {}
+};
+
 class Recorder_Controller : public godot::Node {
 	// Make class usable in godot with gdscript
 	GDCLASS(Recorder_Controller, Node)
@@ -29,6 +41,12 @@ private:
 	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
 
 	godot::Ref<godot::PackedScene> label_scene = godot::ResourceLoader::get_singleton()->load("res://addons/replay_qol/input_label.tscn");
+
+	private:
+    godot::Vector<Bookmark> bookmarks;
+   /* godot::PackedScene *bookmark_marker_scene; // Visual marker on timeline
+    godot::Control *bookmark_marker_container; // Parent for markers
+    godot::PopupPanel *bookmark_info_popup;    // Show details on hover/click*/
 
 public:
 
@@ -77,4 +95,16 @@ public:
 	void set_input_popup(godot::PopupPanel*panel);
 
 	void set_input_lable_parent(godot::Control*control);
+
+	void add_bookmark(godot::String event_type, godot::String event_data, int frame = -1);
+
+	void remove_bookmark(int index);
+
+	void clear_bookmarks();
+
+	int get_bookmark_count();
+
+	void jump_to_bookmark(int bookmark_index);
+
+	Bookmark get_bookmark(int index);
 };

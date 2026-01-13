@@ -122,6 +122,39 @@ void Recorder_Controller::exit_replay()
 	is_replaying = false;
 }
 
+void Recorder_Controller::add_bookmark(godot::String event_type, godot::String event_data, int frame)
+{
+	if (!recorder) {
+		godot::print_error("Cannot add bookmark: Recorder not set");
+		return;
+	}
+
+	// If frame is -1, use current replay frame
+	int bookmark_frame = (frame == -1) ? recorder->get_replay_frame() : frame;
+
+	// Choose color based on event type
+	godot::Color color;
+	if (event_type == "input") {
+		color = godot::Color(0, 1, 0, 1); // Green
+	} else if (event_type == "spawn") {
+		color = godot::Color(0, 0, 1, 1); // Blue
+	} else if (event_type == "destroy") {
+		color = godot::Color(1, 0, 0, 1); // Red
+	} else if (event_type == "animation") {
+		color = godot::Color(1, 1, 0, 1); // Yellow
+	} else if (event_type == "audio") {
+		color = godot::Color(1, 0, 1, 1); // Magenta
+	} else {
+		color = godot::Color(1, 1, 1, 1); // White for unknown
+	}
+
+	Bookmark new_bookmark(bookmark_frame, event_type, event_data, color);
+	bookmarks.push_back(new_bookmark);
+
+	godot::print_line("Bookmark added: " + event_type + " at frame " + godot::String::num_int64(bookmark_frame));
+}
+
+
 void Recorder_Controller::_bind_methods()
 {
 	//Recorder setting and getting
