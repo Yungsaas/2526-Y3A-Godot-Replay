@@ -35,6 +35,16 @@ void Recorder_Controller::set_bookmark_marker_container(godot::Control *containe
     bookmark_marker_container = container;
 }
 
+void Recorder_Controller::set_bookmark_info_popup(godot::PopupPanel *popup)
+{
+    bookmark_info_popup = popup;
+}
+
+void Recorder_Controller::set_bookmark_info_label(godot::Label *label)
+{
+    bookmark_info_label = label;
+}
+
 void Recorder_Controller::update()
 {
 	if (!recorder) {
@@ -134,6 +144,7 @@ void Recorder_Controller::exit_replay()
 	is_replaying = false;
 }
 
+//bookmark
 void Recorder_Controller::add_bookmark(godot::String event_type, godot::String event_data, int frame)
 {
 	if (!recorder) {
@@ -307,6 +318,41 @@ void Recorder_Controller::on_bookmark_marker_clicked(int bookmark_index)
     jump_to_bookmark(bookmark_index);
     
     recorder->force_pause_replay();
+}
+
+//bookmark label
+void Recorder_Controller::show_bookmark_info(int bookmark_index, godot::Vector2 position)
+{
+    if (!bookmark_info_popup || !bookmark_info_label) {
+        godot::print_error("Bookmark info popup or label not set");
+        return;
+    }
+    
+    if (bookmark_index < 0 || bookmark_index >= bookmarks.size()) {
+        godot::print_error("Invalid bookmark index: " + godot::String::num_int64(bookmark_index));
+        return;
+    }
+    
+    Bookmark bookmark = bookmarks[bookmark_index];
+    
+    // Build info text
+    godot::String info_text = "";
+    info_text += "Type: " + bookmark.event_type + "\n";
+    info_text += "Data: " + bookmark.event_data + "\n";
+    info_text += "Frame: " + godot::String::num_int64(bookmark.frame);
+    
+    bookmark_info_label->set_text(info_text);
+    
+    // Position the popup near the marker
+    bookmark_info_popup->set_position(position);
+    bookmark_info_popup->popup();
+}
+
+void Recorder_Controller::hide_bookmark_info()
+{
+    if (bookmark_info_popup) {
+        bookmark_info_popup->hide();
+    }
 }
 
 void Recorder_Controller::_bind_methods()

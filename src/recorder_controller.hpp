@@ -44,8 +44,11 @@ private:
 
 	private:
     godot::Vector<Bookmark> bookmarks;
-    godot::PackedScene *bookmark_marker_scene; // Scene for individual marker
+    godot::PackedScene *bookmark_marker_scene;
     godot::Control *bookmark_marker_container;
+
+	godot::PopupPanel *bookmark_info_popup;
+    godot::Label *bookmark_info_label;
 
 public:
 
@@ -95,6 +98,7 @@ public:
 
 	void set_input_lable_parent(godot::Control*control);
 
+	//bookmark
 	void add_bookmark(godot::String event_type, godot::String event_data, int frame = -1);
 
 	void remove_bookmark(int index);
@@ -114,4 +118,13 @@ public:
 	void on_bookmark_marker_clicked(int bookmark_index);
 
 	Bookmark get_bookmark(int index);
+
+	//bookmark label
+	void set_bookmark_info_popup(godot::PopupPanel *popup);
+
+    void set_bookmark_info_label(godot::Label *label);
+
+    void show_bookmark_info(int bookmark_index, godot::Vector2 position);
+
+    void hide_bookmark_info();
 };
