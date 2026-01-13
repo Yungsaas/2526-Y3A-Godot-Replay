@@ -399,4 +399,12 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("update_bookmark_markers"), &Recorder_Controller::update_bookmark_markers);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("on_bookmark_marker_clicked", "bookmark_index"), &Recorder_Controller::on_bookmark_marker_clicked);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_bookmark_info_popup", "popup"), &Recorder_Controller::set_bookmark_info_popup);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_bookmark_info_label", "label"), &Recorder_Controller::set_bookmark_info_label);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("show_bookmark_info", "bookmark_index", "position"), &Recorder_Controller::show_bookmark_info);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("hide_bookmark_info"), &Recorder_Controller::hide_bookmark_info);
 }

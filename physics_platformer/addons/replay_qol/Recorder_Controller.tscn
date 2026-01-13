@@ -71,6 +71,16 @@ offset_top = 4.0
 offset_right = 126.0
 offset_bottom = 316.0
 
+[node name="BookmarkInfoPopup" type="PopupPanel" parent="."]
+visible = true
+
+[node name="BookmarkInfoLabel" type="Label" parent="BookmarkInfoPopup"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 96.0
+offset_bottom = 96.0
+autowrap_mode = 3
+
 [connection signal="pressed" from="PopupPanel/Control/PlayStopButton" to="." method="_on_play_stop_button_pressed"]
 [connection signal="pressed" from="PopupPanel/Control/TestButton" to="." method="_on_test_button_pressed"]
 [connection signal="drag_started" from="PopupPanel/Control/TimeLineSlider" to="." method="_on_time_line_slider_drag_started"]
