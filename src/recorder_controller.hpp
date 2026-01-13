@@ -44,9 +44,8 @@ private:
 
 	private:
     godot::Vector<Bookmark> bookmarks;
-   /* godot::PackedScene *bookmark_marker_scene; // Visual marker on timeline
-    godot::Control *bookmark_marker_container; // Parent for markers
-    godot::PopupPanel *bookmark_info_popup;    // Show details on hover/click*/
+    godot::PackedScene *bookmark_marker_scene; // Scene for individual marker
+    godot::Control *bookmark_marker_container;
 
 public:
 
@@ -105,6 +104,12 @@ public:
 	int get_bookmark_count();
 
 	void jump_to_bookmark(int bookmark_index);
+
+	void set_bookmark_marker_scene(godot::PackedScene *scene);
+
+    void set_bookmark_marker_container(godot::Control *container);
+	
+    void update_bookmark_markers();
 
 	Bookmark get_bookmark(int index);
 };

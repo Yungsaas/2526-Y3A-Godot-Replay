@@ -25,6 +25,16 @@ void Recorder_Controller::set_input_lable_parent(godot::Control *control)
 	input_lable_parent = control;
 }
 
+void Recorder_Controller::set_bookmark_marker_scene(godot::PackedScene *scene)
+{
+    bookmark_marker_scene = scene;
+}
+
+void Recorder_Controller::set_bookmark_marker_container(godot::Control *container)
+{
+    bookmark_marker_container = container;
+}
+
 void Recorder_Controller::update()
 {
 	if (!recorder) {
@@ -154,6 +164,8 @@ void Recorder_Controller::add_bookmark(godot::String event_type, godot::String e
 	bookmarks.push_back(new_bookmark);
 
 	godot::print_line("Bookmark added: " + event_type + " at frame " + godot::String::num_int64(bookmark_frame));
+
+	update_bookmark_markers();
 }
 
 void Recorder_Controller::remove_bookmark(int index)
@@ -161,6 +173,8 @@ void Recorder_Controller::remove_bookmark(int index)
     if (index >= 0 && index < bookmarks.size()) {
         bookmarks.remove_at(index);
         godot::print_line("Bookmark removed at index " + godot::String::num_int64(index));
+
+		update_bookmark_markers();
     } else {
         godot::print_error("Invalid bookmark index: " + godot::String::num_int64(index));
     }
@@ -218,6 +232,64 @@ void Recorder_Controller::jump_to_bookmark(int bookmark_index)
     godot::print_line("Jumped to bookmark: " + bookmark.event_type + " (" + bookmark.event_data + ") at frame " + godot::String::num_int64(bookmark.frame));
 }
 
+void Recorder_Controller::update_bookmark_markers()
+{
+    if (!bookmark_marker_container) {
+        godot::print_error("Bookmark marker container not set");
+        return;
+    }
+    
+    if (!time_line_slider) {
+        godot::print_error("Timeline slider not set");
+        return;
+    }
+    
+    // Clear existing markers
+    for (int i = 0; i < bookmark_marker_container->get_child_count(); i++) {
+        bookmark_marker_container->get_child(i)->queue_free();
+    }
+    
+    if (!bookmark_marker_scene) {
+        godot::print_error("Bookmark marker scene not set");
+        return;
+    }
+    
+    // Get timeline dimensions
+    float timeline_min = time_line_slider->get_min();
+    float timeline_max = time_line_slider->get_max();
+    float timeline_range = timeline_max - timeline_min;
+    float timeline_width = time_line_slider->get_size().x;
+    
+    // Create a marker for each bookmark
+    for (int i = 0; i < bookmarks.size(); i++) {
+        Bookmark bookmark = bookmarks[i];
+        
+        // Calculate position on timeline
+        float normalized_position = (bookmark.frame - timeline_min) / timeline_range;
+        float x_position = normalized_position * timeline_width;
+        
+        // Instantiate marker
+        godot::Node *marker_instance = bookmark_marker_scene->instantiate();
+        godot::Control *marker_control = godot::Object::cast_to<godot::Control>(marker_instance);
+        
+        if (marker_control) {
+            // Set position
+            marker_control->set_position(godot::Vector2(x_position, 0));
+            
+            // Set color if the marker has a modulate property
+            marker_control->set_modulate(bookmark.marker_color);
+            
+            // Store bookmark index for later reference
+            marker_control->set_meta("bookmark_index", i);
+            
+            // Add to container
+            bookmark_marker_container->add_child(marker_control);
+        }
+    }
+    
+    godot::print_line("Updated " + godot::String::num_int64(bookmarks.size()) + " bookmark markers");
+}
+
 void Recorder_Controller::_bind_methods()
 {
 	//Recorder setting and getting
@@ -255,4 +327,9 @@ void Recorder_Controller::_bind_methods()
 
 	godot::ClassDB::bind_method(godot::D_METHOD("jump_to_bookmark", "bookmark_index"), &Recorder_Controller::jump_to_bookmark);
 
+	godot::ClassDB::bind_method(godot::D_METHOD("set_bookmark_marker_scene", "scene"), &Recorder_Controller::set_bookmark_marker_scene);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("set_bookmark_marker_container", "container"), &Recorder_Controller::set_bookmark_marker_container);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("update_bookmark_markers"), &Recorder_Controller::update_bookmark_markers);
 }
