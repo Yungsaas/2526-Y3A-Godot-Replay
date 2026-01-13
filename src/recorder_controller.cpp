@@ -1,5 +1,6 @@
 #pragma once
 #include "recorder_controller.hpp"
+#include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/control.hpp"
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/node.hpp"
@@ -355,6 +356,127 @@ void Recorder_Controller::hide_bookmark_info()
     }
 }
 
+//bookmark json
+
+void Recorder_Controller::set_json_enabled(bool enabled)
+{
+    json_enabled = enabled;
+}
+
+void Recorder_Controller::save_bookmarks_to_json()
+{
+    if (!json_enabled) {
+        return;
+    }
+    
+    godot::Array bookmark_array;
+    
+    // Convert all bookmarks to dictionary format
+    for (int i = 0; i < bookmarks.size(); i++) {
+        Bookmark bookmark = bookmarks[i];
+        
+        godot::Dictionary entry;
+        entry["frame"] = bookmark.frame;
+        entry["event_type"] = bookmark.event_type;
+        entry["event_data"] = bookmark.event_data;
+        
+        // Store color as separate RGBA values
+        entry["color_r"] = bookmark.marker_color.r;
+        entry["color_g"] = bookmark.marker_color.g;
+        entry["color_b"] = bookmark.marker_color.b;
+        entry["color_a"] = bookmark.marker_color.a;
+        
+        bookmark_array.push_back(entry);
+    }
+    
+    godot::Dictionary root;
+    root["bookmark_count"] = bookmarks.size();
+    root["bookmarks"] = bookmark_array;
+    
+    auto json_string = godot::JSON::stringify(root);
+    
+    // Find available filename
+    int recording_index = 0;
+    godot::String filename;
+    
+    while (true) {
+        filename = "res://addons/replay_qol/json/bookmarks_" + godot::String::num(recording_index) + ".json";
+        
+        if (!godot::FileAccess::file_exists(filename)) {
+            break; // found available filename
+        }
+        recording_index++;
+    }
+    
+    auto file = godot::FileAccess::open(filename, godot::FileAccess::WRITE);
+    
+    if (file.is_valid()) {
+        file->store_string(json_string);
+        file->close();
+        godot::print_line("Bookmarks saved to: " + filename);
+    } else {
+        godot::print_error("Failed to save bookmarks to: " + filename);
+    }
+}
+
+void Recorder_Controller::load_bookmarks_from_json(godot::String filename)
+{
+    if (!godot::FileAccess::file_exists(filename)) {
+        godot::print_error("Bookmark file does not exist: " + filename);
+        return;
+    }
+    
+    auto file = godot::FileAccess::open(filename, godot::FileAccess::READ);
+    
+    if (!file.is_valid()) {
+        godot::print_error("Failed to open bookmark file: " + filename);
+        return;
+    }
+    
+    auto json_string = file->get_as_text();
+    file->close();
+    
+    godot::JSON json;
+    auto parse_error = json.parse(json_string);
+    
+    if (parse_error != godot::OK) {
+        godot::print_error("Failed to parse bookmark JSON: " + filename);
+        return;
+    }
+    
+    auto json_data = json.get_data();
+    godot::Dictionary root = json_data;
+    
+    // Clear existing bookmarks
+    bookmarks.clear();
+    
+    godot::Array bookmark_array = root["bookmarks"];
+    
+    for (int i = 0; i < bookmark_array.size(); i++) {
+        godot::Dictionary entry = bookmark_array[i];
+        
+        int frame = entry["frame"];
+        godot::String event_type = entry["event_type"];
+        godot::String event_data = entry["event_data"];
+        
+        // Reconstruct color
+        godot::Color color(
+            entry["color_r"],
+            entry["color_g"],
+            entry["color_b"],
+            entry["color_a"]
+        );
+        
+        Bookmark bookmark(frame, event_type, event_data, color);
+        bookmarks.push_back(bookmark);
+    }
+    
+    godot::print_line("Loaded " + godot::String::num_int64(bookmarks.size()) + " bookmarks from: " + filename);
+    
+    // Update visual markers after loading
+    update_bookmark_markers();
+}
+
 void Recorder_Controller::_bind_methods()
 {
 	//Recorder setting and getting
@@ -407,4 +529,10 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("show_bookmark_info", "bookmark_index", "position"), &Recorder_Controller::show_bookmark_info);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("hide_bookmark_info"), &Recorder_Controller::hide_bookmark_info);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("save_bookmarks_to_json"), &Recorder_Controller::save_bookmarks_to_json);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("load_bookmarks_from_json", "filename"), &Recorder_Controller::load_bookmarks_from_json);
+	
+	godot::ClassDB::bind_method(godot::D_METHOD("set_json_enabled", "enabled"), &Recorder_Controller::set_json_enabled);
 }

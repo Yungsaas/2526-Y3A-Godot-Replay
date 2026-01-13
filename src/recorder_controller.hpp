@@ -36,6 +36,7 @@ private:
 	godot::Label *frame_counter_ui;
 	godot::String label_string_static_part;
     bool is_replaying = false;
+	bool json_enabled = true;
 
 	godot::Input *input_singleton = godot::Input::get_singleton(); //Input interface
 	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
@@ -127,4 +128,10 @@ public:
     void show_bookmark_info(int bookmark_index, godot::Vector2 position);
 
     void hide_bookmark_info();
+
+	void save_bookmarks_to_json();
+
+    void load_bookmarks_from_json(godot::String filename);
+
+    void set_json_enabled(bool enabled);
 };
