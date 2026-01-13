@@ -281,13 +281,32 @@ void Recorder_Controller::update_bookmark_markers()
             
            
             marker_control->set_meta("bookmark_index", i);
-            
+            marker_control->set_meta("bookmark_frame", bookmark.frame);
+            marker_control->set_meta("bookmark_type", bookmark.event_type);
+            marker_control->set_meta("bookmark_data", bookmark.event_data);
             
             bookmark_marker_container->add_child(marker_control);
         }
     }
     
     godot::print_line("Updated " + godot::String::num_int64(bookmarks.size()) + " bookmark markers");
+}
+
+void Recorder_Controller::on_bookmark_marker_clicked(int bookmark_index)
+{
+    if (!is_replaying) {
+        godot::print_error("Cannot jump to bookmark: Not currently replaying");
+        return;
+    }
+    
+    if (bookmark_index < 0 || bookmark_index >= bookmarks.size()) {
+        godot::print_error("Invalid bookmark index from marker click: " + godot::String::num_int64(bookmark_index));
+        return;
+    }
+    
+    jump_to_bookmark(bookmark_index);
+    
+    recorder->force_pause_replay();
 }
 
 void Recorder_Controller::_bind_methods()
@@ -332,4 +351,6 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("set_bookmark_marker_container", "container"), &Recorder_Controller::set_bookmark_marker_container);
 	
 	godot::ClassDB::bind_method(godot::D_METHOD("update_bookmark_markers"), &Recorder_Controller::update_bookmark_markers);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("on_bookmark_marker_clicked", "bookmark_index"), &Recorder_Controller::on_bookmark_marker_clicked);
 }

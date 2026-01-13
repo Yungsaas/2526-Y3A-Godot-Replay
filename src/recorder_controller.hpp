@@ -108,8 +108,10 @@ public:
 	void set_bookmark_marker_scene(godot::PackedScene *scene);
 
     void set_bookmark_marker_container(godot::Control *container);
-	
+
     void update_bookmark_markers();
+
+	void on_bookmark_marker_clicked(int bookmark_index);
 
 	Bookmark get_bookmark(int index);
 };
