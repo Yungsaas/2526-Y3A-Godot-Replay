@@ -89,6 +89,8 @@ void Recorder_Controller::update()
 					return;
 				}
 
+				add_bookmark("input", action_name);
+
 				for (int i = 0; i < input_lable_parent->get_child_count(); i++) {
 					godot::Node *child = input_lable_parent->get_child(i);
 					godot::Label *label = godot::Object::cast_to<godot::Label>(child);
@@ -185,6 +187,37 @@ Bookmark Recorder_Controller::get_bookmark(int index)
     return Bookmark(); // Return empty bookmark
 }
 
+void Recorder_Controller::jump_to_bookmark(int bookmark_index)
+{
+    if (!recorder) {
+        godot::print_error("Cannot jump to bookmark: Recorder not set");
+        return;
+    }
+    
+    if (!is_replaying) {
+        godot::print_error("Cannot jump to bookmark: Not currently replaying");
+        return;
+    }
+    
+    if (bookmark_index < 0 || bookmark_index >= bookmarks.size()) {
+        godot::print_error("Invalid bookmark index: " + godot::String::num_int64(bookmark_index));
+        return;
+    }
+    
+    Bookmark bookmark = bookmarks[bookmark_index];
+    
+    // Update the timeline slider
+    time_line_slider->set_value(bookmark.frame);
+    
+    // Update the frame counter
+    frame_counter_ui->set_text(godot::String::num_int64(bookmark.frame - time_line_slider->get_min()) + label_string_static_part);
+    
+    // Tell the recorder to jump to this frame
+    recorder->set_replay_frame(bookmark.frame);
+    
+    godot::print_line("Jumped to bookmark: " + bookmark.event_type + " (" + bookmark.event_data + ") at frame " + godot::String::num_int64(bookmark.frame));
+}
+
 void Recorder_Controller::_bind_methods()
 {
 	//Recorder setting and getting
@@ -215,8 +248,11 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("add_bookmark", "event_type", "event_data", "frame"), &Recorder_Controller::add_bookmark, DEFVAL(-1));
 
     godot::ClassDB::bind_method(godot::D_METHOD("remove_bookmark", "index"), &Recorder_Controller::remove_bookmark);
-	
+
     godot::ClassDB::bind_method(godot::D_METHOD("clear_bookmarks"), &Recorder_Controller::clear_bookmarks);
 
     godot::ClassDB::bind_method(godot::D_METHOD("get_bookmark_count"), &Recorder_Controller::get_bookmark_count);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("jump_to_bookmark", "bookmark_index"), &Recorder_Controller::jump_to_bookmark);
+
 }
