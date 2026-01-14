@@ -84,6 +84,9 @@ protected:
 	void create_node_snapshots();
 	void restore_destroyed_nodes();
 	void clear_snapshots();
+	void remap_replay_data_to_snapshots();
+	
+	bool is_node_valid(godot::Node *node);
 
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes

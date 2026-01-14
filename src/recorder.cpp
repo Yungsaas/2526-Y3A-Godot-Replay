@@ -12,6 +12,7 @@
 #include "godot_cpp/classes/rigid_body2d.hpp"
 #include "godot_cpp/classes/rigid_body3d.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
+#include "godot_cpp/classes/window.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/array.hpp"
@@ -28,6 +29,15 @@
 #include <unordered_map>
 #include <utility>
 
+bool Recorder::is_node_valid(godot::Node *node)
+{
+	if (!node) {
+		return false;
+	}
+	// Check if node is in the tree - safest check in Godot
+	return node->is_inside_tree();
+}
+
 bool Recorder::add_node(godot::Node *node)
 {
 	if (tracked_nodes.has(node)) {
@@ -41,7 +51,6 @@ bool Recorder::add_node(godot::Node *node)
 
 bool Recorder::remove_node(godot::Node *node)
 {
-	;
 	if (tracked_nodes.has(node)) {
 		tracked_nodes.erase(node);
 		godot::print_line("Node " + node->get_name() + " has been removed from recording list");
@@ -98,15 +107,20 @@ void Recorder::create_node_snapshots()
 		}
 		
 		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
-		if (!node) {
+		if (!node || !node->is_inside_tree()) {
 			continue;
 		}
 		
-		// Duplicate the node (deep copy)
-		godot::Node *snapshot = godot::Object::cast_to<godot::Node>(node->duplicate());
+		// Duplicate the node (deep copy with flags: DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS)
+		godot::Node *snapshot = godot::Object::cast_to<godot::Node>(node->duplicate(7));
 		if (!snapshot) {
 			godot::print_error("Failed to create snapshot for node: " + node->get_name());
 			continue;
+		}
+		
+		// Store parent information for later restoration
+		if (node->get_parent()) {
+			snapshot->set_meta("original_parent_path", node->get_parent()->get_path());
 		}
 		
 		// Store the snapshot (but don't add it to the scene tree yet)
@@ -121,53 +135,106 @@ void Recorder::create_node_snapshots()
 
 void Recorder::restore_destroyed_nodes()
 {
-	godot::print_line("Checking for destroyed nodes to restore...");
+	godot::print_line("=== Restore Destroyed Nodes Start ===");
+	godot::print_line("Total snapshots: " + godot::String::num_int64(node_snapshots.size()));
 	
-	int restored_count = 0;
+	// Get the scene tree
+	godot::SceneTree *tree = get_tree();
+	if (!tree) {
+		godot::print_error("No scene tree available");
+		return;
+	}
 	
-	// Check all tracked nodes to see if any were destroyed
+	// Check each tracked node and restore if needed
 	for (auto &snapshot_pair : node_snapshots) {
 		godot::Node *original = snapshot_pair.first;
 		godot::Node *snapshot = snapshot_pair.second;
 		
-		// Check if the original node is still valid
-		if (!original || !godot::Object::cast_to<godot::Node>(original)) {
-			godot::print_line("Node was destroyed, restoring from snapshot...");
+		if (!snapshot) {
+			continue;
+		}
+		
+		// Check if original node is still valid
+		bool node_is_valid = is_node_valid(original);
+		
+		if (!node_is_valid) {
+			godot::print_line("Original node destroyed, restoring snapshot to tree");
 			
-			// The original was destroyed, we need to spawn the snapshot
-			godot::Node *restored_node = godot::Object::cast_to<godot::Node>(snapshot->duplicate());
-			if (!restored_node) {
-				godot::print_error("Failed to restore node from snapshot");
-				continue;
-			}
-			
-			// Add the restored node to the scene tree
-			// Use the owner (scene root) to add the restored node
-			godot::Node *self_node = this;
-			godot::Node *owner = self_node->get_owner();
-			if (owner) {
-				owner->add_child(restored_node);
-				godot::print_line("Restored node: " + restored_node->get_name());
-				restored_count++;
-			} else {
-				// Fallback: try to get the current scene root from the tree
-				godot::SceneTree *tree = get_tree();
-				if (tree && tree->get_current_scene()) {
-					tree->get_current_scene()->add_child(restored_node);
-					godot::print_line("Restored node: " + restored_node->get_name());
-					restored_count++;
-				} else {
-					godot::print_error("Could not find scene root to restore node");
+			// Get the parent path if it was stored
+			if (snapshot->has_meta("original_parent_path")) {
+				godot::NodePath parent_path = snapshot->get_meta("original_parent_path");
+				godot::Node *parent = tree->get_root()->get_node_or_null(parent_path);
+				
+				if (parent && snapshot->get_parent() == nullptr) {
+					parent->add_child(snapshot);
+					godot::print_line("Snapshot added to original parent: " + parent->get_name());
 				}
+			} else if (snapshot->get_parent() == nullptr) {
+				// Fallback: add to root
+				tree->get_root()->add_child(snapshot);
+				godot::print_line("Snapshot added to root");
 			}
 		}
 	}
 	
-	if (restored_count > 0) {
-		godot::print_line("Restored " + godot::String::num_int64(restored_count) + " destroyed nodes");
-	} else {
-		godot::print_line("No destroyed nodes found");
+	godot::print_line("=== Restore Destroyed Nodes End ===");
+}
+
+void Recorder::remap_replay_data_to_snapshots()
+{
+	godot::print_line("Remapping replay data to snapshots...");
+	
+	// Remap 2D positions
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector2>> remapped_2d;
+	for (auto &entry : temporary_data_map_2d_pos) {
+		int frame = entry.first;
+		godot::Node *original = std::get<0>(entry.second);
+		godot::Vector2 pos = std::get<1>(entry.second);
+		
+		// Use snapshot if available and original is invalid, otherwise use original
+		godot::Node *node_to_use = original;
+		if (!is_node_valid(original) && node_snapshots.count(original) > 0) {
+			node_to_use = node_snapshots[original];
+			godot::print_line("Remapped 2D node to snapshot: " + original->get_name());
+		}
+		
+		remapped_2d.emplace(frame, std::make_tuple(node_to_use, pos));
 	}
+	temporary_data_map_2d_pos = remapped_2d;
+	
+	// Remap 3D positions
+	std::unordered_multimap<int, std::tuple<godot::Node *, godot::Vector3>> remapped_3d;
+	for (auto &entry : temporary_data_map_3d_pos) {
+		int frame = entry.first;
+		godot::Node *original = std::get<0>(entry.second);
+		godot::Vector3 pos = std::get<1>(entry.second);
+		
+		godot::Node *node_to_use = original;
+		if (!is_node_valid(original) && node_snapshots.count(original) > 0) {
+			node_to_use = node_snapshots[original];
+			godot::print_line("Remapped 3D node to snapshot: " + original->get_name());
+		}
+		
+		remapped_3d.emplace(frame, std::make_tuple(node_to_use, pos));
+	}
+	temporary_data_map_3d_pos = remapped_3d;
+	
+	// Remap custom data
+	std::unordered_multimap<int, CustomDataEntry> remapped_custom;
+	for (auto &entry : temporary_data_map_custom_data) {
+		int frame = entry.first;
+		CustomDataEntry data = entry.second;
+		
+		if (!is_node_valid(data.node) && node_snapshots.count(data.node) > 0) {
+			data.node = node_snapshots[data.node];
+			godot::print_line("Remapped custom data node to snapshot");
+		}
+		
+		remapped_custom.emplace(frame, data);
+	}
+	temporary_data_map_custom_data = remapped_custom;
+	
+	godot::print_line("Remapping complete");
 }
 
 void Recorder::clear_snapshots()
@@ -178,6 +245,10 @@ void Recorder::clear_snapshots()
 	for (auto &snapshot_pair : node_snapshots) {
 		godot::Node *snapshot = snapshot_pair.second;
 		if (snapshot && godot::Object::cast_to<godot::Node>(snapshot)) {
+			// Remove from tree if it's in the tree
+			if (snapshot->is_inside_tree()) {
+				snapshot->get_parent()->remove_child(snapshot);
+			}
 			snapshot->queue_free();
 		}
 	}
@@ -239,6 +310,7 @@ void Recorder::stop_recording()
 	save_input_to_json();
 	save_custom_to_json();
 }
+
 void Recorder::clear_all_temp_maps()
 {
 	temporary_data_map_2d_pos.clear();
@@ -257,6 +329,9 @@ void Recorder::start_replay()
 	replay_frame = 0;
 
 	restore_destroyed_nodes();
+	
+	// CRITICAL: Remap all replay data to use snapshots for destroyed nodes
+	remap_replay_data_to_snapshots();
 }
 
 void Recorder::stop_replay()
@@ -280,6 +355,11 @@ void Recorder::replay_position()
 		godot::Node *node = std::get<0>(data->second);
 		godot::Vector2 pos = std::get<1>(data->second);
 
+		// SAFETY CHECK: Make sure node is still valid
+		if (!is_node_valid(node)) {
+			continue;
+		}
+
 		if (auto node2d = godot::Object::cast_to<godot::Node2D>(node)) {
 			node2d->set_global_position(pos);
 			if(replay_paused)
@@ -297,6 +377,11 @@ void Recorder::replay_position()
 	for (auto data = range3d.first; data != range3d.second; data++) {
 		godot::Node *node = std::get<0>(data->second);
 		godot::Vector3 pos = std::get<1>(data->second);
+
+		// SAFETY CHECK: Make sure node is still valid
+		if (!is_node_valid(node)) {
+			continue;
+		}
 
 		if (auto node3d = godot::Object::cast_to<godot::Node3D>(node)) {
 			node3d->set_global_position(pos);
@@ -322,6 +407,12 @@ void Recorder::record_position()
 	for (auto nodeVariant : tracked_nodes) {
 		if (nodeVariant.booleanize()) {
 			auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
+			
+			// Safety check
+			if (!is_node_valid(node)) {
+				continue;
+			}
+			
 			auto node3d = godot::Object::cast_to<godot::Node3D>(node);
 			auto node2d = godot::Object::cast_to<godot::Node2D>(node);
 			if (node3d) {
@@ -381,17 +472,14 @@ void Recorder::handle_replaying()
 
 	replay_frame++;
 
-
 	if (replay_frame > recording_frame) {
 		if(controlled_replay)
 		{
 			replay_frame = recording_frame;
 		}else {
-		is_replaying = false;
+			is_replaying = false;
 		}
 	}
-	
-
 }
 
 void Recorder::save_2dpos_to_json()
@@ -424,14 +512,12 @@ void Recorder::save_2dpos_to_json()
 				node_name = "empty";
 			}
 
-			
-
-			// If node key doesn’t exist, create an array
+			// If node key doesn't exist, create an array
 			if (!node_entries.has(node_name)) {
 				node_entries[node_name] = godot::Array();
 			}
 
-			// Push entry into the node’s array
+			// Push entry into the node's array
 			node_entries[node_name].call("push_back", entry);
 		}
 	}
@@ -485,12 +571,12 @@ void Recorder::save_3dpos_to_json()
 
 			godot::String node_name = node->get_path();
 
-			// If node key doesn’t exist, create an array
+			// If node key doesn't exist, create an array
 			if (!node_entries.has(node_name)) {
 				node_entries[node_name] = godot::Array();
 			}
 
-			// Push entry into the node’s array
+			// Push entry into the node's array
 			node_entries[node_name].call("push_back", entry);
 		}
 	}
@@ -623,7 +709,6 @@ void Recorder::save_custom_to_json()
 		file->store_string(json_string); // Write JSON text to file
 		file->close();
 	}
-
 }
 
 void Recorder::load_json_file_to_game() {
@@ -754,7 +839,6 @@ void Recorder::load_json_file_to_game() {
 		}
 	}
 
-
 	if (custom_json_path != NULL) {
 		auto json_data = custom_json_path->get_data(); // JSON file -> Variant
 
@@ -804,7 +888,7 @@ void Recorder::set_3d_json_path(const godot::Ref<godot::JSON> &p_path)
 }
 
 void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
-		if(!json_enabled)
+	if(!json_enabled)
 	{
 		godot::print_error("cant set input json path, json saving disabled");
 		return;
@@ -813,7 +897,7 @@ void Recorder::set_input_json_path(const godot::Ref<godot::JSON> &p_path) {
 }
 
 void Recorder::set_custom_json_path(const godot::Ref<godot::JSON> &p_path) {
-		if(!json_enabled)
+	if(!json_enabled)
 	{
 		godot::print_error("cant set input json path, json saving disabled");
 		return;
@@ -924,7 +1008,6 @@ void Recorder::add_custom_data(godot::Node *node, godot::StringName customDataNa
 	//Save custom data name to map
 	tracked_custom_data.emplace(node, customDataName);
 	godot::print_line("Data: " + customDataName + " from node: " + node->get_name() + " will be recorded.");
-
 }
 
 void Recorder::record_custom_data()
@@ -936,6 +1019,12 @@ void Recorder::record_custom_data()
 		//Using variables here for readability
 		auto node = node_data_pair.first;
 		auto data_name = node_data_pair.second;
+		
+		// Safety check
+		if (!is_node_valid(node)) {
+			continue;
+		}
+		
 		godot::Variant data_content = node->get_meta(data_name);
 
 		CustomDataKey key{ node, data_name };
@@ -961,6 +1050,12 @@ void Recorder::replay_custom_data()
 	//Set data
 	for (auto data = range_custom_data.first; data != range_custom_data.second; data++) {
 		auto data_entry = data->second;
+		
+		// Safety check
+		if (!is_node_valid(data_entry.node)) {
+			continue;
+		}
+		
 		data_entry.node->set_meta(data_entry.variableName, data_entry.variableData);
 	}
 }
@@ -983,7 +1078,6 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("load_json_file"), &Recorder::load_json_file_to_game);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_input_json_path", "json_file"), &Recorder::set_input_json_path);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_custom_json_path", "json_file"), &Recorder::set_custom_json_path);
-
 
 	godot::ClassDB::bind_method(godot::D_METHOD("get_replay_state"), &Recorder::get_general_replay_state);
 
