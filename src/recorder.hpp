@@ -81,6 +81,10 @@ protected:
 
 	void add_nodes_from_groups();
 
+	void create_node_snapshots();
+	void restore_destroyed_nodes();
+	void clear_snapshots();
+
 	//node lists for data tracking
 	godot::Array tracked_nodes; //List of tracked nodes
 	std::unordered_multimap<godot::Node *, godot::StringName> tracked_custom_data; //List of tracked data of specific nodes (other than position)
@@ -95,6 +99,9 @@ protected:
 	std::unordered_map<CustomDataKey, godot::Variant, CustomDataKeyHash> last_recorded_custom_data; //Used for cheking custom data changes
 	std::unordered_map<godot::Node *, godot::Vector3> last_recorded_3d_pos; //Used for checking for position changes
 	std::unordered_map<godot::Node *, godot::Vector2> last_recorded_2d_pos; //Used for checking for position changes
+
+	std::unordered_map<godot::Node *, godot::Node *> node_snapshots; //Maps original node to its snapshot copy
+	std::unordered_map<godot::Node *, godot::Node *> snapshot_to_original;
 
 	std::vector<godot::StringName> recording_groups; //Vector of groups that are supposed to get recorded
 

@@ -84,6 +84,110 @@ void Recorder::debug_print_positions()
 	}
 }
 
+void Recorder::create_node_snapshots()
+{
+	godot::print_line("Creating node snapshots for replay...");
+	
+	// Clear any existing snapshots
+	clear_snapshots();
+	
+	// Create snapshots of all tracked nodes
+	for (auto nodeVariant : tracked_nodes) {
+		if (!nodeVariant.booleanize()) {
+			continue; // Skip invalid nodes
+		}
+		
+		auto node = godot::Object::cast_to<godot::Node>(nodeVariant);
+		if (!node) {
+			continue;
+		}
+		
+		// Duplicate the node (deep copy)
+		godot::Node *snapshot = godot::Object::cast_to<godot::Node>(node->duplicate());
+		if (!snapshot) {
+			godot::print_error("Failed to create snapshot for node: " + node->get_name());
+			continue;
+		}
+		
+		// Store the snapshot (but don't add it to the scene tree yet)
+		node_snapshots[node] = snapshot;
+		snapshot_to_original[snapshot] = node;
+		
+		godot::print_line("Created snapshot for node: " + node->get_name());
+	}
+	
+	godot::print_line("Snapshot creation complete. Total snapshots: " + godot::String::num_int64(node_snapshots.size()));
+}
+
+void Recorder::restore_destroyed_nodes()
+{
+	godot::print_line("Checking for destroyed nodes to restore...");
+	
+	int restored_count = 0;
+	
+	// Check all tracked nodes to see if any were destroyed
+	for (auto &snapshot_pair : node_snapshots) {
+		godot::Node *original = snapshot_pair.first;
+		godot::Node *snapshot = snapshot_pair.second;
+		
+		// Check if the original node is still valid
+		if (!original || !godot::Object::cast_to<godot::Node>(original)) {
+			godot::print_line("Node was destroyed, restoring from snapshot...");
+			
+			// The original was destroyed, we need to spawn the snapshot
+			godot::Node *restored_node = godot::Object::cast_to<godot::Node>(snapshot->duplicate());
+			if (!restored_node) {
+				godot::print_error("Failed to restore node from snapshot");
+				continue;
+			}
+			
+			// Add the restored node to the scene tree
+			// Use the owner (scene root) to add the restored node
+			godot::Node *self_node = this;
+			godot::Node *owner = self_node->get_owner();
+			if (owner) {
+				owner->add_child(restored_node);
+				godot::print_line("Restored node: " + restored_node->get_name());
+				restored_count++;
+			} else {
+				// Fallback: try to get the current scene root from the tree
+				godot::SceneTree *tree = get_tree();
+				if (tree && tree->get_current_scene()) {
+					tree->get_current_scene()->add_child(restored_node);
+					godot::print_line("Restored node: " + restored_node->get_name());
+					restored_count++;
+				} else {
+					godot::print_error("Could not find scene root to restore node");
+				}
+			}
+		}
+	}
+	
+	if (restored_count > 0) {
+		godot::print_line("Restored " + godot::String::num_int64(restored_count) + " destroyed nodes");
+	} else {
+		godot::print_line("No destroyed nodes found");
+	}
+}
+
+void Recorder::clear_snapshots()
+{
+	godot::print_line("Clearing node snapshots...");
+	
+	// Free all snapshot nodes
+	for (auto &snapshot_pair : node_snapshots) {
+		godot::Node *snapshot = snapshot_pair.second;
+		if (snapshot && godot::Object::cast_to<godot::Node>(snapshot)) {
+			snapshot->queue_free();
+		}
+	}
+	
+	node_snapshots.clear();
+	snapshot_to_original.clear();
+	
+	godot::print_line("Snapshots cleared");
+}
+
 void Recorder::start_recording()
 {
 	is_recording = true;
@@ -93,6 +197,8 @@ void Recorder::start_recording()
 	last_recorded_2d_pos.clear();
 
 	add_nodes_from_groups();
+
+	create_node_snapshots();
 }
 
 void Recorder::add_nodes_from_groups()
@@ -149,11 +255,15 @@ void Recorder::start_replay()
 {
 	is_replaying = true;
 	replay_frame = 0;
+
+	restore_destroyed_nodes();
 }
 
 void Recorder::stop_replay()
 {
 	is_replaying = false;
+
+	clear_snapshots();
 }
 
 void Recorder::replay_position()

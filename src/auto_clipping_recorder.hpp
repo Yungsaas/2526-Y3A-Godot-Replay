@@ -20,7 +20,7 @@ class AutoClippingRecorder:public Recorder
     void save_clip()
     {
         is_clipping = false;    //Set is_clipping to false to start trimming again
-        save_all_to_json();     //Save the clip
+        //save_all_to_json();     //Save the clip
         clear_all_temp_maps();  //Clear out all temporary data maps
     }
 

@@ -131,7 +131,9 @@ friction = 0.0
 [node name="Stage" type="Node2D"]
 
 [node name="Recorder" parent="." node_paths=PackedStringArray("nodes_array") instance=ExtResource("1_g8oy1")]
-nodes_array = [NodePath("../Enemies/Enemy1"), NodePath("../Enemies/Enemy2")]
+custom_data_recording = false
+json_saving = false
+nodes_array = [NodePath("../Coins/Coin"), NodePath("../Coins/Coin2"), NodePath("../Coins/Coin3")]
 
 [node name="RecorderController" parent="." instance=ExtResource("2_i76fu")]
 
