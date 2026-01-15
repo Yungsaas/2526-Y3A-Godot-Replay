@@ -157,7 +157,16 @@ void Recorder_Controller::add_bookmark(godot::String event_type, godot::String e
 	}
 
 	// If frame is -1, use current replay frame
-	int bookmark_frame = (frame == -1) ? recorder->get_replay_frame() : frame;
+	int bookmark_frame;
+    if (frame == -1) {
+        if (event_type == "destroy") {
+            bookmark_frame = recorder->get_recording_frame();
+        } else {
+            bookmark_frame = recorder->get_replay_frame();
+        }
+    } else {
+        bookmark_frame = frame;
+    }
 
 	// Choose color based on event type
 	godot::Color color;
