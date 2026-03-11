@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://cmchvo5k0y53f"]
+
+[node name="Label" type="Label"]
+offset_left = 13.0
+offset_top = 1.0
+offset_right = 108.0
+offset_bottom = 50.0
+text = "test"
+horizontal_alignment = 1

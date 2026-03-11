@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmdmqq4qv7do4"]
+
+[ext_resource type="Script" uid="uid://ci1vodouhpw5j" path="res://addons/replay_qol/instant_replay_recorder.gd" id="1_eb8yo"]
+
+[node name="InstantReplayRecorder" type="InstantReplayRecorder"]
+script = ExtResource("1_eb8yo")

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1187r2eo4l6w"]
+
+[ext_resource type="Script" uid="uid://b50ub1wjfs6u" path="res://ghost_player_manager.gd" id="1_b1vkq"]
+
+[node name="Ghost_Player_Manager" type="Ghost_Player_Manager"]
+json_replay_path = "/ghost_player_replays/"
+script = ExtResource("1_b1vkq")
