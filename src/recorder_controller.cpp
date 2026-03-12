@@ -4,13 +4,17 @@
 #include "godot_cpp/classes/control.hpp"
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/node.hpp"
+#include "godot_cpp/classes/object.hpp"
 #include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/popup_panel.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/core/print_string.hpp"
+#include "godot_cpp/variant/string.hpp"
+#include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector2.hpp"
 #include "instant_replay_recorder.hpp"
 #include "recorder.hpp"
+#include "godot_cpp/templates/hash_set.hpp"
 
 void Recorder_Controller::set_controls_popup(godot::PopupPanel *panel)
 {
@@ -140,6 +144,9 @@ void Recorder_Controller::update()
 				input_lable_parent->add_child(label_instance);
 			}
 		}
+
+        //filer types
+        auto collectedNodes = CollectNodeTypes(get_recorder()->get_tracked_nodes());
 	}
 }
 void Recorder_Controller::exit_replay()
@@ -493,6 +500,27 @@ void Recorder_Controller::check_for_spawns(godot::Array current_objects)
     }
 }
 
+godot::Array Recorder_Controller::CollectNodeTypes(const godot::Array &variantsArray)
+{
+    godot::HashSet<godot::String> seen;
+    godot::Array result;
+
+    for (int i = 0; i < variantsArray.size(); i++) {
+        godot::Variant v = variantsArray[i];
+        if (v.get_type() != godot::Variant::OBJECT) continue;
+
+        Object *obj = v;
+        if (!obj) continue;
+
+        godot::String class_name = obj->get_class();
+        if (!result.has(class_name)) {
+            result.append(class_name);
+        }
+    }
+
+
+    return result;
+}
 
 void Recorder_Controller::_bind_methods()
 {

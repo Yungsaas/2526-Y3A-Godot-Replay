@@ -4,6 +4,7 @@
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/packed_scene.hpp"
 #include "godot_cpp/classes/popup_panel.hpp"
+#include "godot_cpp/variant/array.hpp"
 #include "recorder.hpp"
 #include "godot_cpp/classes/resource_loader.hpp"
 
@@ -44,6 +45,8 @@ private:
 	godot::InputMap *input_map_singleton = godot::InputMap::get_singleton(); //List of possible inputs
 
 	godot::Ref<godot::PackedScene> label_scene = godot::ResourceLoader::get_singleton()->load("res://addons/replay_qol/input_label.tscn");
+
+	godot::Ref<godot::PackedScene> typeCheck_scene = godot::ResourceLoader::get_singleton()->load("res://addons/replay_qol/type_checkBox.tscn");
 
     godot::Vector<Bookmark> bookmarks;
     godot::PackedScene *bookmark_marker_scene;
@@ -133,6 +136,9 @@ public:
     void show_bookmark_info(int bookmark_index, godot::Vector2 position);
 
     void hide_bookmark_info();
+
+	//node filter
+	godot::Array CollectNodeTypes(const godot::Array &variantsArray);
 
 	void track_object_for_deletion();
     void check_tracked_objects();
