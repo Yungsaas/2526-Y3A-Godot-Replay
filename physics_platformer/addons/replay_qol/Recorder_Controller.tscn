@@ -6,6 +6,7 @@
 script = ExtResource("1_6qf2e")
 
 [node name="PopupPanel" type="PopupPanel" parent="."]
+oversampling_override = 1.0
 position = Vector2i(50, 400)
 size = Vector2i(700, 50)
 visible = true
@@ -54,6 +55,7 @@ horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="PopupPanel2" type="PopupPanel" parent="."]
+oversampling_override = 1.0
 position = Vector2i(14, 15)
 size = Vector2i(130, 320)
 visible = true
