@@ -16,6 +16,9 @@ func _ready() -> void:
 	set_bookmark_info_popup(bookmark_info_panel)
 	set_bookmark_info_label(bookmark_info_label)
 	
+	set_filter_popup($FilterPopup)
+	set_filter_parent($FilterPopup/Control)
+	
 	
 	
 	if(not $"../Recorder"):

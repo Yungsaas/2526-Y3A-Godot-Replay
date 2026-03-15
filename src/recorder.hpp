@@ -130,6 +130,7 @@ protected:
 	godot::Ref<godot::JSON> input_json_path;
 	godot::Ref<godot::JSON> custom_json_path;
 
+
 	void save_custom_to_json();
 
 public:

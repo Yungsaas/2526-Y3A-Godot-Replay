@@ -34,7 +34,9 @@ private:
 	Recorder *recorder;
     godot::PopupPanel *controls_popup_panel;
 	godot::PopupPanel *input_popup_panel;
+	godot::PopupPanel *filter_popup_panel;
 	godot::Control *input_lable_parent;
+	godot::Control *filter_lable_parent;
     godot::HSlider *time_line_slider;
 	godot::Label *frame_counter_ui;
 	godot::String label_string_static_part;
@@ -58,6 +60,8 @@ private:
 	godot::Array tracked_objects;
 
 	godot::Array tracked_spawn_objects; 
+
+	godot::Array tracked_nodes; //for filters
 
 public:
 
@@ -139,6 +143,10 @@ public:
 
 	//node filter
 	godot::Array CollectNodeTypes(const godot::Array &variantsArray);
+
+	void set_filter_popup(godot::PopupPanel *popup);
+
+	void set_filter_lable_parent(godot::Control *control);
 
 	void track_object_for_deletion();
     void check_tracked_objects();

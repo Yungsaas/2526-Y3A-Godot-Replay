@@ -87,16 +87,17 @@ autowrap_mode = 3
 
 [node name="FilterPopup" type="PopupPanel" parent="."]
 oversampling_override = 1.0
-position = Vector2i(690, 25)
-size = Vector2i(90, 250)
+position = Vector2i(670, 25)
+size = Vector2i(125, 280)
 visible = true
 
-[node name="BookmarkInfoLabel" type="Label" parent="FilterPopup"]
+[node name="Control" type="Control" parent="FilterPopup"]
+layout_mode = 3
+anchors_preset = 0
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 86.0
-offset_bottom = 246.0
-autowrap_mode = 3
+offset_right = 121.0
+offset_bottom = 276.0
 
 [connection signal="pressed" from="PopupPanel/Control/PlayStopButton" to="." method="_on_play_stop_button_pressed"]
 [connection signal="pressed" from="PopupPanel/Control/TestButton" to="." method="_on_test_button_pressed"]

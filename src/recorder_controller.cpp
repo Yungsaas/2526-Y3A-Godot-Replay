@@ -1,5 +1,7 @@
 #pragma once
 #include "recorder_controller.hpp"
+#include "godot_cpp/classes/canvas_item.hpp"
+#include "godot_cpp/classes/check_box.hpp"
 #include "godot_cpp/classes/file_access.hpp"
 #include "godot_cpp/classes/control.hpp"
 #include "godot_cpp/classes/label.hpp"
@@ -26,10 +28,21 @@ void Recorder_Controller::set_input_popup(godot::PopupPanel *panel)
 	input_popup_panel = panel;
 }
 
+void Recorder_Controller::set_filter_popup(godot::PopupPanel * panel)
+{
+    filter_popup_panel = panel;
+}
+
 void Recorder_Controller::set_input_lable_parent(godot::Control *control)
 {
 	input_lable_parent = control;
 }
+
+void Recorder_Controller::set_filter_lable_parent(godot::Control *control)
+{
+	filter_lable_parent = control;
+}
+
 
 void Recorder_Controller::set_bookmark_marker_scene(godot::PackedScene *scene)
 {
@@ -99,8 +112,29 @@ void Recorder_Controller::update()
 			is_replaying = true;
 			controls_popup_panel->set_visible(true);
 			input_popup_panel->set_visible(true);
+			filter_popup_panel->set_visible(true);
 			recorder->set_controlled_replay(true);
 			recorder->force_pause_replay();
+
+            tracked_nodes = get_recorder()->get_tracked_nodes();
+			//filer types
+			auto collectedNodeTypes = CollectNodeTypes(tracked_nodes);
+
+			long long typesSize = collectedNodeTypes.size();
+			godot::print_line(typesSize);
+
+			for (int i = 0; i < collectedNodeTypes.size(); i++) {
+				Node *filter_instance = typeCheck_scene->instantiate();
+
+				godot::Label *label = godot::Object::cast_to<godot::Label>(filter_instance);
+
+				label->set_text(collectedNodeTypes[i]);
+                godot::Vector2 pos = label->get_position();
+				pos.y += i * 30;
+				label->set_position(pos);
+
+				filter_lable_parent->add_child(filter_instance);
+			}
 		}
 
 		godot::Array actions = input_map_singleton->get_actions();
@@ -145,8 +179,30 @@ void Recorder_Controller::update()
 			}
 		}
 
-        //filer types
-        auto collectedNodes = CollectNodeTypes(get_recorder()->get_tracked_nodes());
+
+        for (auto node : tracked_nodes) 
+        {
+            Object *obj = node;
+            godot::String class_name = obj->get_class();
+
+            for (int i = 0; i < filter_lable_parent->get_child_count(); i++) 
+            {
+				godot::Node *child = filter_lable_parent->get_child(i);
+                godot::Label *label = godot::Object::cast_to<godot::Label>(child);
+
+				godot::Node *checkBoxNode = child->get_child(0);
+				godot::CheckBox *checkBox = godot::Object::cast_to<godot::CheckBox>(checkBoxNode);
+
+                if (class_name == label->get_text()) 
+                {
+                    godot::CanvasItem *canvas = godot::Object::cast_to<godot::CanvasItem>(node);
+                    bool isVisible = !checkBox->is_pressed();
+                    canvas->set_visible(isVisible);
+                
+                }
+			}
+        
+        }
 	}
 }
 void Recorder_Controller::exit_replay()
@@ -582,4 +638,10 @@ void Recorder_Controller::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("initialize_spawn_tracking", "objects"), &Recorder_Controller::initialize_spawn_tracking);
 
 	godot::ClassDB::bind_method(godot::D_METHOD("check_for_spawns", "current_objects"), &Recorder_Controller::check_for_spawns);
+
+    godot::ClassDB::bind_method(godot::D_METHOD("set_filter_popup", "popup"), &Recorder_Controller::set_filter_popup);
+    
+    godot::ClassDB::bind_method(godot::D_METHOD("set_filter_parent", "panel"), &Recorder_Controller::set_filter_lable_parent);
+
+
 }

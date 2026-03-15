@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://bg2g1m43jy4e3"]
 
 [node name="TypeCheckBox" type="Label"]
+offset_left = 20.0
+offset_top = 1.0
+offset_right = 93.0
+offset_bottom = 24.0
 text = "Test_Text"
 
 [node name="CheckBox" type="CheckBox" parent="."]
@@ -8,7 +12,6 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.164
 anchor_bottom = 0.522
-offset_left = 74.0
-offset_top = 1.0
-offset_right = 86.028
-offset_bottom = 12.9939995
+offset_left = -21.0
+offset_right = -8.972
+offset_bottom = 11.9939995
