@@ -112,6 +112,10 @@ void Recorder_Controller::update()
 				label->set_meta("times_moved", 0);
 
 				input_lable_parent->add_child(label_instance);
+
+				if (action_name == 'Z') {
+				replay_trigger();
+				}
 			}
 		}
 	}

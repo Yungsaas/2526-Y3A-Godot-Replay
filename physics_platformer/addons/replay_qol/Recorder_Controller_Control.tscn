@@ -1,14 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://bq06x8imnsowr"]
+[gd_scene load_steps=2 format=3 uid="uid://cj4utfl001fdk"]
 
-[ext_resource type="Script" uid="uid://c1pyshjdxwqx2" path="res://addons/replay_qol/recorder_controller.gd" id="1_6qf2e"]
+[ext_resource type="Script" uid="uid://c1pyshjdxwqx2" path="res://addons/replay_qol/recorder_controller.gd" id="1_7hxsc"]
 
 [node name="RecorderController" type="Recorder_Controller"]
-script = ExtResource("1_6qf2e")
+script = ExtResource("1_7hxsc")
 
 [node name="PopupPanel" type="PopupPanel" parent="."]
 oversampling_override = 1.0
-position = Vector2i(155, 380)
-size = Vector2i(270, 50)
+position = Vector2i(695, 370)
+size = Vector2i(260, 50)
 visible = true
 
 [node name="Control" type="Control" parent="PopupPanel"]
@@ -16,14 +16,14 @@ layout_mode = 3
 anchors_preset = 0
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 266.0
+offset_right = 256.0
 offset_bottom = 46.0
 
 [node name="PlayStopButton" type="Button" parent="PopupPanel/Control"]
 layout_mode = 0
-offset_left = 37.825
+offset_left = 18.49
 offset_top = -9.0
-offset_right = 130.82565
+offset_right = 111.4903
 offset_bottom = 22.0
 text = "Play/Pause"
 
@@ -34,21 +34,20 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -16.0
-offset_right = -8.024994
 grow_horizontal = 2
 grow_vertical = 0
 
 [node name="ReplayFrameCounter" type="Label" parent="PopupPanel/Control"]
 layout_mode = 0
-offset_left = 118.37
-offset_right = 243.36966
+offset_left = 114.285
+offset_right = 239.28508
 offset_bottom = 23.0
 horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="PopupPanel2" type="PopupPanel" parent="."]
 oversampling_override = 1.0
-position = Vector2i(14, 15)
+position = Vector2i(534, 15)
 size = Vector2i(130, 320)
 visible = true
 
