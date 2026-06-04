@@ -20,6 +20,7 @@ func _ready() -> void:
 	set_input_json_path(input_json_path)
 	set_custom_json_path(custom_json_path)
 	
+	
 	load_json_file()
 	
 	

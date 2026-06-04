@@ -43,6 +43,8 @@ func _ready() -> void:
 	var initial_objects = spawn_parent.get_children() 
 	initialize_spawn_tracking(initial_objects)
 	
+	set_export_fps(60)
+	set_export_output_path("user://my_replay.mp4")
 
 func _physics_process(delta: float) -> void:
 	update()
@@ -59,9 +61,9 @@ func _on_time_line_slider_drag_started() -> void:
 func _on_time_line_slider_value_changed(value: float) -> void:
 	if(get_replay_paused()):
 		set_frame(value)
-#aw
-func _on_test_button_pressed() -> void:
-	if get_bookmark_count() > 0:
-		jump_to_bookmark(0)  # Jump to first bookmark
-	
-		
+#
+
+
+
+func _on_export_button_pressed() -> void:
+	trigger_mp4_export()

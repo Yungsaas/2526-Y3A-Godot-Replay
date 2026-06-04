@@ -4,6 +4,8 @@
 #include "godot_cpp/classes/input_map.hpp"
 #include "godot_cpp/classes/json.hpp"
 #include "godot_cpp/classes/node.hpp"
+#include "godot_cpp/classes/image.hpp"    // MP4 export: image readback
+#include "godot_cpp/classes/viewport.hpp" // MP4 export: viewport capture
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/string.hpp"
 #include "godot_cpp/variant/string_name.hpp"
@@ -132,6 +134,38 @@ protected:
 
 
 	void save_custom_to_json();
+
+	// ===== MP4 export (implementation in recorder.cpp) ======================
+	enum ExportPhase { EXPORT_IDLE, EXPORT_CAPTURING, EXPORT_DELAY, EXPORT_ENCODING };
+	ExportPhase export_phase = EXPORT_IDLE;
+
+	int  export_apply_frame  = 0;     // next recorded frame to apply
+	int  export_saved_count  = 0;     // how many PNGs written so far
+	bool export_primed       = false; // a frame was applied last tick, capture it now
+	int  export_encode_delay = 0;     // small wait so the UI can paint "Encoding..."
+
+	int             export_fps       = 60;
+	godot::String   export_output_path;                                 // .mp4 target
+	godot::String   export_temp_dir  = "user://replay_export_frames/";  // PNG scratch dir
+	godot::String   ffmpeg_path      = "ffmpeg";                        // override if not on PATH
+	godot::String   export_status;                                      // read by the controller for the label
+	godot::Viewport *capture_viewport = nullptr;                        // null = main window viewport
+
+	// saved at export start, restored when export finishes
+	bool export_pause_tree         = false;
+	bool export_prev_tree_paused   = false;
+	bool export_prev_is_replaying  = false;
+	bool export_prev_replay_paused = false;
+	int  export_prev_replay_frame  = 0;
+	int  export_prev_max_fps       = 0;
+
+	void finish_export();
+	void run_ffmpeg_encode();
+	void apply_export_frame(int frame);
+	godot::Ref<godot::Image> capture_viewport_image();
+	bool prepare_export_temp_dir();
+	void cleanup_export_temp_dir();
+	static godot::String zero_pad(int value, int width);
 
 public:
 	void set_tracked_nodes(godot::Array new_tracked_nodes);
@@ -265,6 +299,17 @@ public:
 	{
 		return 0; //no max recording length
 	}
-	
+
+	// ===== MP4 export public API ============================================
+	void start_mp4_export(int fps, godot::String output_path);
+	void on_export_frame_post_draw(); // connected to RenderingServer "frame_post_draw"
+	bool is_export_active() const { return export_phase != EXPORT_IDLE; }
+	int  get_export_current_frame() const { return export_saved_count; }
+	int  get_export_total_frames() const { return recording_frame; }
+	godot::String get_export_status() const { return export_status; }
+	void set_ffmpeg_path(godot::String path) { ffmpeg_path = path; }
+	void set_capture_viewport(godot::Viewport *vp) { capture_viewport = vp; }
+	void set_export_pause_tree(bool enabled) { export_pause_tree = enabled; }
+
 	virtual ~Recorder() = default;
 };

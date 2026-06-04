@@ -13,6 +13,13 @@
 #include "godot_cpp/classes/rigid_body3d.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/classes/window.hpp"
+#include "godot_cpp/classes/os.hpp"                 // MP4 export: OS::execute
+#include "godot_cpp/classes/project_settings.hpp"   // MP4 export: globalize_path
+#include "godot_cpp/classes/rendering_server.hpp"   // MP4 export: frame_post_draw
+#include "godot_cpp/classes/viewport_texture.hpp"   // MP4 export: viewport readback
+#include "godot_cpp/classes/texture2d.hpp"          // MP4 export: get_image
+#include "godot_cpp/classes/dir_access.hpp"         // MP4 export: temp dir handling
+#include "godot_cpp/classes/engine.hpp"             // MP4 export: max fps override
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/print_string.hpp"
 #include "godot_cpp/variant/array.hpp"
@@ -21,6 +28,8 @@
 #include "godot_cpp/variant/string_name.hpp"
 #include "godot_cpp/variant/variant.hpp"
 #include "godot_cpp/variant/vector2.hpp"
+#include "godot_cpp/variant/packed_string_array.hpp" // MP4 export: ffmpeg args
+#include "godot_cpp/variant/callable.hpp"            // MP4 export: signal connect
 #include "recorder.hpp"
 #include <cstddef>
 #include <godot_cpp/classes/input_event.hpp>
@@ -1060,6 +1069,312 @@ void Recorder::replay_custom_data()
 	}
 }
 
+// ============================================================================
+//  MP4 EXPORT
+//
+//  Connects to RenderingServer "frame_post_draw" (fires AFTER a frame is drawn,
+//  which is when viewport readback is valid). Each post-draw applies one recorded
+//  frame's state; that state is only visible on the NEXT rendered frame, so we
+//  capture on the FOLLOWING post-draw (a "primed" one-frame pipeline). One
+//  recorded frame becomes exactly one PNG, then ffmpeg encodes the sequence.
+//
+//  ffmpeg is an external process and cannot read res:// or user://, so every
+//  path is run through ProjectSettings::globalize_path() first.
+// ============================================================================
+
+godot::String Recorder::zero_pad(int value, int width)
+{
+	godot::String s = godot::String::num_int64(value);
+	while (s.length() < width) {
+		s = "0" + s;
+	}
+	return s;
+}
+
+bool Recorder::prepare_export_temp_dir()
+{
+	// Wipe any leftover frames from a previous export, then ensure the dir exists.
+	cleanup_export_temp_dir();
+
+	if (!godot::DirAccess::dir_exists_absolute(export_temp_dir)) {
+		godot::Error err = godot::DirAccess::make_dir_recursive_absolute(export_temp_dir);
+		if (err != godot::OK) {
+			godot::print_error("Export: failed to create temp dir: " + export_temp_dir);
+			return false;
+		}
+	}
+	return true;
+}
+
+void Recorder::cleanup_export_temp_dir()
+{
+	if (!godot::DirAccess::dir_exists_absolute(export_temp_dir)) {
+		return;
+	}
+
+	godot::Ref<godot::DirAccess> dir = godot::DirAccess::open(export_temp_dir);
+	if (dir.is_null()) {
+		return;
+	}
+
+	dir->list_dir_begin();
+	godot::String file_name = dir->get_next();
+	while (!file_name.is_empty()) {
+		if (!dir->current_is_dir()) {
+			dir->remove(file_name);
+		}
+		file_name = dir->get_next();
+	}
+	dir->list_dir_end();
+}
+
+godot::Ref<godot::Image> Recorder::capture_viewport_image()
+{
+	// Default to the main window viewport. Point capture_viewport at a SubViewport
+	// (your game-content viewport) for clean footage without the replay UI overlay.
+	godot::Viewport *vp = capture_viewport ? capture_viewport : get_viewport();
+	if (!vp) {
+		godot::print_error("Export: no viewport available for capture");
+		return godot::Ref<godot::Image>();
+	}
+
+	godot::Ref<godot::ViewportTexture> tex = vp->get_texture();
+	if (tex.is_null()) {
+		godot::print_error("Export: viewport texture is null");
+		return godot::Ref<godot::Image>();
+	}
+
+	return tex->get_image(); // valid here because we are inside frame_post_draw
+}
+
+void Recorder::apply_export_frame(int frame)
+{
+	// Mirror what handle_replaying() does for a single frame, minus the auto
+	// increment. replay_paused is true during export, so replay_position()
+	// freezes RigidBody velocities and replay_input() neutralises presses.
+	replay_frame = frame;
+	replay_input();
+	replay_position();
+	replay_custom_data();
+}
+
+void Recorder::start_mp4_export(int fps, godot::String output_path)
+{
+	if (export_phase != EXPORT_IDLE) {
+		godot::print_error("Export: an export is already in progress");
+		return;
+	}
+
+	if (recording_frame <= 0 ||
+		(temporary_data_map_2d_pos.empty() &&
+		 temporary_data_map_3d_pos.empty() &&
+		 temporary_data_map_custom_data.empty())) {
+		export_status = "Export failed: no recording in memory";
+		godot::print_error(export_status);
+		return;
+	}
+
+	if (output_path.is_empty()) {
+		export_status = "Export failed: output path is empty";
+		godot::print_error(export_status);
+		return;
+	}
+
+	if (fps <= 0) {
+		fps = 60;
+	}
+
+	if (!prepare_export_temp_dir()) {
+		export_status = "Export failed: could not create temp directory";
+		return;
+	}
+
+	// Remember state so we can restore it when we are done.
+	export_prev_is_replaying  = is_replaying;
+	export_prev_replay_paused = replay_paused;
+	export_prev_replay_frame  = replay_frame;
+	export_prev_max_fps       = godot::Engine::get_singleton()->get_max_fps();
+	export_prev_tree_paused   = get_tree()->is_paused();
+
+	// Make sure destroyed-node snapshots are live and the replay data points at
+	// them, so objects that were destroyed during recording still appear in the
+	// exported video. Both calls are idempotent if a replay already set them up,
+	// and finish_export() clears the snapshots again when we are done.
+	restore_destroyed_nodes();
+	remap_replay_data_to_snapshots();
+
+	// Drive the replay ourselves: no normal replay loop, frozen physics, start at 0.
+	is_replaying  = false;
+	replay_paused = true;
+	replay_frame  = 0;
+
+	// Optional: pause all game logic for perfectly faithful capture. Off by
+	// default so the export looks exactly like an in-editor replay.
+	if (export_pause_tree) {
+		get_tree()->set_pause(true);
+	}
+
+	// Remove the vsync cap so the capture loop runs as fast as the GPU/readback
+	// allows (every frame still has to render + read back, but this speeds it up).
+	godot::Engine::get_singleton()->set_max_fps(0);
+
+	export_fps          = fps;
+	export_output_path  = output_path;
+	export_apply_frame  = 0;
+	export_saved_count  = 0;
+	export_primed       = false;
+	export_encode_delay = 0;
+	export_status       = "Starting export...";
+	export_phase        = EXPORT_CAPTURING;
+
+	godot::RenderingServer::get_singleton()->connect(
+		"frame_post_draw", godot::Callable(this, "on_export_frame_post_draw"));
+
+	godot::print_line("Export: started, " + godot::String::num_int64(recording_frame) +
+					  " frames at " + godot::String::num_int64(fps) + " fps");
+}
+
+void Recorder::on_export_frame_post_draw()
+{
+	if (export_phase == EXPORT_IDLE) {
+		return;
+	}
+
+	// --- Phase 1: capture ----------------------------------------------------
+	if (export_phase == EXPORT_CAPTURING) {
+		// A frame was applied last tick and has now been rendered: grab it.
+		if (export_primed) {
+			godot::Ref<godot::Image> img = capture_viewport_image();
+			if (img.is_valid()) {
+				godot::String path = export_temp_dir + "frame_" + zero_pad(export_saved_count, 5) + ".png";
+				if (img->save_png(path) != godot::OK) {
+					godot::print_error("Export: failed to save " + path);
+				}
+			}
+			export_saved_count++;
+			export_primed = false;
+
+			export_status = "Capturing frame " + godot::String::num_int64(export_saved_count) +
+							" / " + godot::String::num_int64(recording_frame);
+			if (export_saved_count % 30 == 0) {
+				godot::print_line("Export progress: " + export_status);
+			}
+		}
+
+		// All recorded frames applied and captured?
+		if (export_apply_frame >= recording_frame) {
+			export_status      = "Encoding video (please wait)...";
+			export_encode_delay = 3; // let the UI paint the status before the encode blocks
+			export_phase       = EXPORT_DELAY;
+			return;
+		}
+
+		// Apply the next recorded frame; it gets captured on the next post-draw.
+		apply_export_frame(export_apply_frame);
+		export_apply_frame++;
+		export_primed = true;
+		return;
+	}
+
+	// --- Phase 2: tiny delay so "Encoding..." shows -------------------------
+	if (export_phase == EXPORT_DELAY) {
+		if (export_encode_delay > 0) {
+			export_encode_delay--;
+			return;
+		}
+		export_phase = EXPORT_ENCODING;
+		return;
+	}
+
+	// --- Phase 3: encode + tidy up ------------------------------------------
+	if (export_phase == EXPORT_ENCODING) {
+		run_ffmpeg_encode(); // blocking, but quick relative to capture
+		finish_export();     // disconnect, restore state, go idle
+		return;
+	}
+}
+
+void Recorder::run_ffmpeg_encode()
+{
+	if (export_saved_count <= 0) {
+		export_status = "Export failed: no frames captured";
+		godot::print_error(export_status);
+		cleanup_export_temp_dir();
+		return;
+	}
+
+	// ffmpeg needs real OS paths, not res:// or user://.
+	godot::ProjectSettings *ps = godot::ProjectSettings::get_singleton();
+	godot::String frames_pattern_abs = ps->globalize_path(export_temp_dir + "frame_%05d.png");
+	godot::String output_abs         = ps->globalize_path(export_output_path);
+
+	godot::PackedStringArray args;
+	args.push_back("-y");                                       // overwrite output
+	args.push_back("-framerate");
+	args.push_back(godot::String::num_int64(export_fps));       // input fps
+	args.push_back("-i");
+	args.push_back(frames_pattern_abs);                         // frame_%05d.png
+	args.push_back("-vf");
+	args.push_back("scale=trunc(iw/2)*2:trunc(ih/2)*2");        // force even dims (libx264 requirement)
+	args.push_back("-c:v");
+	args.push_back("libx264");
+	args.push_back("-pix_fmt");
+	args.push_back("yuv420p");                                  // broad player compatibility (VLC etc.)
+	args.push_back("-crf");
+	args.push_back("18");                                       // quality (lower = better/larger)
+	args.push_back(output_abs);
+
+	godot::print_line("Export: encoding " + godot::String::num_int64(export_saved_count) +
+					  " frames -> " + output_abs);
+
+	godot::Array ff_output;
+	int64_t exit_code = godot::OS::get_singleton()->execute(ffmpeg_path, args, ff_output, true);
+
+	if (exit_code == 0) {
+		export_status = "Export complete: " + output_abs;
+		godot::print_line(export_status);
+	} else if (exit_code == -1) {
+		export_status = "Export failed: ffmpeg not found (check PATH or call set_ffmpeg_path)";
+		godot::print_error(export_status);
+	} else {
+		export_status = "Export failed: ffmpeg exit code " + godot::String::num_int64(exit_code);
+		godot::print_error(export_status);
+		for (int i = 0; i < ff_output.size(); i++) {
+			godot::String line = ff_output[i];
+			godot::print_error(line);
+		}
+	}
+
+	cleanup_export_temp_dir(); // always remove the PNG scratch frames
+}
+
+void Recorder::finish_export()
+{
+	godot::RenderingServer *rs = godot::RenderingServer::get_singleton();
+	godot::Callable cb = godot::Callable(this, "on_export_frame_post_draw");
+	if (rs->is_connected("frame_post_draw", cb)) {
+		rs->disconnect("frame_post_draw", cb);
+	}
+
+	// Restore the things we changed at start.
+	godot::Engine::get_singleton()->set_max_fps(export_prev_max_fps);
+	if (export_pause_tree) {
+		get_tree()->set_pause(export_prev_tree_paused);
+	}
+
+	// Export is a terminal action: it ENDS any replay rather than resuming it.
+	// (If we restored is_replaying = true, the controller would treat the replay
+	// as live again and re-open / re-initialise the whole replay UI next frame.)
+	// We also clear the snapshots, exactly like stop_replay() does, so the
+	// destroyed-node duplicates we used for capture are removed from the scene.
+	is_replaying  = false;
+	replay_paused = export_prev_replay_paused;
+	replay_frame  = export_prev_replay_frame;
+	clear_snapshots();
+
+	export_phase = EXPORT_IDLE;
+}
+
 void Recorder::_bind_methods()
 {
 	godot::ClassDB::bind_method(godot::D_METHOD("debug_print_array"), &Recorder::debug_print_array);
@@ -1104,4 +1419,15 @@ void Recorder::_bind_methods()
 	godot::ClassDB::bind_method(godot::D_METHOD("set_json_saving", "state"), &Recorder::set_json_saving);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_json_saving"), &Recorder::get_json_saving);
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "json_saving"), "set_json_saving", "get_json_saving");
+
+	//MP4 export
+	godot::ClassDB::bind_method(godot::D_METHOD("start_mp4_export", "fps", "output_path"), &Recorder::start_mp4_export);
+	godot::ClassDB::bind_method(godot::D_METHOD("on_export_frame_post_draw"), &Recorder::on_export_frame_post_draw);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_export_active"), &Recorder::is_export_active);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_export_current_frame"), &Recorder::get_export_current_frame);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_export_total_frames"), &Recorder::get_export_total_frames);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_export_status"), &Recorder::get_export_status);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_ffmpeg_path", "path"), &Recorder::set_ffmpeg_path);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_capture_viewport", "viewport"), &Recorder::set_capture_viewport);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_export_pause_tree", "enabled"), &Recorder::set_export_pause_tree);
 }

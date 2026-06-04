@@ -63,6 +63,12 @@ private:
 
 	godot::Array tracked_nodes; //for filters
 
+	// ===== MP4 export =======================================================
+	godot::Label *export_status_label = nullptr;      // optional, shows progress + result
+	int           export_target_fps   = 60;           // 24 / 30 / 60 typically
+	godot::String export_output_path   = "user://replay_export.mp4";
+	bool          was_exporting        = false;       // edge-detect end of export
+
 public:
 
     void update();
@@ -153,5 +159,11 @@ public:
 
 	void initialize_spawn_tracking(godot::Array objects);
     void check_for_spawns(godot::Array current_objects);
+
+	// ===== MP4 export public API ============================================
+	void trigger_mp4_export();
+	void set_export_status_label(godot::Label *label) { export_status_label = label; }
+	void set_export_fps(int fps)                      { export_target_fps = (fps > 0 ? fps : 60); }
+	void set_export_output_path(godot::String path)   { export_output_path = path; }
 
 };

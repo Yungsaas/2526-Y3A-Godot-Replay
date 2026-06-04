@@ -71,6 +71,22 @@ void Recorder_Controller::update()
 		return;
 	}
 
+	// While an MP4 export is running, the recorder drives the replay itself, so
+	// skip the normal replay UI handling and just refresh the status label.
+	if (recorder->is_export_active()) {
+		if (export_status_label) {
+			export_status_label->set_text(recorder->get_export_status());
+		}
+		was_exporting = true;
+		return;
+	} else if (was_exporting) {
+		// Export just finished: show the final result line once.
+		if (export_status_label) {
+			export_status_label->set_text(recorder->get_export_status());
+		}
+		was_exporting = false;
+	}
+
 	check_tracked_objects();
 	
 	if (recorder->get_general_replay_state()) //is replaying
@@ -209,6 +225,50 @@ void Recorder_Controller::exit_replay()
 {
 	recorder->stop_replay();
 	is_replaying = false;
+}
+
+// ===== MP4 export ===========================================================
+void Recorder_Controller::trigger_mp4_export()
+{
+	if (!recorder) {
+		godot::print_error("Cannot export: recorder not set");
+		return;
+	}
+
+	if (recorder->is_export_active()) {
+		godot::print_line("Export already in progress, ignoring request");
+		return;
+	}
+
+	// If we are currently reviewing a replay, hand control over to the export.
+	// We deliberately do NOT call stop_replay() here: that would clear the
+	// destroyed-node snapshots, and the export wants them so destroyed objects
+	// still show up in the video. start_mp4_export() resets the replay frame to 0
+	// and drives playback itself; finish_export() clears the snapshots afterwards.
+	if (recorder->get_general_replay_state()) {
+		recorder->set_controlled_replay(false);
+		is_replaying = false;
+	}
+
+	// Hide the replay overlays so they do not end up in the captured frames.
+	// (If you capture a dedicated SubViewport via set_capture_viewport(), the UI
+	// is never captured anyway, but hiding them keeps the default window capture
+	// clean too.)
+	if (controls_popup_panel) {
+		controls_popup_panel->set_visible(false);
+	}
+	if (input_popup_panel) {
+		input_popup_panel->set_visible(false);
+	}
+	if (filter_popup_panel) {
+		filter_popup_panel->set_visible(false);
+	}
+
+	if (export_status_label) {
+		export_status_label->set_text("Starting export...");
+	}
+
+	recorder->start_mp4_export(export_target_fps, export_output_path);
 }
 
 //bookmark
@@ -642,6 +702,12 @@ void Recorder_Controller::_bind_methods()
     godot::ClassDB::bind_method(godot::D_METHOD("set_filter_popup", "popup"), &Recorder_Controller::set_filter_popup);
     
     godot::ClassDB::bind_method(godot::D_METHOD("set_filter_parent", "panel"), &Recorder_Controller::set_filter_lable_parent);
+
+	// MP4 export
+	godot::ClassDB::bind_method(godot::D_METHOD("trigger_mp4_export"), &Recorder_Controller::trigger_mp4_export);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_export_status_label", "label"), &Recorder_Controller::set_export_status_label);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_export_fps", "fps"), &Recorder_Controller::set_export_fps);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_export_output_path", "path"), &Recorder_Controller::set_export_output_path);
 
 
 }
